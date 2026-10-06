@@ -93,7 +93,7 @@
             <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="text-center">
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mx-auto mb-2 shadow-sm border border-blue-100">
-                        <i class="fa-solid fa-box-archive"></i>
+                        <i class="fa-solid fa-motorcycle text-blue-600"></i>
                     </div>
                     <h1 class="text-base font-bold text-slate-900">Kurir Sekolah Cloud</h1>
                     <p class="text-[11px] text-slate-500">Autentikasi Staf & Anggota Terdaftar</p>
@@ -107,7 +107,7 @@
                                 <i class="fa-solid fa-shield-halved"></i><span>Security</span>
                             </button>
                             <button type="button" onclick="selectRole('courier')" id="role-btn-courier" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
-                                <i class="fa-solid fa-people-carry-box"></i><span>Kurir</span>
+                                <i class="fa-solid fa-motorcycle"></i><span>Kurir</span>
                             </button>
                             <button type="button" onclick="selectRole('recipient')" id="role-btn-recipient" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
                                 <i class="fa-solid fa-chalkboard-user"></i><span>Penerima</span>
@@ -121,12 +121,12 @@
                     <!-- Credential Input Frame -->
                     <div id="auth-credential-frame" class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold text-slate-800"><i class="fa-solid fa-lock mr-1 text-blue-600"></i>Autentikasi Akun Anggota</span>
-                            <span class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-bold">Wajib Valid</span>
+                            <span class="text-[10px] font-bold text-slate-800"><i class="fa-solid fa-lock mr-1 text-blue-600"></i>Autentikasi Akun Terdaftar</span>
+                            <span class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full font-bold">Wajib Sesuai DB</span>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Email / ID Terdaftar</label>
-                            <input type="text" id="login-username" placeholder="Masukkan email terdaftar..." class="w-full border border-slate-300 rounded-lg p-1.5 text-xs bg-white font-medium shadow-inner" value="">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Email / Nama Anggota Terdaftar</label>
+                            <input type="text" id="login-username" placeholder="Masukkan email atau nama..." class="w-full border border-slate-300 rounded-lg p-1.5 text-xs bg-white font-medium shadow-inner" value="">
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Kata Sandi (Password)</label>
@@ -136,14 +136,14 @@
 
                     <!-- Recipient Direct Info Box -->
                     <div id="recipient-info-box" class="hidden bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl space-y-1 shadow-sm text-center">
-                        <span class="text-[10px] font-bold text-emerald-900"><i class="fa-solid fa-circle-check mr-1"></i>Akses Langsung (Penerima)</span>
+                        <span class="text-[10px] font-bold text-emerald-900"><i class="fa-solid fa-circle-check mr-1"></i>Akses Instan (Penerima)</span>
                         <p class="text-[10px] text-emerald-700">Penerima dapat langsung masuk tanpa sandi (Instan).</p>
                     </div>
 
-                    <!-- Firebase Config Box - Collapsible & Auto Saved -->
+                    <!-- Firebase & Sheets Webhook Config Box -->
                     <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl space-y-1.5 shadow-sm">
                         <div class="flex items-center justify-between cursor-pointer" onclick="toggleFirebaseConfigPanel()">
-                            <span class="text-[10px] font-bold text-amber-800"><i class="fa-solid fa-key mr-1"></i>FIREBASE</span>
+                            <span class="text-[10px] font-bold text-amber-800"><i class="fa-solid fa-key mr-1"></i>FIREBASE & SHEETS WEBHOOK</span>
                             <div class="flex items-center space-x-1">
                                 <span id="firebase-status" class="text-[9px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">Offline / Mock</span>
                                 <i id="firebase-toggle-icon" class="fa-solid fa-chevron-down text-[10px] text-amber-700 transition-transform"></i>
@@ -151,16 +151,49 @@
                         </div>
                         
                         <div id="firebase-config-body" class="hidden space-y-1.5 pt-1 border-t border-amber-200/60">
-                            <input type="text" id="fb-api-key" placeholder="API Key" class="w-full text-[11px] border border-amber-300 rounded-lg p-1.5 bg-white">
-                            <input type="text" id="fb-project-id" placeholder="Project ID" class="w-full text-[11px] border border-amber-300 rounded-lg p-1.5 bg-white">
+                            <input type="text" id="fb-api-key" placeholder="Firebase API Key" class="w-full text-[11px] border border-amber-300 rounded-lg p-1.5 bg-white">
+                            <input type="text" id="fb-project-id" placeholder="Firebase Project ID" class="w-full text-[11px] border border-amber-300 rounded-lg p-1.5 bg-white">
+                            <input type="text" id="sheets-webhook-url" placeholder="Google Apps Script Webhook URL" class="w-full text-[11px] border border-amber-300 rounded-lg p-1.5 bg-white">
                             <button onclick="initFirebaseAndLogin()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-1.5 rounded-lg text-[11px] transition shadow cursor-pointer">
                                 Hubungkan & Masuk (Cloud)
                             </button>
+                            
+                            <!-- Google Script Code Helper for Copy -->
+                            <div class="pt-2 border-t border-amber-200">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-[10px] font-bold text-amber-900">Google Apps Script (Copy):</span>
+                                    <button onclick="copyGoogleScriptCode()" class="bg-amber-700 hover:bg-amber-800 text-white text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer">
+                                        <i class="fa-solid fa-copy mr-1"></i>Salin Script
+                                    </button>
+                                </div>
+                                <textarea id="google-script-code-box" readonly class="w-full h-24 text-[9px] font-mono border border-amber-300 rounded p-1 bg-white text-slate-700 select-all">function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(["Timestamp", "Tipe", "ID Transaksi", "No Resi", "Pengirim", "Penerima", "Status", "Keterangan"]);
+    }
+    sheet.appendRow([
+      new Date(),
+      data.type || 'TRANSACTION',
+      data.txId || '-',
+      data.tracking || '-',
+      data.sender || '-',
+      data.recipient || '-',
+      data.status || '-',
+      data.notes || data.deliveryNotes || data.action || '-'
+    ]);
+    return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+  } catch(error) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}</textarea>
+                            </div>
                         </div>
                     </div>
 
                     <div id="firebase-connected-badge" class="hidden bg-emerald-50 border border-emerald-200 p-2 rounded-xl text-center">
-                        <span class="text-[10px] font-bold text-emerald-800"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Terhubung ke Cloud Firebase (Aktif & Tersimpan)</span>
+                        <span class="text-[10px] font-bold text-emerald-800"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>Terhubung ke Cloud Firebase & Sheets (Aktif)</span>
                     </div>
 
                     <button onclick="handleLoginSubmit()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow-md text-xs flex items-center justify-center space-x-1.5 cursor-pointer">
@@ -169,7 +202,7 @@
                     </button>
 
                     <!-- PWA Install Button Container -->
-                    <div id="pwa-install-container" class="pt-1">
+                    <div id="pwa-install-container" class="pt-1 hidden">
                         <button id="pwa-install-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
                             <i class="fa-solid fa-download"></i><span>Install Aplikasi di Android (PWA)</span>
                         </button>
@@ -183,7 +216,7 @@
             <div class="bg-white px-3 py-2.5 border-b border-slate-200 flex justify-between items-center shrink-0 z-20 shadow-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xs shadow">
-                        <i class="fa-solid fa-box-open"></i>
+                        <i class="fa-solid fa-motorcycle"></i>
                     </div>
                     <div>
                         <div class="flex items-center space-x-1.5">
@@ -198,16 +231,15 @@
                     </div>
                 </div>
                 
-                <!-- Unified Toolbar: Pull-to-Renew, Excel, PDF, Logout -->
-                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <!-- Manual Pull / Renewal Button -->
+                <!-- Unified Toolbar -->
+                <div id="header-toolbar" class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button onclick="manualRefreshData()" id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Tarik data / Renewal transaksi">
                         <i id="refresh-icon" class="fa-solid fa-rotate"></i>
                     </button>
-                    <button onclick="exportDataExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke Excel">
+                    <button id="toolbar-excel-btn" onclick="exportDataExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke Excel">
                         <i class="fa-solid fa-file-excel"></i>
                     </button>
-                    <button onclick="exportDataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke PDF">
+                    <button id="toolbar-pdf-btn" onclick="exportDataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke PDF">
                         <i class="fa-solid fa-file-pdf"></i>
                     </button>
                     <div class="h-3.5 w-[1px] bg-slate-300 mx-0.5"></div>
@@ -217,10 +249,10 @@
                 </div>
             </div>
 
-            <!-- Body Viewport (Strictly Scrollable with bottom padding for navigation bar) -->
+            <!-- Body Viewport -->
             <div id="app-body" class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3 pb-24"></div>
 
-            <!-- Bottom Navigation Bar (Fixed at bottom inside android container) -->
+            <!-- Bottom Navigation Bar -->
             <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-3 py-2.5 flex justify-around items-center z-40 shadow-lg"></div>
         </div>
 
@@ -233,24 +265,45 @@
                 </div>
                 
                 <div class="space-y-3 text-xs">
-                    <div class="relative bg-slate-900 rounded-xl h-28 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
-                        <video id="camera-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-                        <canvas id="camera-canvas" class="hidden"></canvas>
-                        
-                        <div id="camera-placeholder" class="text-center p-2 space-y-1 z-10">
-                            <i class="fa-solid fa-camera text-lg text-blue-400 animate-pulse"></i>
-                            <p class="text-[10px] text-slate-300">Kamera Gerbang / Scan Resi (Opsional)</p>
-                            <button type="button" onclick="startCamera()" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">
-                                Buka Kamera
-                            </button>
+                    <!-- Dual Camera Capture Section (Compressed) -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <!-- 1. Foto Paket -->
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-slate-700 block"><i class="fa-solid fa-box mr-1 text-blue-600"></i>1. Foto Paket</span>
+                            <div class="relative bg-slate-900 rounded-xl h-24 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
+                                <video id="camera-preview-pkg" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                                <canvas id="camera-canvas-pkg" class="hidden"></canvas>
+                                <div id="camera-placeholder-pkg" class="text-center p-1 space-y-0.5 z-10">
+                                    <button type="button" onclick="startCamera('pkg')" class="bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-bold px-2 py-1 rounded shadow cursor-pointer">Buka Kamera Paket</button>
+                                </div>
+                                <div id="camera-captured-view-pkg" class="absolute inset-0 hidden bg-emerald-900/90 flex flex-col items-center justify-center z-20 text-white">
+                                    <img id="captured-photo-img-pkg" src="" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="Paket">
+                                    <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center">
+                                        <i class="fa-solid fa-circle-check text-base text-emerald-400"></i>
+                                        <span class="text-[9px] font-bold">Tersimpan</span>
+                                        <button type="button" onclick="retakePhoto('pkg')" class="mt-0.5 text-[8px] bg-white/20 px-1.5 py-0.5 rounded cursor-pointer">Ulangi</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div id="camera-captured-view" class="absolute inset-0 hidden bg-emerald-900/90 flex flex-col items-center justify-center z-20 text-white">
-                            <img id="captured-photo-img" src="" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="Resi">
-                            <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center">
-                                <i class="fa-solid fa-circle-check text-lg text-emerald-400 mb-0.5"></i>
-                                <span class="text-[10px] font-bold">Foto Resi Tersimpan</span>
-                                <button type="button" onclick="retakePhoto()" class="mt-1 text-[9px] bg-white/20 px-2 py-0.5 rounded cursor-pointer">Ulangi</button>
+
+                        <!-- 2. Foto Resi -->
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-slate-700 block"><i class="fa-solid fa-barcode mr-1 text-blue-600"></i>2. Foto Resi / Struk</span>
+                            <div class="relative bg-slate-900 rounded-xl h-24 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
+                                <video id="camera-preview-resi" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                                <canvas id="camera-canvas-resi" class="hidden"></canvas>
+                                <div id="camera-placeholder-resi" class="text-center p-1 space-y-0.5 z-10">
+                                    <button type="button" onclick="startCamera('resi')" class="bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-bold px-2 py-1 rounded shadow cursor-pointer">Buka Kamera Resi</button>
+                                </div>
+                                <div id="camera-captured-view-resi" class="absolute inset-0 hidden bg-emerald-900/90 flex flex-col items-center justify-center z-20 text-white">
+                                    <img id="captured-photo-img-resi" src="" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="Resi">
+                                    <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center">
+                                        <i class="fa-solid fa-circle-check text-base text-emerald-400"></i>
+                                        <span class="text-[9px] font-bold">Tersimpan</span>
+                                        <button type="button" onclick="retakePhoto('resi')" class="mt-0.5 text-[8px] bg-white/20 px-1.5 py-0.5 rounded cursor-pointer">Ulangi</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -260,7 +313,7 @@
                         <label class="block text-[11px] font-bold text-slate-700"><i class="fa-solid fa-network-wired mr-1 text-blue-600"></i>Tipe Sumber Paket:</label>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" onclick="setParcelSource('external')" id="source-btn-external" class="source-select-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-truck-fast"></i><span>Eksternal (Kurir)</span>
+                                <i class="fa-solid fa-motorcycle"></i><span>Eksternal (Kurir)</span>
                             </button>
                             <button type="button" onclick="setParcelSource('internal')" id="source-btn-internal" class="source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer">
                                 <i class="fa-solid fa-building-columns"></i><span>Internal Sekolah</span>
@@ -271,7 +324,7 @@
                     <!-- FRAME EKSTERNAL -->
                     <div id="frame-source-external" class="bg-gradient-to-br from-blue-50/80 to-indigo-50/50 border-2 border-blue-200 p-3 rounded-2xl space-y-2.5 shadow-sm">
                         <div class="flex items-center space-x-1.5 text-blue-800 font-bold text-[11px] border-b border-blue-200 pb-1">
-                            <i class="fa-solid fa-truck-fast"></i>
+                            <i class="fa-solid fa-motorcycle"></i>
                             <span>Detail Pengiriman Eksternal (Ekspedisi Luar)</span>
                         </div>
                         <div>
@@ -303,11 +356,13 @@
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Petugas Pos Security</label>
-                                <input type="text" id="input-security-officer" placeholder="Pak Slamet (POS 3)" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-medium shadow-inner" value="Pak Slamet (POS 3)">
+                                <select id="input-security-officer" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner">
+                                    <!-- Populated dynamically from security members -->
+                                </select>
                             </div>
                             <div id="pickup-location-container">
                                 <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Lokasi Asal (Ambil Kurir)</label>
-                                <input type="text" id="input-pickup-location" placeholder="Contoh: POS 3 Utama" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner" value="POS 3 Utama">
+                                <input type="text" id="input-pickup-location" placeholder="Ketik manual lokasi..." class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner" value="POS 3 Utama">
                             </div>
                         </div>
                         <div>
@@ -492,7 +547,7 @@
         <div id="modal-photo-viewer" class="hidden absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-image mr-1 text-emerald-600"></i>Bukti Foto Serah Terima</h3>
+                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-image mr-1 text-emerald-600"></i>Arsip Foto Dokumen & Paket</h3>
                     <button onclick="toggleModal('modal-photo-viewer', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div id="photo-viewer-container" class="bg-slate-900 rounded-xl h-64 flex flex-col items-center justify-center text-white p-2 text-center relative overflow-hidden">
@@ -504,14 +559,15 @@
             </div>
         </div>
 
-        <!-- Modal Member Registration -->
+        <!-- Modal Member Registration / Edit -->
         <div id="modal-member" class="hidden absolute inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
             <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-4 space-y-3 shadow-2xl">
                 <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-user-plus mr-1 text-blue-600"></i>Pendaftaran Staf Baru</h3>
+                    <h3 id="modal-member-title" class="font-bold text-xs text-slate-900"><i class="fa-solid fa-user-plus mr-1 text-blue-600"></i>Pendaftaran Staf Baru</h3>
                     <button onclick="toggleModal('modal-member', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 
+                <input type="hidden" id="edit-member-id" value="">
                 <div class="space-y-2.5 text-xs">
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Nama Lengkap & Gelar</label>
@@ -538,7 +594,7 @@
                         <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Departemen / Unit Kerja</label>
                         <input type="text" id="member-dept" placeholder="Guru Matematika / POS 3" class="w-full border border-slate-300 rounded-xl p-2 text-xs shadow-inner">
                     </div>
-                    <button onclick="saveNewMember()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2.5 rounded-xl transition shadow active:scale-95 mt-2 text-xs cursor-pointer">
+                    <button id="member-submit-btn" onclick="saveNewMember()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2.5 rounded-xl transition shadow active:scale-95 mt-2 text-xs cursor-pointer">
                         Simpan Anggota Baru
                     </button>
                 </div>
@@ -559,9 +615,9 @@
         };
     </script>
 
-    <!-- Main Application Script & PWA / Auto-Save Engine -->
     <script>
         let currentRole = 'security';
+        let loggedInOfficerName = 'Pak Slamet (POS 3)';
         let adminTab = 'overview'; 
         let courierTab = 'pool'; 
         let recipientTab = 'incoming'; 
@@ -571,29 +627,38 @@
         let selectedSla = '30 Menit';
         let parcelSourceType = 'external'; 
         let isCloudActive = false;
-        let cameraStream = null;
-        let capturedPhotoDataUrl = null;
+        let googleSheetsWebhookUrl = '';
+
+        // Camera streams & photos
+        let cameraStreamPkg = null;
+        let capturedPhotoPkgUrl = null;
+        let cameraStreamResi = null;
+        let capturedPhotoResiUrl = null;
         let deliveryCameraStream = null;
         let deliveryPhotoDataUrl = null;
         let deferredPwaPrompt = null;
         let backgroundSyncInterval = null;
+
+        // Filter states for roles
+        let currentFilterStatus = 'all';
+        let currentFilterCategory = 'all';
+        let currentFilterSla = 'all';
+        let currentSearchQuery = '';
         
         let localParcels = [
-            { id: '101', txId: 'TX-20261005-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '05 Okt 2026 • 13:45', completedAtFormatted: '05 Okt 2026 • 14:10' },
-            { id: '102', txId: 'TX-20261005-02', sourceType: 'internal', tracking: 'INT-882102', sender: 'Ruang Tata Usaha', recipient: 'Bapak Budi Hartono', destinationRoom: 'Lab Komputer', unitType: 'Staff', securityOfficer: 'Pak Joko (POS 1)', pickupLocation: 'Internal', category: 'Makanan/Minuman', sla: '2 Jam', status: 'Delivering', courier: 'Ahmad (Kurir)', notes: 'Makan siang', hasDeliveryPhoto: false, createdAt: Date.now() - 1800000, timestampFormatted: '05 Okt 2026 • 14:15' }
+            { id: '101', txId: 'TX-20261006-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
         ];
 
         let localMembers = [
             { id: '1', name: 'Pak Slamet', email: 'security@sekolah.sch.id', pass: '123456', role: 'security', dept: 'POS 3 Utama' },
-            { id: '2', name: 'Ahmad (Kurir)', email: 'kurir@sekolah.sch.id', pass: '123456', role: 'courier', dept: 'Logistik Sekolah' },
-            { id: '3', name: 'Ibu Siti Aminah, S.Pd', email: 'penerima@sekolah.sch.id', pass: '123456', role: 'recipient', dept: 'Guru Matematika' },
-            { id: '4', name: 'Administrator Sistem', email: 'admin@sekolah.sch.id', pass: '123456', role: 'admin', dept: 'Pusat Kontrol IT' }
+            { id: '2', name: 'Bapak Joko', email: 'joko@sekolah.sch.id', pass: '123456', role: 'security', dept: 'POS 1 Gerbang' },
+            { id: '3', name: 'Ahmad (Kurir)', email: 'kurir@sekolah.sch.id', pass: '123456', role: 'courier', dept: 'Logistik Sekolah' },
+            { id: '4', name: 'Ibu Siti Aminah, S.Pd', email: 'penerima@sekolah.sch.id', pass: '123456', role: 'recipient', dept: 'Guru Matematika' },
+            { id: '5', name: 'Administrator Sistem', email: 'admin@sekolah.sch.id', pass: '123456', role: 'admin', dept: 'Pusat Kontrol IT' }
         ];
 
         let localLogs = [
-            { id: 'l1', type: 'INFO', actor: 'System', action: 'Inisialisasi sistem aplikasi Kurir Sekolah Cloud.', timestamp: '05 Okt 2026 • 12:00:00' },
-            { id: 'l2', type: 'TRANSACTION', actor: 'Pak Slamet (Security)', action: 'Mencatat paket baru JNE-992101 untuk Ibu Siti Aminah.', timestamp: '05 Okt 2026 • 13:45:00' },
-            { id: 'l3', type: 'SUCCESS', actor: 'Ahmad (Kurir)', action: 'Menyelesaikan pengantaran paket JNE-992101 dengan bukti foto.', timestamp: '05 Okt 2026 • 14:10:00' }
+            { id: 'l1', type: 'INFO', actor: 'System', action: 'Inisialisasi sistem aplikasi Kurir Sekolah Cloud.', timestamp: '06 Okt 2026 • 12:00:00' }
         ];
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-courier-free-spark';
@@ -601,34 +666,28 @@
         window.addEventListener('DOMContentLoaded', () => {
             const savedApiKey = localStorage.getItem('kurir_school_api_key');
             const savedProjectId = localStorage.getItem('kurir_school_project_id');
+            const savedWebhook = localStorage.getItem('kurir_school_webhook_url');
             
             if (savedApiKey && savedProjectId) {
                 const apiKeyEl = document.getElementById('fb-api-key');
                 const projectIdEl = document.getElementById('fb-project-id');
+                const webhookEl = document.getElementById('sheets-webhook-url');
                 if (apiKeyEl) apiKeyEl.value = savedApiKey;
                 if (projectIdEl) projectIdEl.value = savedProjectId;
+                if (webhookEl && savedWebhook) webhookEl.value = savedWebhook;
                 
                 setTimeout(() => {
-                    initFirebaseAndLoginAuto(savedApiKey, savedProjectId);
+                    initFirebaseAndLoginAuto(savedApiKey, savedProjectId, savedWebhook);
                 }, 500);
             }
 
-            // Restore manual inputs from localStorage if available
-            const savedUsername = localStorage.getItem('kurir_saved_username');
-            const usernameInput = document.getElementById('login-username');
-            if (savedUsername && usernameInput) usernameInput.value = savedUsername;
+            restoreFormInputs();
+            setupFormAutoSave();
+            populateSecurityOfficersDropdown();
 
-            // Auto-save inputs on change
-            if (usernameInput) {
-                usernameInput.addEventListener('input', (e) => {
-                    localStorage.setItem('kurir_saved_username', e.target.value);
-                });
-            }
-
-            // PWA Service Worker Registration
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'kurir-sekolah-v8';
+                    const CACHE_NAME = 'kurir-sekolah-v18';
                     const urlsToCache = ['./index.html'];
                     self.addEventListener('install', (e) => {
                         e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).then(() => self.skipWaiting()));
@@ -645,7 +704,6 @@
                 navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
             }
 
-            // PWA Install Prompt
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPwaPrompt = e;
@@ -670,6 +728,55 @@
             }
         });
 
+        window.copyGoogleScriptCode = function() {
+            const textarea = document.getElementById('google-script-code-box');
+            if (!textarea) return;
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                window.showFloatingNotification('Disalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+            } catch (err) {
+                window.showModal('Salin Gagal', 'Silakan pilih teks secara manual dan salin.');
+            }
+        };
+
+        function setupFormAutoSave() {
+            const inputs = ['login-username', 'login-password', 'input-sender', 'input-internal-sender', 'input-security-officer', 'input-pickup-location', 'input-tracking', 'input-recipient-name', 'input-destination-room', 'input-notes'];
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', (e) => {
+                        localStorage.setItem('kurir_form_' + id, e.target.value);
+                    });
+                    el.addEventListener('change', (e) => {
+                        localStorage.setItem('kurir_form_' + id, e.target.value);
+                    });
+                }
+            });
+        }
+
+        function restoreFormInputs() {
+            const inputs = ['login-username', 'login-password', 'input-sender', 'input-internal-sender', 'input-security-officer', 'input-pickup-location', 'input-tracking', 'input-recipient-name', 'input-destination-room', 'input-notes'];
+            inputs.forEach(id => {
+                const saved = localStorage.getItem('kurir_form_' + id);
+                if (saved) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = saved;
+                }
+            });
+        }
+
+        window.populateSecurityOfficersDropdown = function() {
+            const dropdown = document.getElementById('input-security-officer');
+            if (!dropdown) return;
+            const securityStaff = localMembers.filter(m => m.role === 'security');
+            dropdown.innerHTML = securityStaff.map(s => `<option value="${s.name} (${s.dept || 'POS'})">${s.name} (${s.dept || 'POS'})</option>`).join('');
+            if (securityStaff.length === 0) {
+                dropdown.innerHTML = `<option value="Pak Slamet (POS 3 Utama)">Pak Slamet (POS 3 Utama)</option>`;
+            }
+        };
+
         window.logSystemEvent = async function(type, actor, action) {
             const now = new Date();
             const timeStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -685,6 +792,17 @@
             } else {
                 localLogs.unshift({ id: String(Date.now()), ...logEntry });
             }
+
+            if (googleSheetsWebhookUrl) {
+                try {
+                    fetch(googleSheetsWebhookUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'LOG', actor, action, timestamp: timeStr })
+                    }).catch(err => console.log('Sheets log sync error:', err));
+                } catch (err) {}
+            }
         };
 
         window.toggleFirebaseConfigPanel = function() {
@@ -696,8 +814,9 @@
             }
         };
 
-        window.initFirebaseAndLoginAuto = async function(apiKey, projectId) {
+        window.initFirebaseAndLoginAuto = async function(apiKey, projectId, webhook) {
             try {
+                if (webhook) googleSheetsWebhookUrl = webhook;
                 const firebaseConfig = { apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId, storageBucket: `${projectId}.appspot.com`, appId: "1:123:web:abc" };
                 const app = window.FB.initializeApp(firebaseConfig);
                 window.FB.db = window.FB.getFirestore(app);
@@ -716,7 +835,7 @@
 
                 setupRealtimeListeners();
                 startBackgroundSyncEngine();
-                window.logSystemEvent('INFO', 'System', 'Koneksi Cloud Firebase diaktifkan otomatis dari penyimpanan lokal.');
+                window.logSystemEvent('INFO', 'System', 'Koneksi Cloud Firebase & Sheets diaktifkan otomatis.');
             } catch (err) {
                 console.error("Auto Firebase init error:", err);
             }
@@ -725,6 +844,7 @@
         window.initFirebaseAndLogin = async function() {
             const apiKey = document.getElementById('fb-api-key').value.trim();
             const projectId = document.getElementById('fb-project-id').value.trim();
+            const webhook = document.getElementById('sheets-webhook-url').value.trim();
             
             if (!apiKey || !projectId) {
                 window.showModal('Perhatian', 'Harap isi API Key dan Project ID Firebase dengan benar.');
@@ -732,6 +852,7 @@
             }
 
             try {
+                if (webhook) googleSheetsWebhookUrl = webhook;
                 const firebaseConfig = { apiKey, authDomain: `${projectId}.firebaseapp.com`, projectId, storageBucket: `${projectId}.appspot.com`, appId: "1:123:web:abc" };
                 const app = window.FB.initializeApp(firebaseConfig);
                 window.FB.db = window.FB.getFirestore(app);
@@ -742,6 +863,7 @@
 
                 localStorage.setItem('kurir_school_api_key', apiKey);
                 localStorage.setItem('kurir_school_project_id', projectId);
+                if (webhook) localStorage.setItem('kurir_school_webhook_url', webhook);
 
                 const bodyEl = document.getElementById('firebase-config-body');
                 if (bodyEl) bodyEl.classList.add('hidden');
@@ -755,7 +877,7 @@
                 
                 setupRealtimeListeners();
                 startBackgroundSyncEngine();
-                window.logSystemEvent('SUCCESS', 'Admin', 'Menghubungkan aplikasi ke Cloud Firebase project: ' + projectId);
+                window.logSystemEvent('SUCCESS', 'Admin', 'Menghubungkan aplikasi ke Cloud Firebase & Sheets project: ' + projectId);
                 window.handleLoginSubmit();
             } catch (err) {
                 window.logSystemEvent('ERROR', 'System', 'Gagal terhubung ke Firebase: ' + err.message);
@@ -809,7 +931,7 @@
             const password = passwordInput ? passwordInput.value.trim() : '';
 
             if (!emailOrId) {
-                window.showModal('Perhatian', 'Harap masukkan Email / ID akun terdaftar Anda.');
+                window.showModal('Perhatian', 'Harap masukkan Email / Nama akun terdaftar Anda.');
                 return;
             }
 
@@ -819,8 +941,8 @@
             );
 
             if (!matchedMember) {
-                window.logSystemEvent('ERROR', emailOrId, `Gagal login sebagai ${currentRole.toUpperCase()}: Akun tidak ditemukan.`);
-                window.showModal('Autentikasi Gagal', `Akun dengan email/ID "${emailOrId}" tidak ditemukan atau tidak memiliki hak akses sebagai ${currentRole.toUpperCase()}.\n\nPastikan Anda mendaftarkan anggota tersebut terlebih dahulu di menu Admin.`);
+                window.logSystemEvent('ERROR', emailOrId, `Gagal login sebagai ${currentRole.toUpperCase()}: Akun tidak ditemukan di database.`);
+                window.showModal('Autentikasi Gagal', `Akun dengan email/nama "${emailOrId}" tidak ditemukan atau tidak memiliki hak akses sebagai ${currentRole.toUpperCase()}.\n\nPastikan Anda mendaftarkan akun tersebut terlebih dahulu di menu Admin.`);
                 return;
             }
 
@@ -828,6 +950,28 @@
                 window.logSystemEvent('ERROR', matchedMember.name, 'Gagal login: Kata sandi salah.');
                 window.showModal('Kata Sandi Salah', 'Kata sandi yang Anda masukkan tidak sesuai dengan data anggota terdaftar.');
                 return;
+            }
+
+            if (currentRole === 'security') {
+                loggedInOfficerName = `${matchedMember.name} (${matchedMember.dept || 'POS Utama'})`;
+                const officerDropdown = document.getElementById('input-security-officer');
+                if (officerDropdown) {
+                    let found = false;
+                    for (let i = 0; i < officerDropdown.options.length; i++) {
+                        if (officerDropdown.options[i].value.includes(matchedMember.name)) {
+                            officerDropdown.selectedIndex = i;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        const opt = document.createElement('option');
+                        opt.value = `${matchedMember.name} (${matchedMember.dept || 'POS'})`;
+                        opt.text = `${matchedMember.name} (${matchedMember.dept || 'POS'})`;
+                        officerDropdown.add(opt);
+                        officerDropdown.value = opt.value;
+                    }
+                }
             }
 
             const loginScr = document.getElementById('login-screen');
@@ -851,7 +995,8 @@
             if (window.FB.unsubscribeMembers) window.FB.unsubscribeMembers();
             if (window.FB.unsubscribeLogs) window.FB.unsubscribeLogs();
             if (backgroundSyncInterval) clearInterval(backgroundSyncInterval);
-            stopCamera();
+            stopCamera('pkg');
+            stopCamera('resi');
             stopDeliveryCamera();
         };
 
@@ -873,6 +1018,7 @@
                         membersSnap.forEach(docSnap => {
                             localMembers.push({ id: docSnap.id, ...docSnap.data() });
                         });
+                        populateSecurityOfficersDropdown();
                     }
 
                     const logsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs'));
@@ -969,35 +1115,44 @@
             if (!modal) return;
             if (show) {
                 modal.classList.remove('hidden');
+                if (id === 'modal-parcel') {
+                    populateSecurityOfficersDropdown();
+                }
             } else {
                 modal.classList.add('hidden');
-                if (id === 'modal-parcel') stopCamera();
+                if (id === 'modal-parcel') {
+                    stopCamera('pkg');
+                    stopCamera('resi');
+                }
                 if (id === 'modal-delivery-proof') stopDeliveryCamera();
             }
         };
 
-        window.openPhotoViewer = function(notes, hasPhoto, photoUrl, completedTime) {
+        window.openPhotoViewer = function(title, pkgUrl, resiUrl, deliveryUrl, notes, completedTime) {
             const container = document.getElementById('photo-viewer-container');
             if (!container) return;
             
-            if (hasPhoto && photoUrl) {
-                container.innerHTML = `
-                    <img src="${photoUrl}" class="absolute inset-0 w-full h-full object-cover" alt="Bukti Foto">
-                    <div class="absolute inset-x-0 bottom-0 bg-black/70 backdrop-blur-sm p-2.5 text-left text-white space-y-0.5">
-                        <p class="text-[10px] font-mono text-emerald-300 font-bold">Selesai: ${completedTime || '-'}</p>
-                        <p class="text-[10px] text-slate-200">"${notes || 'Diterima langsung'}"</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-3 text-white space-y-2">
-                        <i class="fa-solid fa-circle-info text-3xl text-amber-400"></i>
-                        <span class="text-xs font-bold text-slate-200">Catatan Saja (Tanpa Foto)</span>
-                        <p class="text-[11px] text-slate-400 font-mono">Selesai: ${completedTime || '-'}</p>
-                        <p class="text-[11px] text-slate-300">"${notes || '-'}"</p>
-                    </div>
-                `;
+            let htmlContent = '';
+            if (pkgUrl) {
+                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-blue-400 block mb-1">📸 Foto Paket:</span><img src="${pkgUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
             }
+            if (resiUrl) {
+                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-amber-400 block mb-1">📸 Foto Resi:</span><img src="${resiUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
+            }
+            if (deliveryUrl) {
+                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-emerald-400 block mb-1">📸 Bukti Serah Terima:</span><img src="${deliveryUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
+            }
+            if (!pkgUrl && !resiUrl && !deliveryUrl) {
+                htmlContent = `<div class="p-4 text-center"><i class="fa-solid fa-triangle-exclamation text-2xl text-amber-400 mb-2"></i><p class="text-xs text-slate-300">Tidak ada arsip foto untuk transaksi ini.</p></div>`;
+            }
+
+            container.innerHTML = `
+                <div class="w-full h-full overflow-y-auto no-scrollbar space-y-2 p-1 text-left">
+                    <p class="text-[10px] font-mono text-slate-300">Selesai: ${completedTime || '-'}</p>
+                    <p class="text-[10px] text-slate-200">Keterangan: "${notes || '-'}"</p>
+                    ${htmlContent}
+                </div>
+            `;
             window.toggleModal('modal-photo-viewer', true);
         };
 
@@ -1039,6 +1194,16 @@
             });
         };
 
+        window.setSla = function(sla) {
+            selectedSla = sla;
+            ['30 Menit', '2 Jam', 'Besok (24 Jam)'].forEach(s => {
+                const el = document.getElementById(`sla-${s}`);
+                if (el) {
+                    el.className = s === sla ? "sla-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "sla-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
+                }
+            });
+        };
+
         window.setUnitType = function(type) {
             selectedUnitType = type;
             ['Teacher', 'Staff', 'Student'].forEach(t => {
@@ -1059,70 +1224,102 @@
             if (notesEl) notesEl.value = text;
         };
 
-        window.startCamera = async function() {
-            const video = document.getElementById('camera-preview');
-            const placeholder = document.getElementById('camera-placeholder');
+        // Dual Camera Handlers with Compression
+        window.startCamera = async function(type) {
+            const video = document.getElementById(`camera-preview-${type}`);
+            const placeholder = document.getElementById(`camera-placeholder-${type}`);
             try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                if (type === 'pkg') cameraStreamPkg = stream;
+                if (type === 'resi') cameraStreamResi = stream;
+
                 if (video) {
-                    video.srcObject = cameraStream;
+                    video.srcObject = stream;
                     video.classList.remove('hidden');
                 }
                 if (placeholder) {
-                    placeholder.innerHTML = `<button type="button" onclick="capturePhoto()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-3 py-1.5 rounded shadow animate-bounce cursor-pointer">📸 Ambil Foto Resi</button>`;
+                    placeholder.innerHTML = `<button type="button" onclick="capturePhoto('${type}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[9px] font-bold px-2.5 py-1 rounded shadow animate-bounce cursor-pointer">📸 Jepret</button>`;
                 }
             } catch (err) {
                 if (placeholder) {
                     placeholder.innerHTML = `
-                        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base"></i>
-                        <p class="text-[10px] text-slate-300">Simulasi Kamera POS</p>
-                        <button type="button" onclick="simulateCapture()" class="bg-emerald-600 text-white text-[9px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">Simpan Tangkapan</button>
+                        <button type="button" onclick="simulateCapture('${type}')" class="bg-emerald-600 text-white text-[8px] font-bold px-2 py-0.5 rounded shadow cursor-pointer">Simulasi Jepret</button>
                     `;
                 }
             }
         };
 
-        window.capturePhoto = function() {
-            const video = document.getElementById('camera-preview');
-            const canvas = document.getElementById('camera-canvas');
-            if (video && canvas && cameraStream) {
-                canvas.width = video.videoWidth || 320;
-                canvas.height = video.videoHeight || 240;
+        window.capturePhoto = function(type) {
+            const video = document.getElementById(`camera-preview-${type}`);
+            const canvas = document.getElementById(`camera-canvas-${type}`);
+            const stream = type === 'pkg' ? cameraStreamPkg : cameraStreamResi;
+
+            let dataUrl = '';
+            if (video && canvas && stream) {
+                const maxWidth = 600;
+                const maxHeight = 600;
+                let width = video.videoWidth || 320;
+                let height = video.videoHeight || 240;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                capturedPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                ctx.drawImage(video, 0, 0, width, height);
+                dataUrl = canvas.toDataURL('image/jpeg', 0.6);
             } else {
-                capturedPhotoDataUrl = 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80';
+                dataUrl = type === 'pkg' ? 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
 
-            const imgEl = document.getElementById('captured-photo-img');
-            if (imgEl && capturedPhotoDataUrl) imgEl.src = capturedPhotoDataUrl;
+            if (type === 'pkg') capturedPhotoPkgUrl = dataUrl;
+            if (type === 'resi') capturedPhotoResiUrl = dataUrl;
 
-            stopCamera();
-            const capView = document.getElementById('camera-captured-view');
+            const imgEl = document.getElementById(`captured-photo-img-${type}`);
+            if (imgEl && dataUrl) imgEl.src = dataUrl;
+
+            stopCamera(type);
+            const capView = document.getElementById(`camera-captured-view-${type}`);
             if (capView) capView.classList.remove('hidden');
         };
 
-        window.simulateCapture = function() {
-            capturedPhotoDataUrl = 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80';
-            const imgEl = document.getElementById('captured-photo-img');
-            if (imgEl) imgEl.src = capturedPhotoDataUrl;
+        window.simulateCapture = function(type) {
+            const dataUrl = type === 'pkg' ? 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
+            if (type === 'pkg') capturedPhotoPkgUrl = dataUrl;
+            if (type === 'resi') capturedPhotoResiUrl = dataUrl;
 
-            const capView = document.getElementById('camera-captured-view');
+            const imgEl = document.getElementById(`captured-photo-img-${type}`);
+            if (imgEl) imgEl.src = dataUrl;
+
+            const capView = document.getElementById(`camera-captured-view-${type}`);
             if (capView) capView.classList.remove('hidden');
         };
 
-        window.retakePhoto = function() {
-            capturedPhotoDataUrl = null;
-            const capView = document.getElementById('camera-captured-view');
+        window.retakePhoto = function(type) {
+            if (type === 'pkg') capturedPhotoPkgUrl = null;
+            if (type === 'resi') capturedPhotoResiUrl = null;
+
+            const capView = document.getElementById(`camera-captured-view-${type}`);
             if (capView) capView.classList.add('hidden');
-            window.startCamera();
+            window.startCamera(type);
         };
 
-        function stopCamera() {
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
+        function stopCamera(type) {
+            const stream = type === 'pkg' ? cameraStreamPkg : cameraStreamResi;
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                if (type === 'pkg') cameraStreamPkg = null;
+                if (type === 'resi') cameraStreamResi = null;
             }
         }
 
@@ -1141,8 +1338,6 @@
             } catch (err) {
                 if (placeholder) {
                     placeholder.innerHTML = `
-                        <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base"></i>
-                        <p class="text-[10px] text-slate-300">Simulasi Kamera Bukti Kirim</p>
                         <button type="button" onclick="simulateDeliveryCapture()" class="bg-emerald-600 text-white text-[9px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">Simpan Bukti Foto</button>
                     `;
                 }
@@ -1153,11 +1348,28 @@
             const video = document.getElementById('delivery-camera-preview');
             const canvas = document.getElementById('delivery-camera-canvas');
             if (video && canvas && deliveryCameraStream) {
-                canvas.width = video.videoWidth || 320;
-                canvas.height = video.videoHeight || 240;
+                const maxWidth = 600;
+                const maxHeight = 600;
+                let width = video.videoWidth || 320;
+                let height = video.videoHeight || 240;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                ctx.drawImage(video, 0, 0, width, height);
+                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.6);
             } else {
                 deliveryPhotoDataUrl = 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
@@ -1207,8 +1419,8 @@
             const sender = parcelSourceType === 'external' ? (senderEl ? senderEl.value.trim() : '') : (internalSenderEl ? internalSenderEl.value.trim() : '');
             const recipient = recipientEl ? recipientEl.value.trim() : '';
             const destinationRoom = destinationRoomEl ? destinationRoomEl.value.trim() : '';
-            const securityOfficer = securityOfficerEl ? securityOfficerEl.value.trim() : 'Pak Slamet (POS 3)';
-            const pickupLocation = parcelSourceType === 'external' ? (pickupLocationEl ? pickupLocationEl.value.trim() : '') : 'Internal';
+            const securityOfficer = securityOfficerEl ? securityOfficerEl.value : 'Pak Slamet (POS 3 Utama)';
+            const pickupLocation = parcelSourceType === 'external' ? (pickupLocationEl ? pickupLocationEl.value.trim() : 'POS 3 Utama') : 'Internal Sekolah';
             const notes = notesEl ? notesEl.value.trim() : '';
 
             // Mandatory validation check
@@ -1240,8 +1452,10 @@
                 status: 'At_Security',
                 courier: null,
                 notes: notes || '-',
-                hasPhoto: !!capturedPhotoDataUrl,
-                photoUrl: capturedPhotoDataUrl || null,
+                hasPkgPhoto: !!capturedPhotoPkgUrl,
+                pkgPhotoUrl: capturedPhotoPkgUrl || null,
+                hasResiPhoto: !!capturedPhotoResiUrl,
+                resiPhotoUrl: capturedPhotoResiUrl || null,
                 createdAt: now.getTime(),
                 timestampFormatted: formattedTime
             };
@@ -1258,12 +1472,24 @@
                 renderAppView();
             }
 
-            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}).`);
+            if (googleSheetsWebhookUrl) {
+                try {
+                    fetch(googleSheetsWebhookUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'PARCEL_INTAKE', ...newParcelData })
+                    }).catch(err => console.log('Sheets sync error:', err));
+                } catch (err) {}
+            }
+
+            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}). SLA: ${selectedSla}`);
 
             window.toggleModal('modal-parcel', false);
-            capturedPhotoDataUrl = null;
-            const capView = document.getElementById('camera-captured-view');
-            if (capView) capView.classList.add('hidden');
+            capturedPhotoPkgUrl = null;
+            capturedPhotoResiUrl = null;
+            document.getElementById('camera-captured-view-pkg')?.classList.add('hidden');
+            document.getElementById('camera-captured-view-resi')?.classList.add('hidden');
             if (senderEl) senderEl.value = '';
             if (internalSenderEl) internalSenderEl.value = '';
             if (trackingEl) trackingEl.value = '';
@@ -1274,6 +1500,43 @@
             window.showFloatingNotification('Paket Baru Masuk (' + pickupLocation + ')', `Resi: ${tracking} | Tujuan: ${recipient} (${destinationRoom})`, 'info');
 
             window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nTipe: ${parcelSourceType === 'external' ? 'Eksternal' : 'Internal'}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}\nLokasi Penjemputan: ${pickupLocation}\nKategori: ${selectedCategory} (SLA: ${selectedSla})`);
+        };
+
+        window.openAddMemberModal = function() {
+            const titleEl = document.getElementById('modal-member-title');
+            const submitBtn = document.getElementById('member-submit-btn');
+            const editIdEl = document.getElementById('edit-member-id');
+            if (editIdEl) editIdEl.value = '';
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-user-plus mr-1 text-blue-600"></i>Pendaftaran Staf Baru`;
+            if (submitBtn) {
+                submitBtn.innerText = 'Simpan Anggota Baru';
+                submitBtn.setAttribute('onclick', 'saveNewMember()');
+            }
+            document.getElementById('member-name').value = '';
+            document.getElementById('member-email').value = '';
+            document.getElementById('member-pass').value = '123456';
+            document.getElementById('member-dept').value = '';
+            window.toggleModal('modal-member', true);
+        };
+
+        window.openEditMemberModal = function(id) {
+            const member = localMembers.find(m => m.id === id);
+            if (!member) return;
+            const titleEl = document.getElementById('modal-member-title');
+            const submitBtn = document.getElementById('member-submit-btn');
+            const editIdEl = document.getElementById('edit-member-id');
+            if (editIdEl) editIdEl.value = id;
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-user-pen mr-1 text-blue-600"></i>Edit Data Staf`;
+            if (submitBtn) {
+                submitBtn.innerText = 'Simpan Perubahan Staf';
+                submitBtn.setAttribute('onclick', 'saveEditedMember()');
+            }
+            document.getElementById('member-name').value = member.name || '';
+            document.getElementById('member-role').value = member.role || 'recipient';
+            document.getElementById('member-email').value = member.email || '';
+            document.getElementById('member-pass').value = member.pass || '123456';
+            document.getElementById('member-dept').value = member.dept || '';
+            window.toggleModal('modal-member', true);
         };
 
         window.saveNewMember = async function() {
@@ -1305,16 +1568,58 @@
                 }
             } else {
                 localMembers.push({ id: String(Date.now()), ...newMemberData });
+                populateSecurityOfficersDropdown();
                 renderAppView();
             }
 
             window.logSystemEvent('SUCCESS', 'Admin', `Mendaftarkan staf baru: ${name} (${role.toUpperCase()}) - ${dept}`);
-
             window.toggleModal('modal-member', false);
             if (nameEl) nameEl.value = '';
             if (emailEl) emailEl.value = '';
             if (deptEl) deptEl.value = '';
             window.showModal('Berhasil!', `Anggota ${name} (${role.toUpperCase()}) berhasil didaftarkan dengan email ${email}.`);
+        };
+
+        window.saveEditedMember = async function() {
+            const editIdEl = document.getElementById('edit-member-id');
+            if (!editIdEl) return;
+            const id = editIdEl.value;
+
+            const nameEl = document.getElementById('member-name');
+            const emailEl = document.getElementById('member-email');
+            const passEl = document.getElementById('member-pass');
+            const roleEl = document.getElementById('member-role');
+            const deptEl = document.getElementById('member-dept');
+
+            const name = nameEl ? nameEl.value : '';
+            const email = emailEl ? emailEl.value : '';
+            const pass = passEl ? passEl.value : '123456';
+            const role = roleEl ? roleEl.value : '';
+            const dept = deptEl ? deptEl.value : '';
+
+            if (!name || !email || !dept) {
+                window.showModal('Perhatian', 'Nama, Email, dan Departemen wajib diisi!');
+                return;
+            }
+
+            const updatedData = { name, email, pass, role, dept };
+
+            if (isCloudActive && window.FB && window.FB.db) {
+                try {
+                    const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'members', id);
+                    await window.FB.updateDoc(docRef, updatedData);
+                } catch (e) {
+                    console.error("Firestore error:", e);
+                }
+            } else {
+                localMembers = localMembers.map(m => m.id === id ? { ...m, ...updatedData } : m);
+                populateSecurityOfficersDropdown();
+                renderAppView();
+            }
+
+            window.logSystemEvent('SUCCESS', 'Admin', `Memperbarui data staf: ${name} (${role.toUpperCase()})`);
+            window.toggleModal('modal-member', false);
+            window.showModal('Berhasil Diperbarui', `Data staf ${name} berhasil disimpan.`);
         };
 
         window.deleteMember = function(id, name) {
@@ -1332,6 +1637,7 @@
                 } catch (e) { console.error(e); }
             } else {
                 localMembers = localMembers.filter(m => m.id !== id);
+                populateSecurityOfficersDropdown();
                 renderAppView();
             }
             window.logSystemEvent('WARNING', 'Admin', `Menghapus akun staf: ${name}`);
@@ -1387,7 +1693,7 @@
                 reportText += `${idx + 1}. [${p.txId || 'TX'}] Resi: ${p.tracking}\n`;
                 reportText += `   - Sumber: ${p.sourceType} (${p.sender})\n`;
                 reportText += `   - Tujuan: ${p.recipient} (${p.destinationRoom} - ${p.unitType})\n`;
-                reportText += `   - Pos Asal: ${p.pickupLocation} | Kategori: ${p.category} (${p.sla})\n`;
+                reportText += `   - Pos Asal: ${p.pickupLocation} | Kategori: ${p.category} (SLA: ${p.sla})\n`;
                 reportText += `   - Status: ${p.status} | Kurir: ${p.courier || '-'}\n`;
                 reportText += `   - Masuk: ${p.timestampFormatted || '-'}\n`;
                 if (p.completedAtFormatted) reportText += `   - Selesai: ${p.completedAtFormatted}\n`;
@@ -1422,6 +1728,17 @@
             } else {
                 localParcels = localParcels.map(p => p.id === id ? { ...p, status: 'Delivering', courier: 'Ahmad (Kurir)' } : p);
                 renderAppView();
+            }
+
+            if (googleSheetsWebhookUrl) {
+                try {
+                    fetch(googleSheetsWebhookUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'PARCEL_CLAIM', txId, tracking, courier: 'Ahmad (Kurir)', status: 'Delivering' })
+                    }).catch(err => console.log('Sheets claim sync error:', err));
+                } catch (err) {}
             }
 
             window.logSystemEvent('TRANSACTION', 'Ahmad (Kurir)', `Mengklaim tugas pengantaran [Resi: ${tracking}] dari ${pickup} untuk ${recipient} (${room}).`);
@@ -1464,6 +1781,7 @@
 
             const parcel = localParcels.find(p => p.id === id);
             const tracking = parcel ? parcel.tracking : '-';
+            const txId = parcel ? parcel.txId : '-';
 
             if (isCloudActive && window.FB && window.FB.db) {
                 const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels', id);
@@ -1484,6 +1802,17 @@
                     completedAtFormatted: completedFormatted
                 } : p);
                 renderAppView();
+            }
+
+            if (googleSheetsWebhookUrl) {
+                try {
+                    fetch(googleSheetsWebhookUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'PARCEL_COMPLETE', txId, tracking, status: 'Completed', deliveryNotes: proofNotes, completedAtFormatted })
+                    }).catch(err => console.log('Sheets complete sync error:', err));
+                } catch (err) {}
             }
 
             window.logSystemEvent('SUCCESS', 'Ahmad (Kurir)', `Menyelesaikan pengantaran paket [Resi: ${tracking}]. Catatan: "${proofNotes}" (${deliveryPhotoDataUrl ? 'Dengan Foto Bukti' : 'Tanpa Foto'}).`);
@@ -1557,6 +1886,7 @@
                     snapshot.forEach(docSnap => {
                         localMembers.push({ id: docSnap.id, ...docSnap.data() });
                     });
+                    populateSecurityOfficersDropdown();
                     renderAppView();
                 }
             }, (err) => console.error(err));
@@ -1571,27 +1901,102 @@
             }, (err) => console.error(err));
         }
 
+        window.updateFilterStatus = function(val) {
+            currentFilterStatus = val;
+            renderAppView();
+        };
+
+        window.updateFilterCategory = function(val) {
+            currentFilterCategory = val;
+            renderAppView();
+        };
+
+        window.updateFilterSla = function(val) {
+            currentFilterSla = val;
+            renderAppView();
+        };
+
+        window.updateSearchQuery = function(val) {
+            currentSearchQuery = val.toLowerCase();
+            renderAppView();
+        };
+
+        function getFilteredParcels(parcelsList) {
+            return parcelsList.filter(p => {
+                const matchStatus = currentFilterStatus === 'all' || p.status === currentFilterStatus;
+                const matchCategory = currentFilterCategory === 'all' || p.category === currentFilterCategory;
+                const matchSla = currentFilterSla === 'all' || p.sla === currentFilterSla;
+                const matchSearch = !currentSearchQuery || 
+                    p.tracking.toLowerCase().includes(currentSearchQuery) || 
+                    p.recipient.toLowerCase().includes(currentSearchQuery) || 
+                    p.sender.toLowerCase().includes(currentSearchQuery) ||
+                    (p.txId && p.txId.toLowerCase().includes(currentSearchQuery));
+                return matchStatus && matchCategory && matchSla && matchSearch;
+            });
+        }
+
         function renderAppView() {
             const body = document.getElementById('app-body');
             const nav = document.getElementById('bottom-nav');
-            if (!body || !nav) return;
+            const toolbar = document.getElementById('header-toolbar');
+            
+            if (!body || !nav || !toolbar) return;
+
+            if (currentRole === 'recipient') {
+                toolbar.style.display = 'none';
+            } else {
+                toolbar.style.display = 'flex';
+            }
+
+            const filterBarHTML = `
+                <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
+                    <div class="flex items-center space-x-1.5">
+                        <i class="fa-solid fa-filter text-blue-600"></i>
+                        <span class="font-bold text-slate-800">Filter Data Lengkap (Status, Kategori, SLA):</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <select onchange="updateFilterStatus(this.value)" class="border border-slate-300 rounded-xl p-1.5 bg-slate-50 text-[10px] font-semibold text-slate-700">
+                            <option value="all" ${currentFilterStatus === 'all' ? 'selected' : ''}>Status: Semua</option>
+                            <option value="At_Security" ${currentFilterStatus === 'At_Security' ? 'selected' : ''}>Di Pos</option>
+                            <option value="Delivering" ${currentFilterStatus === 'Delivering' ? 'selected' : ''}>Proses</option>
+                            <option value="Completed" ${currentFilterStatus === 'Completed' ? 'selected' : ''}>Selesai</option>
+                        </select>
+                        <select onchange="updateFilterCategory(this.value)" class="border border-slate-300 rounded-xl p-1.5 bg-slate-50 text-[10px] font-semibold text-slate-700">
+                            <option value="all" ${currentFilterCategory === 'all' ? 'selected' : ''}>Kategori: Semua</option>
+                            <option value="Dokumen" ${currentFilterCategory === 'Dokumen' ? 'selected' : ''}>Dokumen</option>
+                            <option value="Makanan/Minuman" ${currentFilterCategory === 'Makanan/Minuman' ? 'selected' : ''}>Makanan</option>
+                            <option value="Barang" ${currentFilterCategory === 'Barang' ? 'selected' : ''}>Barang</option>
+                        </select>
+                        <select onchange="updateFilterSla(this.value)" class="border border-slate-300 rounded-xl p-1.5 bg-slate-50 text-[10px] font-semibold text-slate-700">
+                            <option value="all" ${currentFilterSla === 'all' ? 'selected' : ''}>SLA: Semua</option>
+                            <option value="30 Menit" ${currentFilterSla === '30 Menit' ? 'selected' : ''}>30 Menit</option>
+                            <option value="2 Jam" ${currentFilterSla === '2 Jam' ? 'selected' : ''}>2 Jam</option>
+                            <option value="Besok (24 Jam)" ${currentFilterSla === 'Besok (24 Jam)' ? 'selected' : ''}>Besok (24)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <input type="text" oninput="updateSearchQuery(this.value)" value="${currentSearchQuery}" placeholder="Cari Resi, Pengirim, atau Penerima..." class="w-full border border-slate-300 rounded-xl p-1.5 text-[11px] bg-slate-50 shadow-inner">
+                    </div>
+                </div>
+            `;
 
             if (currentRole === 'security') {
                 nav.innerHTML = `
                     <button class="text-blue-600 flex flex-col items-center text-[10px] font-bold py-1 cursor-pointer"><i class="fa-solid fa-house text-sm mb-0.5"></i><span>Beranda</span></button>
                     <button onclick="toggleModal('modal-parcel', true)" class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg -mt-4 active:scale-95 cursor-pointer"><i class="fa-solid fa-camera text-base"></i></button>
-                    <button onclick="showModal('Panduan Petugas Pos Security & Refresh', 'SOP Petugas Pos & Fitur Renewal:\n\n1. Sinyal Live hijau di atas menandakan sinkronisasi real-time aktif.\n2. Jika jaringan lemah atau ada data tertunda, tekan tombol putar (Refresh) di pojok kanan atas untuk menarik data terbaru secara instan.\n3. Pilih POS penjemputan dengan tepat.')" class="text-slate-400 flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-info text-sm mb-0.5"></i><span>Info SOP</span></button>
+                    <button onclick="showModal('Panduan SOP Petugas Pos Security', 'SOP Petugas Pos & Fitur Renewal:\n\n1. Sinyal Live hijau di atas menandakan sinkronisasi real-time aktif.\n2. Catat paket masuk dengan mengambil foto fisik paket dan foto resi/struk terpisah, serta mengetik nomor dokumen.\n3. Pastikan memilih SLA prioritas (30 Menit, 2 Jam, atau Besok 24 Jam) dengan benar.\n4. Gunakan tombol rotasi untuk memperbarui data secara manual jika jaringan lemah.')" class="text-slate-400 flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-info text-sm mb-0.5"></i><span>Info SOP</span></button>
                 `;
 
                 const queueCount = localParcels.filter(p => p.status === 'At_Security').length;
                 const deliveringCount = localParcels.filter(p => p.status === 'Delivering').length;
                 const completedCount = localParcels.filter(p => p.status === 'Completed').length;
+                const filteredParcels = getFilteredParcels(localParcels);
 
                 body.innerHTML = `
                     <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
                         <div>
                             <h3 class="font-bold text-slate-800 text-xs">Penjemputan Paket (POS Gerbang)</h3>
-                            <p class="text-[10px] text-slate-500">Cloud Status: <span class="text-emerald-600 font-bold">${isCloudActive ? 'Active (Live Sync)' : 'Offline / Mock'}</span></p>
+                            <p class="text-[10px] text-slate-500">Petugas: <span class="font-bold text-blue-600">${loggedInOfficerName}</span></p>
                         </div>
                         <button onclick="toggleModal('modal-parcel', true)" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-3 py-2 rounded-xl font-bold shadow active:scale-95 flex items-center space-x-1 cursor-pointer">
                             <i class="fa-solid fa-camera"></i><span>Pindai</span>
@@ -1613,16 +2018,19 @@
                         </div>
                     </div>
 
+                    ${filterBarHTML}
+
                     <div class="space-y-2 pb-6">
                         <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat</h4>
-                        ${localParcels.length ? localParcels.map(p => `
+                        ${filteredParcels.length ? filteredParcels.map(p => `
                             <div class="bg-white p-3 rounded-2xl shadow-sm border ${p.sourceType === 'internal' ? 'border-purple-200' : 'border-slate-200'} space-y-1.5 text-xs">
                                 <div class="flex justify-between items-center">
                                     <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
                                     <div class="flex items-center space-x-1">
-                                        ${p.hasPhoto && p.photoUrl ? `<button onclick="openPhotoViewer('Resi Masuk POS', true, '${p.photoUrl}', '${p.timestampFormatted}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Resi</button>` : ''}
+                                        <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
+                                        ${(p.hasPkgPhoto || p.hasResiPhoto || p.hasDeliveryPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || p.notes || ''}', '${p.completedAtFormatted || p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                         <span class="text-[9px] font-bold ${p.sourceType === 'internal' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} px-2 py-0.5 rounded-lg">
-                                            <i class="fa-solid ${p.sourceType === 'internal' ? 'fa-building-columns' : 'fa-truck-fast'} mr-0.5"></i>${p.sourceType === 'internal' ? 'Internal' : 'Eksternal'}
+                                            <i class="fa-solid ${p.sourceType === 'internal' ? 'fa-building-columns' : 'fa-motorcycle'} mr-0.5"></i>${p.sourceType === 'internal' ? 'Internal' : 'Eksternal'}
                                         </span>
                                     </div>
                                 </div>
@@ -1632,30 +2040,30 @@
                                         <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                     </div>
                                     <p class="text-slate-400 text-[10px]">Pengirim: ${p.sender} | Pos Asal: <span class="font-semibold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
-                                    <p class="text-slate-500 text-[10px] mt-0.5 font-medium">Keterangan: <span class="italic text-slate-700">${p.notes || '-'}</span></p>
+                                    <p class="text-slate-500 text-[10px] mt-0.5 font-medium">Petugas: <span class="text-slate-700 font-bold">${p.securityOfficer || '-'}</span> | Keterangan: <span class="italic text-slate-700">${p.notes || '-'}</span></p>
                                 </div>
                                 <div class="flex justify-between items-center pt-1.5 border-t border-slate-100 text-[10px]">
                                     <span class="italic font-bold ${p.status === 'Completed' ? 'text-emerald-600' : (p.status === 'Delivering' ? 'text-amber-600' : 'text-blue-600')}">Status: ${p.status} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</span>
                                     <span class="text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i>${p.timestampFormatted || 'Hari ini'}</span>
                                 </div>
                             </div>
-                        `).join('') : '<div class="text-center py-8 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada paket tercatat di POS.</div>'}
+                        `).join('') : '<div class="text-center py-8 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada data paket yang cocok dengan filter.</div>'}
                     </div>
                 `;
             } else if (currentRole === 'courier') {
                 nav.innerHTML = `
-                    <button onclick="courierTab = 'pool'; renderAppView();" class="${courierTab === 'pool' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Antrean (${localParcels.filter(p=>p.status==='At_Security').length})</span></button>
-                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-people-carry-box text-sm mb-0.5"></i><span>Aktif</span></button>
+                    <button onclick="courierTab = 'pool'; renderAppView();" class="${courierTab === 'pool' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Antrean</span></button>
+                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-motorcycle text-sm mb-0.5"></i><span>Aktif</span></button>
                     <button onclick="courierTab = 'completed'; renderAppView();" class="${courierTab === 'completed' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-check text-sm mb-0.5"></i><span>Selesai</span></button>
                 `;
 
-                const pool = localParcels.filter(p => p.status === 'At_Security');
-                const active = localParcels.filter(p => p.status === 'Delivering');
-                const completed = localParcels.filter(p => p.status === 'Completed');
+                const pool = getFilteredParcels(localParcels.filter(p => p.status === 'At_Security'));
+                const active = getFilteredParcels(localParcels.filter(p => p.status === 'Delivering'));
+                const completed = getFilteredParcels(localParcels.filter(p => p.status === 'Completed'));
 
-                let courierContent = '';
+                let courierContent = filterBarHTML + '<div class="h-1"></div>';
                 if (courierTab === 'pool') {
-                    courierContent = `
+                    courierContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-box-archive mr-1"></i>Antrean Paket Siap Ambil (${pool.length})</h3>
@@ -1666,7 +2074,7 @@
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
-                                            ${p.hasPhoto && p.photoUrl ? `<button onclick="openPhotoViewer('Resi Masuk POS', true, '${p.photoUrl}', '${p.timestampFormatted}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Resi</button>` : ''}
+                                            ${(p.hasPkgPhoto || p.hasResiPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '', '${p.notes || ''}', '${p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                             <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                         </div>
                                     </div>
@@ -1676,31 +2084,31 @@
                                             <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
                                         <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> (${p.category})</p>
-                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3 Utama'}</p>
+                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3 Utama'} (Petugas: ${p.securityOfficer || '-'})</p>
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
                                     </div>
                                     <div class="flex justify-between items-center pt-1 border-t border-slate-100 text-[10px] text-slate-400 font-mono">
                                         <span><i class="fa-regular fa-clock mr-1"></i>${p.timestampFormatted || ''}</span>
                                     </div>
                                     <button onclick="claimTask('${p.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow active:scale-95 flex items-center justify-center space-x-1 cursor-pointer">
-                                        <i class="fa-solid fa-people-carry-box"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
+                                        <i class="fa-solid fa-motorcycle"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
                                     </button>
                                 </div>
                             `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada antrean paket siap jemput.</div>'}
                         </div>
                     `;
                 } else if (courierTab === 'active') {
-                    courierContent = `
+                    courierContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-2xl shadow space-y-0.5">
-                                <h3 class="font-bold text-xs"><i class="fa-solid fa-people-carry-box mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-motorcycle mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
                                 <p class="text-[10px] text-amber-100">Segera antarkan atau kembalikan ke pos asal jika berhalangan.</p>
                             </div>
                             ${active.length ? active.map(p => `
                                 <div class="bg-amber-50/60 p-3 rounded-2xl shadow-sm border border-amber-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
-                                        <span class="text-[9px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded-lg">Proses Antar</span>
+                                        <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                     </div>
                                     <div>
                                         <div class="flex items-center justify-between">
@@ -1724,7 +2132,7 @@
                         </div>
                     `;
                 } else if (courierTab === 'completed') {
-                    courierContent = `
+                    courierContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i>Riwayat Selesai & Review Foto (${completed.length})</h3>
@@ -1734,7 +2142,7 @@
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-emerald-600 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
-                                        <button onclick="openPhotoViewer('${p.deliveryNotes}', ${p.hasDeliveryPhoto}, '${p.deliveryPhotoUrl}', '${p.completedAtFormatted}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Lihat Foto Bukti</span></button>
+                                        <button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Lihat Semua Foto</span></button>
                                     </div>
                                     <div class="flex justify-between items-start">
                                         <div>
@@ -1743,7 +2151,7 @@
                                             <p class="text-[10px] text-emerald-700 font-semibold mt-1"><i class="fa-solid fa-clipboard-check mr-1"></i>Catatan: ${p.deliveryNotes || '-'}</p>
                                             <p class="text-[10px] text-slate-500 font-mono font-bold mt-0.5">Selesai: ${p.completedAtFormatted || '-'}</p>
                                         </div>
-                                        <div onclick="openPhotoViewer('${p.deliveryNotes}', ${p.hasDeliveryPhoto}, '${p.deliveryPhotoUrl}', '${p.completedAtFormatted}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
+                                        <div onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
                                             ${p.deliveryPhotoUrl ? `<img src="${p.deliveryPhotoUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-base"></i>`}
                                         </div>
                                     </div>
@@ -1760,13 +2168,13 @@
                     <button onclick="recipientTab = 'history'; renderAppView();" class="${recipientTab === 'history' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-clock-rotate-left text-sm mb-0.5"></i><span>Semua Transaksi & Foto</span></button>
                 `;
 
-                const incoming = localParcels.filter(p => p.status !== 'Completed');
-                const historyAll = localParcels;
+                const incoming = getFilteredParcels(localParcels.filter(p => p.status !== 'Completed'));
+                const historyAll = getFilteredParcels(localParcels);
                 const displayedHistory = historyAll.slice(0, recipientPageSize);
 
-                let recipientContent = '';
+                let recipientContent = filterBarHTML + '<div class="h-1"></div>';
                 if (recipientTab === 'incoming') {
-                    recipientContent = `
+                    recipientContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-bullhorn mr-1"></i>Paket Masuk Menuju Meja Anda (${incoming.length})</h3>
@@ -1777,7 +2185,8 @@
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
-                                            ${p.hasPhoto && p.photoUrl ? `<button onclick="openPhotoViewer('Resi Masuk POS', true, '${p.photoUrl}', '${p.timestampFormatted}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Resi</button>` : ''}
+                                            <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
+                                            ${(p.hasPkgPhoto || p.hasResiPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '', '${p.notes || ''}', '${p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                             <span class="text-[9px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg">${p.category}</span>
                                         </div>
                                     </div>
@@ -1795,11 +2204,11 @@
                                         <span class="text-slate-400">Kurir: ${p.courier || 'Belum ditugaskan'}</span>
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada paket aktif untuk Anda.</div>'}
+                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada paket aktif yang cocok.</div>'}
                         </div>
                     `;
                 } else if (recipientTab === 'history') {
-                    recipientContent = `
+                    recipientContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-2">
                                 <div class="flex justify-between items-center">
@@ -1821,7 +2230,7 @@
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
-                                        ${p.status === 'Completed' ? `<button onclick="openPhotoViewer('${p.deliveryNotes}', ${p.hasDeliveryPhoto}, '${p.deliveryPhotoUrl}', '${p.completedAtFormatted}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Foto Bukti</span></button>` : `<span class="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">${p.status}</span>`}
+                                        ${p.status === 'Completed' ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Foto Bukti</span></button>` : `<span class="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">${p.status}</span>`}
                                     </div>
                                     <div class="flex justify-between items-start">
                                         <div>
@@ -1832,7 +2241,7 @@
                                             ${p.completedAtFormatted ? `<p class="text-[10px] text-emerald-700 font-bold font-mono mt-0.5">Selesai: ${p.completedAtFormatted}</p>` : ''}
                                         </div>
                                         ${p.status === 'Completed' ? `
-                                            <div onclick="openPhotoViewer('${p.deliveryNotes}', ${p.hasDeliveryPhoto}, '${p.deliveryPhotoUrl}', '${p.completedAtFormatted}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
+                                            <div onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
                                                 ${p.deliveryPhotoUrl ? `<img src="${p.deliveryPhotoUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-base"></i>`}
                                             </div>
                                         ` : ''}
@@ -1850,7 +2259,7 @@
                     <button onclick="adminTab = 'parcels'; renderAppView();" class="${adminTab === 'parcels' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Paket</span></button>
                     <button onclick="adminTab = 'logs'; renderAppView();" class="${adminTab === 'logs' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-terminal text-sm mb-0.5"></i><span>Audit Log</span></button>
                     <button onclick="adminTab = 'staff'; renderAppView();" class="${adminTab === 'staff' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-users text-sm mb-0.5"></i><span>Staf</span></button>
-                    <button onclick="toggleModal('modal-member', true)" class="bg-slate-900 text-white w-8 h-8 rounded-full flex items-center justify-center shadow active:scale-95 cursor-pointer"><i class="fa-solid fa-user-plus text-[9px]"></i></button>
+                    <button onclick="openAddMemberModal()" class="bg-slate-900 text-white w-8 h-8 rounded-full flex items-center justify-center shadow active:scale-95 cursor-pointer"><i class="fa-solid fa-user-plus text-[9px]"></i></button>
                 `;
 
                 let adminContent = '';
@@ -1899,24 +2308,26 @@
                         </div>
                     `;
                 } else if (adminTab === 'parcels') {
-                    adminContent = `
-                        <div class="space-y-2.5 pb-6">
+                    const filteredAdminParcels = getFilteredParcels(localParcels);
+                    adminContent = filterBarHTML + `
+                        <div class="space-y-2.5 pb-6 pt-1">
                             <div class="flex justify-between items-center">
-                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Monitoring Paket (${localParcels.length})</h4>
+                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Monitoring Paket (${filteredAdminParcels.length})</h4>
                             </div>
-                            ${localParcels.map(p => `
+                            ${filteredAdminParcels.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
                                     <div class="flex justify-between items-center">
                                         <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
-                                            ${p.status === 'Completed' && p.deliveryPhotoUrl ? `<button onclick="openPhotoViewer('${p.deliveryNotes}', true, '${p.deliveryPhotoUrl}', '${p.completedAtFormatted}')" class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
+                                            <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
+                                            ${(p.hasPkgPhoto || p.hasResiPhoto || p.hasDeliveryPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || p.notes || ''}', '${p.completedAtFormatted || p.timestampFormatted || ''}')" class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                             <button onclick="deleteParcel('${p.id}', '${p.tracking}')" class="text-red-500 hover:text-red-700 text-xs p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     </div>
                                     <div>
                                         <p class="text-[10px] text-slate-400">Penerima: <span class="font-bold text-slate-800">${p.recipient}</span> (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>) (${p.unitType || 'Teacher'})</p>
                                         <p class="text-[10px] text-slate-400">Pengirim: <span class="text-slate-600">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span> | SLA: ${p.sla || '30 Menit'}</p>
-                                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">Masuk: ${p.timestampFormatted || ''} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</p>
+                                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">Petugas: ${p.securityOfficer || '-'} | Masuk: ${p.timestampFormatted || ''} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</p>
                                         <p class="text-[10px] text-slate-600 mt-0.5">Keterangan: ${p.notes || '-'}</p>
                                     </div>
                                     <div class="flex justify-between items-center pt-1 border-t border-slate-100 text-[10px]">
@@ -1953,7 +2364,7 @@
                         <div class="space-y-2.5 pb-6">
                             <div class="flex justify-between items-center">
                                 <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Direktori Staf & Akun Login (${localMembers.length})</h4>
-                                <button onclick="toggleModal('modal-member', true)" class="bg-slate-900 text-white text-[9px] px-2.5 py-1 rounded-xl font-bold shadow-sm cursor-pointer"><i class="fa-solid fa-plus mr-1"></i>Staf</button>
+                                <button onclick="openAddMemberModal()" class="bg-slate-900 text-white text-[9px] px-2.5 py-1 rounded-xl font-bold shadow-sm cursor-pointer"><i class="fa-solid fa-plus mr-1"></i>Staf</button>
                             </div>
                             ${localMembers.map(m => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center text-xs">
@@ -1962,7 +2373,10 @@
                                         <p class="text-[10px] text-slate-500">${m.email} • ${m.dept}</p>
                                         <span class="text-[9px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg font-bold uppercase mt-1 inline-block">${m.role}</span>
                                     </div>
-                                    <button onclick="deleteMember('${m.id}', '${m.name}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer"><i class="fa-solid fa-trash-can"></i></button>
+                                    <div class="flex items-center space-x-1">
+                                        <button onclick="openEditMemberModal('${m.id}')" class="text-blue-500 hover:text-blue-700 p-2 cursor-pointer" title="Edit Staf"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button onclick="deleteMember('${m.id}', '${m.name}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer" title="Hapus Staf"><i class="fa-solid fa-trash-can"></i></button>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
