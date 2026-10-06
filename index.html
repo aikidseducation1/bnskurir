@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
+head<!DOCTYPE html>
+<htmlhtml lang="id">
+<headhead>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kurir Sekolah Cloud - Standard Auth & PDF/Excel Export</title>
+    <title>Kurir Sekolah Cloud - Clean View</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -51,18 +51,8 @@
 
     <div class="android-container">
         
-        <!-- Status Bar -->
-        <div class="bg-blue-700 text-white px-4 py-1 text-[11px] flex justify-between items-center select-none z-50 shrink-0">
-            <span id="current-time">14:45</span>
-            <div class="flex items-center space-x-1.5">
-                <i class="fa-solid fa-signal text-[9px]"></i>
-                <i class="fa-solid fa-wifi text-[9px]"></i>
-                <i class="fa-solid fa-battery-full text-xs"></i>
-            </div>
-        </div>
-
         <!-- Floating Notification Container -->
-        <div id="floating-notifications" class="absolute top-8 left-3 right-3 z-[100] pointer-events-none flex flex-col space-y-2"></div>
+        <div id="floating-notifications" class="absolute top-4 left-3 right-3 z-[100] pointer-events-none flex flex-col space-y-2"></div>
 
         <!-- Custom Modal Dialog -->
         <div id="custom-modal" class="hidden absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -110,7 +100,7 @@
                         </div>
                     </div>
 
-                    <!-- Credential Input Frame (For Security, Courier, Admin) -->
+                    <!-- Credential Input Frame -->
                     <div id="auth-credential-frame" class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-bold text-slate-800"><i class="fa-solid fa-lock mr-1 text-blue-600"></i>Autentikasi Akun Peran</span>
@@ -132,7 +122,7 @@
                         <p class="text-[10px] text-emerald-700">Penerima dapat langsung masuk tanpa kata sandi untuk memantau paket meja kerja.</p>
                     </div>
 
-                    <!-- Firebase Config Box (Free Spark Plan) - Collapsible & Auto Saved -->
+                    <!-- Firebase Config Box - Collapsible & Auto Saved -->
                     <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl space-y-1.5 shadow-sm">
                         <div class="flex items-center justify-between cursor-pointer" onclick="toggleFirebaseConfigPanel()">
                             <span class="text-[10px] font-bold text-amber-800"><i class="fa-solid fa-key mr-1"></i>FIREBASE</span>
@@ -166,7 +156,7 @@
         <!-- App Screen -->
         <div id="app-screen" class="hidden flex-1 flex flex-col bg-slate-50 overflow-hidden">
             <!-- Header -->
-            <div class="bg-white px-4 py-2.5 border-b border-slate-200 flex justify-between items-center shrink-0">
+            <div class="bg-white px-4 py-3 border-b border-slate-200 flex justify-between items-center shrink-0">
                 <div class="flex items-center space-x-2">
                     <div class="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xs shadow">
                         <i class="fa-solid fa-box-open"></i>
@@ -399,7 +389,7 @@
                         </div>
                     </div>
 
-                    <!-- Quick Options / Opsi Cepat Catatan Serah Terima -->
+                    <!-- Quick Options -->
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                         <label class="block text-[11px] font-bold text-slate-700"><i class="fa-solid fa-bolt mr-1 text-emerald-600"></i>Opsi Cepat Catatan Penerimaan:</label>
                         <div class="grid grid-cols-2 gap-1.5">
@@ -521,7 +511,7 @@
 
     </div>
 
-    <!-- Firebase SDK Imports (Free Spark Plan) -->
+    <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -534,12 +524,6 @@
     </script>
 
     <script>
-        // Clock tick
-        setInterval(() => {
-            const timeEl = document.getElementById('current-time');
-            if (timeEl) timeEl.innerText = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        }, 1000);
-
         let currentRole = 'security';
         let adminTab = 'overview'; 
         let courierTab = 'pool'; 
@@ -569,7 +553,6 @@
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-courier-free-spark';
 
-        // Auto-load saved Firebase config from localStorage on startup
         window.addEventListener('DOMContentLoaded', () => {
             const savedApiKey = localStorage.getItem('kurir_school_api_key');
             const savedProjectId = localStorage.getItem('kurir_school_project_id');
@@ -579,7 +562,6 @@
                 if (apiKeyEl) apiKeyEl.value = savedApiKey;
                 if (projectIdEl) projectIdEl.value = savedProjectId;
                 
-                // Auto connect in background
                 setTimeout(() => {
                     initFirebaseAndLoginAuto(savedApiKey, savedProjectId);
                 }, 500);
@@ -624,7 +606,7 @@
             const projectId = document.getElementById('fb-project-id').value.trim();
             
             if (!apiKey || !projectId) {
-                window.showModal('Perhatian', 'Harap isi API Key dan Project ID Firebase Spark Plan (Gratis Selamanya) dengan benar.');
+                window.showModal('Perhatian', 'Harap isi API Key dan Project ID Firebase dengan benar.');
                 return;
             }
 
@@ -637,11 +619,9 @@
                 await window.FB.signInAnonymously(window.FB.auth);
                 isCloudActive = true;
 
-                // Save to localStorage for persistence
                 localStorage.setItem('kurir_school_api_key', apiKey);
                 localStorage.setItem('kurir_school_project_id', projectId);
 
-                // Hide config body and show badge
                 const bodyEl = document.getElementById('firebase-config-body');
                 if (bodyEl) bodyEl.classList.add('hidden');
                 const badge = document.getElementById('firebase-connected-badge');
@@ -659,7 +639,36 @@
             }
         };
 
-        window.handleLoginDirect = function() {
+        window.selectRole = function(role) {
+            currentRole = role;
+            document.querySelectorAll('.role-select-btn').forEach(btn => {
+                btn.className = "role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1";
+            });
+            const activeBtn = document.getElementById(`role-btn-${role}`);
+            if (activeBtn) {
+                activeBtn.className = "role-select-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1";
+            }
+
+            const credFrame = document.getElementById('auth-credential-frame');
+            const recipientInfo = document.getElementById('recipient-info-box');
+            const btnText = document.getElementById('login-btn-text');
+            const usernameInput = document.getElementById('login-username');
+
+            if (role === 'recipient') {
+                if (credFrame) credFrame.classList.add('hidden');
+                if (recipientInfo) recipientInfo.classList.remove('hidden');
+                if (btnText) btnText.innerText = 'Masuk Sebagai Penerima (Instant)';
+            } else {
+                if (credFrame) credFrame.classList.remove('hidden');
+                if (recipientInfo) recipientInfo.classList.add('hidden');
+                if (btnText) btnText.innerText = `Masuk Sistem (${role.toUpperCase()})`;
+                if (usernameInput) {
+                    usernameInput.value = `${role}@sekolah.sch.id`;
+                }
+            }
+        };
+
+        window.handleLoginSubmit = function() {
             const loginScr = document.getElementById('login-screen');
             const appScr = document.getElementById('app-screen');
             if (loginScr) loginScr.classList.add('hidden');
@@ -679,6 +688,27 @@
             if (window.FB.unsubscribeMembers) window.FB.unsubscribeMembers();
             stopCamera();
             stopDeliveryCamera();
+        };
+
+        window.showFloatingNotification = function(title, msg, type = 'info') {
+            const container = document.getElementById('floating-notifications');
+            if (!container) return;
+            const notif = document.createElement('div');
+            notif.className = `floating-alert bg-slate-900 text-white p-3 rounded-xl shadow-xl border ${type === 'success' ? 'border-emerald-500' : (type === 'warning' ? 'border-amber-500' : 'border-blue-500')} flex items-center space-x-2.5 text-xs`;
+            notif.innerHTML = `
+                <div class="w-8 h-8 rounded-lg ${type === 'success' ? 'bg-emerald-600' : (type === 'warning' ? 'bg-amber-600' : 'bg-blue-600')} flex items-center justify-center shrink-0">
+                    <i class="fa-solid ${type === 'success' ? 'fa-check' : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-bell')} text-white"></i>
+                </div>
+                <div class="flex-1 overflow-hidden">
+                    <h5 class="font-bold truncate">${title}</h5>
+                    <p class="text-[10px] text-slate-300 truncate">${msg}</p>
+                </div>
+            `;
+            container.appendChild(notif);
+            setTimeout(() => {
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 300);
+            }, 4000);
         };
 
         window.showModal = function(title, msg, customButtonsHTML = null) {
@@ -726,7 +756,7 @@
                     container.innerHTML = `
                         <div class="absolute inset-0 bg-emerald-950 flex flex-col items-center justify-center p-3 text-white space-y-2">
                             <i class="fa-solid fa-circle-check text-4xl text-emerald-400"></i>
-                            <span class="text-xs font-bold text-emerald-200">Foto Bukti Penyerahan Paket (Free Cloud)</span>
+                            <span class="text-xs font-bold text-emerald-200">Foto Bukti Penyerahan Paket</span>
                             <div class="bg-black/40 border border-emerald-500/40 p-2 rounded-xl text-[10px] w-full text-center">
                                 <p class="text-emerald-300 font-mono">Selesai: ${completedTime || '-'}</p>
                                 <p class="text-slate-300 mt-0.5">"${notes || 'Diterima langsung'}"</p>
@@ -745,6 +775,26 @@
                 }
             }
             window.toggleModal('modal-photo-viewer', true);
+        };
+
+        window.setParcelSource = function(type) {
+            parcelSourceType = type;
+            const extBtn = document.getElementById('source-btn-external');
+            const intBtn = document.getElementById('source-btn-internal');
+            const extFrame = document.getElementById('frame-source-external');
+            const intFrame = document.getElementById('frame-source-internal');
+
+            if (type === 'external') {
+                if (extBtn) extBtn.className = "source-select-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm";
+                if (intBtn) intBtn.className = "source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm";
+                if (extFrame) extFrame.classList.remove('hidden');
+                if (intFrame) intFrame.classList.add('hidden');
+            } else {
+                if (extBtn) extBtn.className = "source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm";
+                if (intBtn) intBtn.className = "source-select-btn border-2 border-purple-600 bg-purple-50 text-purple-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm";
+                if (extFrame) extFrame.classList.add('hidden');
+                if (intFrame) intFrame.classList.remove('hidden');
+            }
         };
 
         window.setExpedisi = function(name) {
@@ -967,7 +1017,7 @@
 
             window.showFloatingNotification('Paket Baru Masuk (' + pickupLocation + ')', `Resi: ${tracking} | Tujuan: ${recipient} (${destinationRoom})`, 'info');
 
-            window.showModal('Transaksi Berhasil (Free Cloud)!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nTipe: ${parcelSourceType === 'external' ? 'Eksternal' : 'Internal'}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}\nLokasi Penjemputan: ${pickupLocation}\nKategori: ${selectedCategory} (SLA: ${selectedSla})`);
+            window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nTipe: ${parcelSourceType === 'external' ? 'Eksternal' : 'Internal'}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}\nLokasi Penjemputan: ${pickupLocation}\nKategori: ${selectedCategory} (SLA: ${selectedSla})`);
         };
 
         window.saveNewMember = async function() {
@@ -1170,7 +1220,7 @@
             window.toggleModal('modal-delivery-proof', false);
             stopDeliveryCamera();
             window.showFloatingNotification('Pengantaran Selesai', `Paket berhasil diantar pada ${completedFormatted}`, 'success');
-            window.showModal('Selesai & Tersimpan (Free Cloud)', `Pengantaran berhasil diselesaikan.\nWaktu Selesai: ${completedFormatted}\nFoto Bukti: ${hasDeliveryPhotoCaptured ? 'Tersimpan (Sah)' : 'Catatan Saja'}`);
+            window.showModal('Selesai & Tersimpan', `Pengantaran berhasil diselesaikan.\nWaktu Selesai: ${completedFormatted}\nFoto Bukti: ${hasDeliveryPhotoCaptured ? 'Tersimpan (Sah)' : 'Catatan Saja'}`);
         };
 
         window.openRescheduleModal = function(id) {
@@ -1258,7 +1308,7 @@
                     <div class="flex justify-between items-center bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
                         <div>
                             <h3 class="font-bold text-slate-800 text-xs">Penjemputan Paket (POS Gerbang)</h3>
-                            <p class="text-[10px] text-slate-500">Cloud Status: <span class="text-emerald-600 font-bold">${isCloudActive ? 'Free Cloud Active' : 'Offline / Mock'}</span></p>
+                            <p class="text-[10px] text-slate-500">Cloud Status: <span class="text-emerald-600 font-bold">${isCloudActive ? 'Active' : 'Offline / Mock'}</span></p>
                         </div>
                         <button onclick="toggleModal('modal-parcel', true)" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-3 py-2 rounded-xl font-bold shadow active:scale-95 flex items-center space-x-1">
                             <i class="fa-solid fa-camera"></i><span>Pindai</span>
@@ -1281,7 +1331,7 @@
                     </div>
 
                     <div class="space-y-2">
-                        <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat (Lengkap Jam & Tanggal)</h4>
+                        <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat</h4>
                         ${localParcels.length ? localParcels.map(p => `
                             <div class="bg-white p-3 rounded-2xl shadow-sm border ${p.sourceType === 'internal' ? 'border-purple-200' : 'border-slate-200'} space-y-1.5 text-xs">
                                 <div class="flex justify-between items-center">
@@ -1521,7 +1571,7 @@
                         <div class="space-y-3">
                             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
                                 <div>
-                                    <h3 class="font-bold text-slate-800 text-xs">Dashboard Admin & Standar Auth</h3>
+                                    <h3 class="font-bold text-slate-800 text-xs">Dashboard Admin</h3>
                                     <p class="text-[10px] text-slate-500">Statistik Logistik & Ekspor Laporan PDF/Excel</p>
                                 </div>
                                 <div class="flex items-center space-x-1">
