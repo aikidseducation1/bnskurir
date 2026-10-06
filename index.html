@@ -334,7 +334,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                     <!-- Scan Barcode Button -->
                     <div>
                         <button type="button" onclick="openBarcodeScannerModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
-                            <i class="fa-solid fa-barcode"></i><span>Scan Barcode Resi (Otomatis / Manual)</span>
+                            <i class="fa-solid fa-barcode"></i><span>Scan Barcode Resi (Real Camera / Manual)</span>
                         </button>
                     </div>
 
@@ -469,37 +469,34 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                         </div>
                     </div>
 
-                    <button onclick="saveNewParcel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg active:scale-95 text-xs flex items-center justify-center space-x-1.5 cursor-pointer">
+                    <button id="save-parcel-btn" onclick="saveNewParcel()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg active:scale-95 text-xs flex items-center justify-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-cloud-arrow-up"></i>
-                        <span>Simpan & Kirim Notifikasi Latar Belakang</span>
+                        <span id="save-parcel-btn-text">Simpan & Kirim Notifikasi Latar Belakang</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Modal Barcode Scanner -->
+        <!-- Modal Barcode Scanner (Real Camera & Manual) -->
         <div id="modal-barcode-scanner" class="hidden absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
             <div class="bg-white rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-barcode mr-1 text-indigo-600"></i>Scan Barcode / QR Resi</h3>
-                    <button onclick="toggleModal('modal-barcode-scanner', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    <button onclick="closeBarcodeScannerModal()" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="space-y-3 text-xs">
-                    <p class="text-[11px] text-slate-600">Pindai barcode pada resi atau gunakan tombol simulasi instan di bawah:</p>
+                    <p class="text-[11px] text-slate-600">Arahkan kamera ke barcode resi pada paket atau ketik manual di bawah:</p>
                     
-                    <div class="relative bg-slate-900 rounded-xl h-40 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
-                        <video id="barcode-camera-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-                        <div id="barcode-placeholder" class="text-center p-2 space-y-1 z-10">
-                            <i class="fa-solid fa-barcode text-2xl text-indigo-400 animate-pulse"></i>
-                            <p class="text-[10px] text-slate-300">Arahkan kamera ke barcode resi</p>
-                            <button type="button" onclick="simulateBarcodeScan()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold px-3 py-1.5 rounded shadow cursor-pointer">
-                                Simulasi Scan Otomatis
-                            </button>
+                    <div class="relative bg-slate-900 rounded-xl h-48 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
+                        <video id="barcode-camera-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+                        <canvas id="barcode-canvas" class="hidden"></canvas>
+                        <div class="absolute inset-0 border-2 border-dashed border-indigo-400/60 m-6 rounded-lg pointer-events-none flex items-center justify-center">
+                            <span class="text-[9px] text-indigo-300 bg-black/60 px-2 py-1 rounded">Posisikan Barcode di Sini</span>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Atau Ketik Kode Resi Manual:</label>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Kode Resi Terbaca / Manual:</label>
                         <input type="text" id="manual-scan-input" placeholder="Contoh: JNE-88219034" class="w-full border border-slate-300 rounded-xl p-2 text-xs font-mono font-bold text-indigo-700 shadow-inner">
                     </div>
 
@@ -560,9 +557,9 @@ function getOrCreateMonthlySpreadsheet(fileName) {
 
                     <input type="hidden" id="active-completing-parcel-id" value="">
 
-                    <button onclick="confirmCompleteTaskWithPhoto()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg active:scale-95 text-xs flex items-center justify-center space-x-1.5 cursor-pointer">
+                    <button id="complete-task-btn" onclick="confirmCompleteTaskWithPhoto()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg active:scale-95 text-xs flex items-center justify-center space-x-1.5 cursor-pointer">
                         <i class="fa-solid fa-circle-check"></i>
-                        <span>Konfirmasi Selesai & Kirim Foto</span>
+                        <span id="complete-task-btn-text">Konfirmasi Selesai & Kirim Foto</span>
                     </button>
                 </div>
             </div>
@@ -769,13 +766,14 @@ function getOrCreateMonthlySpreadsheet(fileName) {
         let capturedPhotoResiUrl = null;
         let deliveryCameraStream = null;
         let deliveryPhotoDataUrl = null;
+        let barcodeCameraStream = null;
         let backgroundSyncInterval = null;
 
         let currentFilterStatus = 'all';
         let currentFilterCategory = 'all';
         let currentFilterSla = 'all';
         let currentSearchQuery = '';
-        let currentLogSortOrder = 'newest'; // 'newest' or 'oldest'
+        let currentLogSortOrder = 'newest';
         
         let localParcels = [
             { id: '101', txId: 'TX-20261006-001', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3 Utama)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
@@ -1107,6 +1105,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             stopCamera('pkg');
             stopCamera('resi');
             stopDeliveryCamera();
+            stopBarcodeCamera();
         };
 
         window.manualRefreshData = async function() {
@@ -1149,6 +1148,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
 
         function startBackgroundSyncEngine() {
             if (backgroundSyncInterval) clearInterval(backgroundSyncInterval);
+            // Accelerated sync interval to 1.5 seconds for instant real-time synchronization
             backgroundSyncInterval = setInterval(async () => {
                 if (isCloudActive && window.FB && window.FB.db) {
                     try {
@@ -1159,9 +1159,17 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                             localParcels = fetchedParcels;
                             renderAppView();
                         }
+
+                        const logsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs'));
+                        const fetchedLogs = [];
+                        logsSnap.forEach(docSnap => fetchedLogs.push({ id: docSnap.id, ...docSnap.data() }));
+                        if (fetchedLogs.length !== localLogs.length) {
+                            localLogs = fetchedLogs;
+                            renderAppView();
+                        }
                     } catch (e) {}
                 }
-            }, 15000);
+            }, 1500);
         }
 
         window.showFloatingNotification = function(title, msg, type = 'info') {
@@ -1223,26 +1231,51 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                     stopCamera('resi');
                 }
                 if (id === 'modal-delivery-proof') stopDeliveryCamera();
+                if (id === 'modal-barcode-scanner') stopBarcodeCamera();
             }
         };
 
         window.openBarcodeScannerModal = function() {
             window.toggleModal('modal-barcode-scanner', true);
+            startBarcodeCamera();
         };
 
-        window.simulateBarcodeScan = function() {
-            const randomCode = 'BARCODE-' + Math.floor(100000 + Math.random() * 900000);
-            const manualInput = document.getElementById('manual-scan-input');
-            if (manualInput) manualInput.value = randomCode;
-            window.showFloatingNotification('Scan Berhasil', 'Kode barcode berhasil terbaca: ' + randomCode, 'success');
+        window.closeBarcodeScannerModal = function() {
+            stopBarcodeCamera();
+            window.toggleModal('modal-barcode-scanner', false);
+        };
+
+        window.startBarcodeCamera = async function() {
+            const video = document.getElementById('barcode-camera-preview');
+            try {
+                barcodeCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+                if (video) {
+                    video.srcObject = barcodeCameraStream;
+                    video.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.log("Barcode camera stream error:", err);
+            }
+        };
+
+        window.stopBarcodeCamera = function() {
+            if (barcodeCameraStream) {
+                barcodeCameraStream.getTracks().forEach(track => track.stop());
+                barcodeCameraStream = null;
+            }
         };
 
         window.applyScannedBarcode = function() {
             const manualInput = document.getElementById('manual-scan-input');
             const trackingInput = document.getElementById('input-tracking');
             if (manualInput && trackingInput) {
-                const code = manualInput.value.trim() || ('SCAN-' + Math.floor(100000 + Math.random() * 900000));
+                const code = manualInput.value.trim();
+                if (!code) {
+                    window.showModal('Perhatian', 'Harap masukkan atau pindai kode resi terlebih dahulu.');
+                    return;
+                }
                 trackingInput.value = code;
+                stopBarcodeCamera();
                 window.toggleModal('modal-barcode-scanner', false);
                 window.showFloatingNotification('Resi Terisi', 'Nomor resi berhasil dimasukkan otomatis.', 'success');
             }
@@ -1289,7 +1322,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                 if (intBtn) intBtn.className = "source-select-btn border-2 border-purple-600 bg-purple-50 text-purple-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer";
                 if (extFrame) extFrame.classList.add('hidden');
                 if (intFrame) intFrame.classList.remove('hidden');
-                if (pickupContainer) pickupContainer.classList.add('hidden');
+                if (pickupContainer) pickupContainer.classList.remove('hidden');
             }
         };
 
@@ -1376,7 +1409,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, width, height);
-                dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                dataUrl = canvas.toDataURL('image/jpeg', 0.5); // Compressed image quality
             } else {
                 dataUrl = type === 'pkg' ? 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
@@ -1460,7 +1493,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, width, height);
-                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.5); // Compressed
             } else {
                 deliveryPhotoDataUrl = 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
@@ -1514,11 +1547,17 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             const pickupLocation = parcelSourceType === 'external' ? (pickupLocationEl ? pickupLocationEl.value.trim() : 'POS 3 Utama') : 'Internal Sekolah';
             const notes = notesEl ? notesEl.value.trim() : '';
 
+            // Mandatory field validation with pop-up modal
             if (!tracking || !sender || !recipient || !destinationRoom || (parcelSourceType === 'external' && !pickupLocation)) {
-                window.logSystemEvent('ERROR', 'Security', 'Gagal catat paket: Terdapat field wajib yang belum diisi.');
-                window.showModal('Form Belum Lengkap', 'Harap isi semua bagian wajib:\n\n• Nomor Resi / Kode Dokumen\n• Nama Pengirim / Ekspedisi\n• Nama Penerima\n• Tempat Tujuan (Ruangan)\n' + (parcelSourceType === 'external' ? '• Lokasi Asal (Ambil Kurir)' : ''));
+                window.showModal('Form Belum Lengkap', '⚠️ Perhatian: Seluruh field wajib diisi sebelum menyimpan transaksi:\n\n• Nomor Resi / Kode Dokumen\n• Nama Pengirim / Ekspedisi\n• Nama Penerima\n• Tempat Tujuan (Ruangan)\n' + (parcelSourceType === 'external' ? '• Lokasi Asal (Ambil Kurir)' : ''));
                 return;
             }
+
+            // Loading state on save button to prevent double-clicking
+            const saveBtn = document.getElementById('save-parcel-btn');
+            const saveBtnText = document.getElementById('save-parcel-btn-text');
+            if (saveBtn) saveBtn.disabled = true;
+            if (saveBtnText) saveBtnText.innerText = 'Menyimpan & Mengirim...';
 
             const now = new Date();
             const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
@@ -1577,20 +1616,24 @@ function getOrCreateMonthlySpreadsheet(fileName) {
 
             window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}). Petugas: ${securityOfficer}`);
 
-            window.toggleModal('modal-parcel', false);
-            capturedPhotoPkgUrl = null;
-            capturedPhotoResiUrl = null;
-            document.getElementById('camera-captured-view-pkg')?.classList.add('hidden');
-            document.getElementById('camera-captured-view-resi')?.classList.add('hidden');
-            if (senderEl) senderEl.value = '';
-            if (internalSenderEl) internalSenderEl.value = '';
-            if (trackingEl) trackingEl.value = '';
-            if (recipientEl) recipientEl.value = '';
-            if (destinationRoomEl) destinationRoomEl.value = '';
-            if (notesEl) notesEl.value = '';
+            setTimeout(() => {
+                if (saveBtn) saveBtn.disabled = false;
+                if (saveBtnText) saveBtnText.innerText = 'Simpan & Kirim Notifikasi Latar Belakang';
+                window.toggleModal('modal-parcel', false);
+                capturedPhotoPkgUrl = null;
+                capturedPhotoResiUrl = null;
+                document.getElementById('camera-captured-view-pkg')?.classList.add('hidden');
+                document.getElementById('camera-captured-view-resi')?.classList.add('hidden');
+                if (senderEl) senderEl.value = '';
+                if (internalSenderEl) internalSenderEl.value = '';
+                if (trackingEl) trackingEl.value = '';
+                if (recipientEl) recipientEl.value = '';
+                if (destinationRoomEl) destinationRoomEl.value = '';
+                if (notesEl) notesEl.value = '';
 
-            window.showFloatingNotification('Paket Baru Masuk', `Resi: ${tracking} | Tujuan: ${recipient}`, 'info');
-            window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}`);
+                window.showFloatingNotification('Paket Baru Masuk', `Resi: ${tracking} | Tujuan: ${recipient}`, 'info');
+                window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}`);
+            }, 600);
         };
 
         window.openAddMemberModal = function() {
@@ -1913,6 +1956,12 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             const id = idEl.value;
             const proofNotes = notesEl ? notesEl.value.trim() : 'Diterima dengan foto bukti';
             
+            // Loading state on completion button
+            const completeBtn = document.getElementById('complete-task-btn');
+            const completeBtnText = document.getElementById('complete-task-btn-text');
+            if (completeBtn) completeBtn.disabled = true;
+            if (completeBtnText) completeBtnText.innerText = 'Mengirim Bukti...';
+
             const now = new Date();
             const completedFormatted = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -1955,10 +2004,15 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             }
 
             window.logSystemEvent('SUCCESS', 'Ahmad (Kurir)', `Menyelesaikan pengantaran paket [Resi: ${tracking}]`);
-            window.toggleModal('modal-delivery-proof', false);
-            stopDeliveryCamera();
-            window.showFloatingNotification('Pengantaran Selesai', `Paket berhasil diantar`, 'success');
-            window.showModal('Selesai & Tersimpan', `Waktu Selesai: ${completedFormatted}`);
+            
+            setTimeout(() => {
+                if (completeBtn) completeBtn.disabled = false;
+                if (completeBtnText) completeBtnText.innerText = 'Konfirmasi Selesai & Kirim Foto';
+                window.toggleModal('modal-delivery-proof', false);
+                stopDeliveryCamera();
+                window.showFloatingNotification('Pengantaran Selesai', `Paket berhasil diantar`, 'success');
+                window.showModal('Selesai & Tersimpan', `Waktu Selesai: ${completedFormatted}`);
+            }, 500);
         };
 
         window.openRescheduleModal = function(id) {
@@ -2039,7 +2093,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
         window.updateLogSortOrder = function(val) { currentLogSortOrder = val; renderAppView(); };
 
         function getFilteredParcels(parcelsList) {
-            // Sort newest first by creation timestamp
+            // Sort newest first by creation timestamp across all roles
             const sorted = [...parcelsList].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
             return sorted.filter(p => {
                 const matchStatus = currentFilterStatus === 'all' || p.status === currentFilterStatus;
@@ -2061,11 +2115,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             
             if (!body || !nav || !toolbar) return;
 
-            if (currentRole === 'recipient') {
-                toolbar.style.display = 'flex';
-            } else {
-                toolbar.style.display = 'flex';
-            }
+            toolbar.style.display = 'flex';
 
             const filterBarHTML = `
                 <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
