@@ -7,11 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- PWA Manifest Link -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA Meta & Embedded Manifest Data URI -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Kurir%20Sekolah%20Cloud%22%2C%22short_name%22%3A%22KurirSekolah%22%2C%22start_url%22%3A%22.%2Findex.html%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%232563eb%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F2563eb%2Fffffff%3Ftext%3DKS%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F512x512%2F2563eb%2Fffffff%3Ftext%3DKS%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
     <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
 
     <style>
         body {
@@ -87,7 +88,7 @@
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h1 class="text-base font-bold text-slate-900">Kurir Sekolah Cloud</h1>
-                    <p class="text-[11px] text-slate-500">Standar Autentikasi Role & Ekspor Laporan</p>
+                    <p class="text-[11px] text-slate-500">Standar Autentikasi Role & PWA Android</p>
                 </div>
 
                 <div class="space-y-2.5 text-xs">
@@ -160,7 +161,7 @@
                     </button>
 
                     <!-- PWA Install Button Container -->
-                    <div id="pwa-install-container" class="hidden pt-1">
+                    <div id="pwa-install-container" class="pt-1">
                         <button id="pwa-install-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
                             <i class="fa-solid fa-download"></i><span>Install Aplikasi di Android (PWA)</span>
                         </button>
@@ -544,7 +545,7 @@
         };
     </script>
 
-    <!-- Main Application Script & PWA Service Worker Registration -->
+    <!-- Main Application Script & Robust PWA Service Worker Registration -->
     <script>
         let currentRole = 'security';
         let adminTab = 'overview'; 
@@ -560,6 +561,7 @@
         let hasPhotoCaptured = false;
         let deliveryCameraStream = null;
         let hasDeliveryPhotoCaptured = false;
+        let deferredPwaPrompt = null;
         
         let localParcels = [
             { id: '101', txId: 'TX-20261005-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasDeliveryPhoto: true, deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '05 Okt 2026 • 13:45', completedAtFormatted: '05 Okt 2026 • 14:10' },
@@ -589,41 +591,49 @@
                 }, 500);
             }
 
-            // Register PWA Service Worker
+            // Robust PWA Service Worker Registration & Blob fallback
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
-                    self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
-                    self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+                    const CACHE_NAME = 'kurir-sekolah-v1';
+                    const urlsToCache = ['./index.html'];
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).then(() => self.skipWaiting()));
+                    });
+                    self.addEventListener('activate', (e) => {
+                        e.waitUntil(self.clients.claim());
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                    });
                 `;
                 const blob = new Blob([swCode], { type: 'text/javascript' });
                 const swUrl = URL.createObjectURL(blob);
                 navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
             }
 
-            // PWA Install Prompt Handler
-            let deferredPrompt;
+            // PWA Install Prompt Capture
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
-                deferredPrompt = e;
+                deferredPwaPrompt = e;
                 const installContainer = document.getElementById('pwa-install-container');
                 if (installContainer) installContainer.classList.remove('hidden');
-
-                const installBtn = document.getElementById('pwa-install-btn');
-                if (installBtn) {
-                    installBtn.addEventListener('click', async () => {
-                        if (deferredPrompt) {
-                            deferredPrompt.prompt();
-                            const { outcome } = await deferredPrompt.userChoice;
-                            if (outcome === 'accepted') {
-                                console.log('User accepted the install prompt');
-                            }
-                            deferredPrompt = null;
-                            installContainer.classList.add('hidden');
-                        }
-                    });
-                }
             });
+
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPwaPrompt) {
+                        deferredPwaPrompt.prompt();
+                        const { outcome } = await deferredPwaPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            window.showFloatingNotification('PWA Terpasang', 'Aplikasi berhasil ditambahkan ke Layar Utama Android.', 'success');
+                        }
+                        deferredPwaPrompt = null;
+                    } else {
+                        window.showModal('Panduan Install PWA', 'Untuk menginstal aplikasi ini di perangkat Android:\n\n1. Ketuk ikon menu titik tiga (⋮) di pojok kanan atas browser Chrome.\n2. Pilih menu "Tambahkan ke Layar Utama" (Add to Home screen) atau "Instal Aplikasi".\n3. Konfirmasi instalasi, dan ikon aplikasi Kurir Sekolah akan muncul di menu HP Anda!');
+                    }
+                });
+            }
         });
 
         window.toggleFirebaseConfigPanel = function() {
