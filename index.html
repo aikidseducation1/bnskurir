@@ -93,7 +93,7 @@
             <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="text-center">
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mx-auto mb-2 shadow-sm border border-blue-100">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <i class="fa-solid fa-box-archive"></i>
                     </div>
                     <h1 class="text-base font-bold text-slate-900">Kurir Sekolah Cloud</h1>
                     <p class="text-[11px] text-slate-500">Autentikasi Staf & Anggota Terdaftar</p>
@@ -107,7 +107,7 @@
                                 <i class="fa-solid fa-shield-halved"></i><span>Security</span>
                             </button>
                             <button type="button" onclick="selectRole('courier')" id="role-btn-courier" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
-                                <i class="fa-solid fa-motorcycle"></i><span>Kurir</span>
+                                <i class="fa-solid fa-people-carry-box"></i><span>Kurir</span>
                             </button>
                             <button type="button" onclick="selectRole('recipient')" id="role-btn-recipient" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
                                 <i class="fa-solid fa-chalkboard-user"></i><span>Penerima</span>
@@ -137,7 +137,7 @@
                     <!-- Recipient Direct Info Box -->
                     <div id="recipient-info-box" class="hidden bg-emerald-50 border border-emerald-200 p-2.5 rounded-xl space-y-1 shadow-sm text-center">
                         <span class="text-[10px] font-bold text-emerald-900"><i class="fa-solid fa-circle-check mr-1"></i>Akses Langsung (Penerima)</span>
-                        <p class="text-[10px] text-emerald-700">Penerima dapat langsung masuk menggunakan email terdaftar.</p>
+                        <p class="text-[10px] text-emerald-700">Penerima dapat langsung masuk tanpa sandi (Instan).</p>
                     </div>
 
                     <!-- Firebase Config Box - Collapsible & Auto Saved -->
@@ -239,7 +239,7 @@
                         
                         <div id="camera-placeholder" class="text-center p-2 space-y-1 z-10">
                             <i class="fa-solid fa-camera text-lg text-blue-400 animate-pulse"></i>
-                            <p class="text-[10px] text-slate-300">Kamera Gerbang / Scan Resi</p>
+                            <p class="text-[10px] text-slate-300">Kamera Gerbang / Scan Resi (Opsional)</p>
                             <button type="button" onclick="startCamera()" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">
                                 Buka Kamera
                             </button>
@@ -298,22 +298,16 @@
                         </div>
                     </div>
 
-                    <!-- SECURITY & LOCATION FRAME -->
+                    <!-- SECURITY & MANUAL LOCATION FRAME -->
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Petugas Pos Security</label>
                                 <input type="text" id="input-security-officer" placeholder="Pak Slamet (POS 3)" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-medium shadow-inner" value="Pak Slamet (POS 3)">
                             </div>
-                            <div>
+                            <div id="pickup-location-container">
                                 <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Lokasi Asal (Ambil Kurir)</label>
-                                <select id="input-pickup-location" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner">
-                                    <option value="POS 3">POS 3 (Gerbang Utama)</option>
-                                    <option value="POS 1">POS 1 (Gerbang Samping)</option>
-                                    <option value="POS 2">POS 2 (Gerbang Belakang)</option>
-                                    <option value="POS Lobi Utama">POS Lobi Utama Gedung A</option>
-                                    <option value="POS Gedung Guru">POS Gedung Guru & TU</option>
-                                </select>
+                                <input type="text" id="input-pickup-location" placeholder="Contoh: POS 3 Utama" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner" value="POS 3 Utama">
                             </div>
                         </div>
                         <div>
@@ -561,11 +555,11 @@
 
         window.FB = {
             initializeApp, getAuth, signInAnonymously, getFirestore, collection, addDoc, onSnapshot, updateDoc, deleteDoc, doc, getDocs,
-            app: null, db: null, auth: null, unsubscribeParcels: null, unsubscribeMembers: null
+            app: null, db: null, auth: null, unsubscribeParcels: null, unsubscribeMembers: null, unsubscribeLogs: null
         };
     </script>
 
-    <!-- Main Application Script & PWA / Auto-Refresh Engine -->
+    <!-- Main Application Script & PWA / Auto-Save Engine -->
     <script>
         let currentRole = 'security';
         let adminTab = 'overview'; 
@@ -585,8 +579,8 @@
         let backgroundSyncInterval = null;
         
         let localParcels = [
-            { id: '101', txId: 'TX-20261005-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '05 Okt 2026 • 13:45', completedAtFormatted: '05 Okt 2026 • 14:10' },
-            { id: '102', txId: 'TX-20261005-02', sourceType: 'internal', tracking: 'INT-882102', sender: 'Ruang Tata Usaha', recipient: 'Bapak Budi Hartono', destinationRoom: 'Lab Komputer', unitType: 'Staff', securityOfficer: 'Pak Joko (POS 1)', pickupLocation: 'POS 1', category: 'Makanan/Minuman', sla: '2 Jam', status: 'Delivering', courier: 'Ahmad (Kurir)', notes: 'Makan siang', hasDeliveryPhoto: false, createdAt: Date.now() - 1800000, timestampFormatted: '05 Okt 2026 • 14:15' }
+            { id: '101', txId: 'TX-20261005-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '05 Okt 2026 • 13:45', completedAtFormatted: '05 Okt 2026 • 14:10' },
+            { id: '102', txId: 'TX-20261005-02', sourceType: 'internal', tracking: 'INT-882102', sender: 'Ruang Tata Usaha', recipient: 'Bapak Budi Hartono', destinationRoom: 'Lab Komputer', unitType: 'Staff', securityOfficer: 'Pak Joko (POS 1)', pickupLocation: 'Internal', category: 'Makanan/Minuman', sla: '2 Jam', status: 'Delivering', courier: 'Ahmad (Kurir)', notes: 'Makan siang', hasDeliveryPhoto: false, createdAt: Date.now() - 1800000, timestampFormatted: '05 Okt 2026 • 14:15' }
         ];
 
         let localMembers = [
@@ -596,19 +590,18 @@
             { id: '4', name: 'Administrator Sistem', email: 'admin@sekolah.sch.id', pass: '123456', role: 'admin', dept: 'Pusat Kontrol IT' }
         ];
 
+        let localLogs = [
+            { id: 'l1', type: 'INFO', actor: 'System', action: 'Inisialisasi sistem aplikasi Kurir Sekolah Cloud.', timestamp: '05 Okt 2026 • 12:00:00' },
+            { id: 'l2', type: 'TRANSACTION', actor: 'Pak Slamet (Security)', action: 'Mencatat paket baru JNE-992101 untuk Ibu Siti Aminah.', timestamp: '05 Okt 2026 • 13:45:00' },
+            { id: 'l3', type: 'SUCCESS', actor: 'Ahmad (Kurir)', action: 'Menyelesaikan pengantaran paket JNE-992101 dengan bukti foto.', timestamp: '05 Okt 2026 • 14:10:00' }
+        ];
+
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-courier-free-spark';
 
         window.addEventListener('DOMContentLoaded', () => {
-            // Restore saved credentials & Firebase Config if available
             const savedApiKey = localStorage.getItem('kurir_school_api_key');
             const savedProjectId = localStorage.getItem('kurir_school_project_id');
-            const savedUsername = localStorage.getItem('kurir_school_last_username');
             
-            if (savedUsername) {
-                const usernameEl = document.getElementById('login-username');
-                if (usernameEl) usernameEl.value = savedUsername;
-            }
-
             if (savedApiKey && savedProjectId) {
                 const apiKeyEl = document.getElementById('fb-api-key');
                 const projectIdEl = document.getElementById('fb-project-id');
@@ -620,10 +613,22 @@
                 }, 500);
             }
 
+            // Restore manual inputs from localStorage if available
+            const savedUsername = localStorage.getItem('kurir_saved_username');
+            const usernameInput = document.getElementById('login-username');
+            if (savedUsername && usernameInput) usernameInput.value = savedUsername;
+
+            // Auto-save inputs on change
+            if (usernameInput) {
+                usernameInput.addEventListener('input', (e) => {
+                    localStorage.setItem('kurir_saved_username', e.target.value);
+                });
+            }
+
             // PWA Service Worker Registration
             if ('serviceWorker' in navigator) {
                 const swCode = `
-                    const CACHE_NAME = 'kurir-sekolah-v5';
+                    const CACHE_NAME = 'kurir-sekolah-v8';
                     const urlsToCache = ['./index.html'];
                     self.addEventListener('install', (e) => {
                         e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).then(() => self.skipWaiting()));
@@ -665,6 +670,23 @@
             }
         });
 
+        window.logSystemEvent = async function(type, actor, action) {
+            const now = new Date();
+            const timeStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const logEntry = { type, actor, action, timestamp: timeStr, createdAt: now.getTime() };
+
+            if (isCloudActive && window.FB && window.FB.db) {
+                try {
+                    const logsCol = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs');
+                    await window.FB.addDoc(logsCol, logEntry);
+                } catch (e) {
+                    console.error("Log sync error:", e);
+                }
+            } else {
+                localLogs.unshift({ id: String(Date.now()), ...logEntry });
+            }
+        };
+
         window.toggleFirebaseConfigPanel = function() {
             const bodyEl = document.getElementById('firebase-config-body');
             const iconEl = document.getElementById('firebase-toggle-icon');
@@ -694,6 +716,7 @@
 
                 setupRealtimeListeners();
                 startBackgroundSyncEngine();
+                window.logSystemEvent('INFO', 'System', 'Koneksi Cloud Firebase diaktifkan otomatis dari penyimpanan lokal.');
             } catch (err) {
                 console.error("Auto Firebase init error:", err);
             }
@@ -732,8 +755,10 @@
                 
                 setupRealtimeListeners();
                 startBackgroundSyncEngine();
+                window.logSystemEvent('SUCCESS', 'Admin', 'Menghubungkan aplikasi ke Cloud Firebase project: ' + projectId);
                 window.handleLoginSubmit();
             } catch (err) {
+                window.logSystemEvent('ERROR', 'System', 'Gagal terhubung ke Firebase: ' + err.message);
                 window.showModal('Error Koneksi Firebase', err.message);
             }
         };
@@ -753,9 +778,9 @@
             const btnText = document.getElementById('login-btn-text');
 
             if (role === 'recipient') {
-                if (credFrame) credFrame.classList.remove('hidden'); // Now requires registered email & password for strict security
-                if (recipientInfo) recipientInfo.classList.add('hidden');
-                if (btnText) btnText.innerText = 'Masuk Sebagai Penerima';
+                if (credFrame) credFrame.classList.add('hidden');
+                if (recipientInfo) recipientInfo.classList.remove('hidden');
+                if (btnText) btnText.innerText = 'Masuk Instan (Penerima)';
             } else {
                 if (credFrame) credFrame.classList.remove('hidden');
                 if (recipientInfo) recipientInfo.classList.add('hidden');
@@ -764,6 +789,19 @@
         };
 
         window.handleLoginSubmit = function() {
+            if (currentRole === 'recipient') {
+                const loginScr = document.getElementById('login-screen');
+                const appScr = document.getElementById('app-screen');
+                if (loginScr) loginScr.classList.add('hidden');
+                if (appScr) appScr.classList.remove('hidden');
+                const roleBadge = document.getElementById('badge-role');
+                if (roleBadge) roleBadge.innerText = `RECIPIENT (Penerima Instan)`;
+                renderAppView();
+                window.logSystemEvent('INFO', 'Penerima', 'Masuk instan ke sistem penerima.');
+                window.showFloatingNotification('Berhasil Masuk', 'Akses instan Penerima diaktifkan.', 'success');
+                return;
+            }
+
             const usernameInput = document.getElementById('login-username');
             const passwordInput = document.getElementById('login-password');
             
@@ -775,25 +813,21 @@
                 return;
             }
 
-            // Strictly validate against registered members (localMembers or cloud-synced members)
             const matchedMember = localMembers.find(m => 
                 (m.email.toLowerCase() === emailOrId.toLowerCase() || m.name.toLowerCase() === emailOrId.toLowerCase()) && 
                 m.role === currentRole
             );
 
             if (!matchedMember) {
+                window.logSystemEvent('ERROR', emailOrId, `Gagal login sebagai ${currentRole.toUpperCase()}: Akun tidak ditemukan.`);
                 window.showModal('Autentikasi Gagal', `Akun dengan email/ID "${emailOrId}" tidak ditemukan atau tidak memiliki hak akses sebagai ${currentRole.toUpperCase()}.\n\nPastikan Anda mendaftarkan anggota tersebut terlebih dahulu di menu Admin.`);
                 return;
             }
 
-            // Validate password if required
             if (matchedMember.pass && matchedMember.pass !== password && password !== '123456') {
+                window.logSystemEvent('ERROR', matchedMember.name, 'Gagal login: Kata sandi salah.');
                 window.showModal('Kata Sandi Salah', 'Kata sandi yang Anda masukkan tidak sesuai dengan data anggota terdaftar.');
                 return;
-            }
-
-            if (usernameInput && usernameInput.value.trim()) {
-                localStorage.setItem('kurir_school_last_username', usernameInput.value.trim());
             }
 
             const loginScr = document.getElementById('login-screen');
@@ -803,22 +837,24 @@
             const roleBadge = document.getElementById('badge-role');
             if (roleBadge) roleBadge.innerText = `${currentRole.toUpperCase()} (${matchedMember.name})`;
             renderAppView();
+            window.logSystemEvent('SUCCESS', matchedMember.name, `Berhasil masuk ke sistem sebagai ${currentRole.toUpperCase()}.`);
             window.showFloatingNotification('Sistem Berhasil Masuk', `Autentikasi sah sebagai ${matchedMember.name} (${currentRole.toUpperCase()}).`, 'success');
         };
 
         window.handleLogout = function() {
+            window.logSystemEvent('INFO', currentRole, 'Pengguna keluar (logout) dari sistem.');
             const loginScr = document.getElementById('login-screen');
             const appScr = document.getElementById('app-screen');
             if (appScr) appScr.classList.add('hidden');
             if (loginScr) loginScr.classList.remove('hidden');
             if (window.FB.unsubscribeParcels) window.FB.unsubscribeParcels();
             if (window.FB.unsubscribeMembers) window.FB.unsubscribeMembers();
+            if (window.FB.unsubscribeLogs) window.FB.unsubscribeLogs();
             if (backgroundSyncInterval) clearInterval(backgroundSyncInterval);
             stopCamera();
             stopDeliveryCamera();
         };
 
-        // Manual Renewal / Pull-to-Refresh Button Logic
         window.manualRefreshData = async function() {
             const icon = document.getElementById('refresh-icon');
             if (icon) icon.classList.add('animate-spin-fast');
@@ -838,6 +874,15 @@
                             localMembers.push({ id: docSnap.id, ...docSnap.data() });
                         });
                     }
+
+                    const logsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs'));
+                    if (!logsSnap.empty) {
+                        localLogs = [];
+                        logsSnap.forEach(docSnap => {
+                            localLogs.push({ id: docSnap.id, ...docSnap.data() });
+                        });
+                    }
+
                     renderAppView();
                     window.showFloatingNotification('Data Diperbarui', 'Transaksi berhasil disinkronkan ulang dari Cloud.', 'success');
                 } catch (err) {
@@ -962,17 +1007,20 @@
             const intBtn = document.getElementById('source-btn-internal');
             const extFrame = document.getElementById('frame-source-external');
             const intFrame = document.getElementById('frame-source-internal');
+            const pickupContainer = document.getElementById('pickup-location-container');
 
             if (type === 'external') {
                 if (extBtn) extBtn.className = "source-select-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer";
                 if (intBtn) intBtn.className = "source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer";
                 if (extFrame) extFrame.classList.remove('hidden');
                 if (intFrame) intFrame.classList.add('hidden');
+                if (pickupContainer) pickupContainer.classList.remove('hidden');
             } else {
                 if (extBtn) extBtn.className = "source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer";
                 if (intBtn) intBtn.className = "source-select-btn border-2 border-purple-600 bg-purple-50 text-purple-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer";
                 if (extFrame) extFrame.classList.add('hidden');
                 if (intFrame) intFrame.classList.remove('hidden');
+                if (pickupContainer) pickupContainer.classList.add('hidden');
             }
         };
 
@@ -997,16 +1045,6 @@
                 const el = document.getElementById(`unit-${t}`);
                 if (el) {
                     el.className = t === type ? "unit-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "unit-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
-                }
-            });
-        };
-
-        window.setSla = function(sla) {
-            selectedSla = sla;
-            ['30 Menit', '2 Jam', 'Besok (24 Jam)'].forEach(s => {
-                const el = document.getElementById(`sla-${s}`);
-                if (el) {
-                    el.className = s === sla ? "sla-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "sla-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
                 }
             });
         };
@@ -1166,15 +1204,17 @@
             const notesEl = document.getElementById('input-notes');
 
             const tracking = trackingEl ? trackingEl.value.trim() : '';
-            const sender = parcelSourceType === 'external' ? (senderEl ? senderEl.value.trim() : '') : (internalSenderEl ? internalSenderEl.value.trim() : 'Internal Sekolah');
+            const sender = parcelSourceType === 'external' ? (senderEl ? senderEl.value.trim() : '') : (internalSenderEl ? internalSenderEl.value.trim() : '');
             const recipient = recipientEl ? recipientEl.value.trim() : '';
-            const destinationRoom = destinationRoomEl ? destinationRoomEl.value.trim() : 'Ruang Utama';
+            const destinationRoom = destinationRoomEl ? destinationRoomEl.value.trim() : '';
             const securityOfficer = securityOfficerEl ? securityOfficerEl.value.trim() : 'Pak Slamet (POS 3)';
-            const pickupLocation = pickupLocationEl ? pickupLocationEl.value : 'POS 3';
+            const pickupLocation = parcelSourceType === 'external' ? (pickupLocationEl ? pickupLocationEl.value.trim() : '') : 'Internal';
             const notes = notesEl ? notesEl.value.trim() : '';
 
-            if (!tracking || !sender || !recipient) {
-                window.showModal('Perhatian', 'Nomor Resi, Pengirim, dan Nama Penerima wajib diisi lengkap!');
+            // Mandatory validation check
+            if (!tracking || !sender || !recipient || !destinationRoom || (parcelSourceType === 'external' && !pickupLocation)) {
+                window.logSystemEvent('ERROR', 'Security', 'Gagal catat paket: Terdapat field wajib yang belum diisi.');
+                window.showModal('Form Belum Lengkap', 'Harap isi semua bagian wajib berikut sebelum menyimpan:\n\n• Nomor Resi / Kode Dokumen\n• Nama Pengirim / Ekspedisi\n• Nama Penerima\n• Tempat Tujuan (Ruangan)\n' + (parcelSourceType === 'external' ? '• Lokasi Asal (Ambil Kurir)\n\n*(Foto dan catatan bersifat opsional)*' : '\n*(Foto dan catatan bersifat opsional)*'));
                 return;
             }
 
@@ -1217,6 +1257,8 @@
                 localParcels.unshift({ id: String(Date.now()), ...newParcelData });
                 renderAppView();
             }
+
+            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}).`);
 
             window.toggleModal('modal-parcel', false);
             capturedPhotoDataUrl = null;
@@ -1266,6 +1308,8 @@
                 renderAppView();
             }
 
+            window.logSystemEvent('SUCCESS', 'Admin', `Mendaftarkan staf baru: ${name} (${role.toUpperCase()}) - ${dept}`);
+
             window.toggleModal('modal-member', false);
             if (nameEl) nameEl.value = '';
             if (emailEl) emailEl.value = '';
@@ -1276,11 +1320,11 @@
         window.deleteMember = function(id, name) {
             window.showModal('Konfirmasi Hapus', `Hapus staf ${name}?`, `
                 <button onclick="closeModal()" class="flex-1 bg-slate-200 text-slate-700 font-semibold py-2 rounded-xl text-xs cursor-pointer">Batal</button>
-                <button onclick="executeDeleteMember('${id}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
+                <button onclick="executeDeleteMember('${id}', '${name}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
             `);
         };
 
-        window.executeDeleteMember = async function(id) {
+        window.executeDeleteMember = async function(id, name) {
             window.closeModal();
             if (isCloudActive && window.FB && window.FB.db) {
                 try {
@@ -1290,17 +1334,18 @@
                 localMembers = localMembers.filter(m => m.id !== id);
                 renderAppView();
             }
+            window.logSystemEvent('WARNING', 'Admin', `Menghapus akun staf: ${name}`);
             window.showModal('Terhapus', 'Staf berhasil dihapus.');
         };
 
         window.deleteParcel = function(id, tracking) {
             window.showModal('Konfirmasi Hapus', `Hapus riwayat paket ${tracking}?`, `
                 <button onclick="closeModal()" class="flex-1 bg-slate-200 text-slate-700 font-semibold py-2 rounded-xl text-xs cursor-pointer">Batal</button>
-                <button onclick="executeDeleteParcel('${id}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
+                <button onclick="executeDeleteParcel('${id}', '${tracking}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
             `);
         };
 
-        window.executeDeleteParcel = async function(id) {
+        window.executeDeleteParcel = async function(id, tracking) {
             window.closeModal();
             if (isCloudActive && window.FB && window.FB.db) {
                 try {
@@ -1310,10 +1355,12 @@
                 localParcels = localParcels.filter(p => p.id !== id);
                 renderAppView();
             }
+            window.logSystemEvent('WARNING', 'Admin', `Menghapus data riwayat paket resi: ${tracking}`);
             window.showModal('Terhapus', 'Riwayat paket berhasil dihapus.');
         };
 
         window.exportDataExcel = function() {
+            window.logSystemEvent('INFO', currentRole, 'Mengekspor data logistik ke format Excel (CSV).');
             let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,Resi,Sumber,Pengirim,Penerima,Ruangan,Unit,Pos Asal,Kategori,SLA,Status,Kurir,Waktu Masuk,Waktu Selesai\n";
             localParcels.forEach(p => {
                 csvContent += `"${p.txId || 'TX'}","${p.tracking}","${p.sourceType}","${p.sender}","${p.recipient}","${p.destinationRoom}","${p.unitType}","${p.pickupLocation}","${p.category}","${p.sla}","${p.status}","${p.courier || '-'}","${p.timestampFormatted || '-'}","${p.completedAtFormatted || '-'}"\n`;
@@ -1330,6 +1377,7 @@
         };
 
         window.exportDataPDF = function() {
+            window.logSystemEvent('INFO', currentRole, 'Mengekspor laporan rekapitulasi teks/PDF.');
             let reportText = `=========================================\n`;
             reportText += `REKAPITULASI LAPORAN KURIR SEKOLAH CLOUD\n`;
             reportText += `Tanggal Ekspor: ${new Date().toLocaleDateString('id-ID')} | Peran: ${currentRole.toUpperCase()}\n`;
@@ -1363,7 +1411,7 @@
             const tracking = parcel ? parcel.tracking : '-';
             const recipient = parcel ? parcel.recipient : '-';
             const room = parcel ? parcel.destinationRoom : '-';
-            const pickup = parcel ? (parcel.pickupLocation || 'POS 3') : 'POS 3';
+            const pickup = parcel ? (parcel.pickupLocation || 'POS 3 Utama') : 'POS 3 Utama';
             const sender = parcel ? parcel.sender : '-';
             const category = parcel ? parcel.category : '-';
             const timeStr = parcel ? (parcel.timestampFormatted || 'Hari ini') : '-';
@@ -1375,6 +1423,8 @@
                 localParcels = localParcels.map(p => p.id === id ? { ...p, status: 'Delivering', courier: 'Ahmad (Kurir)' } : p);
                 renderAppView();
             }
+
+            window.logSystemEvent('TRANSACTION', 'Ahmad (Kurir)', `Mengklaim tugas pengantaran [Resi: ${tracking}] dari ${pickup} untuk ${recipient} (${room}).`);
 
             window.showFloatingNotification('Tugas Diklaim Kurir', `ID: ${txId} | Resi: ${tracking} diambil dari ${pickup}`, 'success');
 
@@ -1412,6 +1462,9 @@
             const now = new Date();
             const completedFormatted = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+            const parcel = localParcels.find(p => p.id === id);
+            const tracking = parcel ? parcel.tracking : '-';
+
             if (isCloudActive && window.FB && window.FB.db) {
                 const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels', id);
                 await window.FB.updateDoc(docRef, { 
@@ -1432,6 +1485,8 @@
                 } : p);
                 renderAppView();
             }
+
+            window.logSystemEvent('SUCCESS', 'Ahmad (Kurir)', `Menyelesaikan pengantaran paket [Resi: ${tracking}]. Catatan: "${proofNotes}" (${deliveryPhotoDataUrl ? 'Dengan Foto Bukti' : 'Tanpa Foto'}).`);
 
             window.toggleModal('modal-delivery-proof', false);
             stopDeliveryCamera();
@@ -1456,6 +1511,7 @@
 
             const parcel = localParcels.find(p => p.id === id);
             const posAsal = parcel ? (parcel.pickupLocation || 'POS Asal') : 'POS Asal';
+            const tracking = parcel ? parcel.tracking : '-';
 
             if (isCloudActive && window.FB && window.FB.db) {
                 const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels', id);
@@ -1475,6 +1531,8 @@
                 } : p);
                 renderAppView();
             }
+
+            window.logSystemEvent('WARNING', 'Ahmad (Kurir)', `Menunda pengantaran paket [Resi: ${tracking}]. Dikembalikan ke ${posAsal}. Alasan: ${rescheduleReason}`);
 
             window.toggleModal('modal-reschedule', false);
             window.showFloatingNotification('Tugas Ditunda & Dikembalikan', `Paket dikembalikan ke ${posAsal} dan dijadwalkan besok.`, 'warning');
@@ -1501,6 +1559,15 @@
                     });
                     renderAppView();
                 }
+            }, (err) => console.error(err));
+
+            const logsQuery = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs');
+            window.FB.unsubscribeLogs = window.FB.onSnapshot(logsQuery, (snapshot) => {
+                localLogs = [];
+                snapshot.forEach(docSnap => {
+                    localLogs.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                renderAppView();
             }, (err) => console.error(err));
         }
 
@@ -1564,7 +1631,7 @@
                                         <p class="text-slate-400 text-[11px]">Penerima: <span class="font-bold text-slate-800">${p.recipient}</span> (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
                                         <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                     </div>
-                                    <p class="text-slate-400 text-[10px]">Pengirim: ${p.sender} | Pos Asal: <span class="font-semibold text-blue-700">${p.pickupLocation || 'POS 3'}</span></p>
+                                    <p class="text-slate-400 text-[10px]">Pengirim: ${p.sender} | Pos Asal: <span class="font-semibold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
                                     <p class="text-slate-500 text-[10px] mt-0.5 font-medium">Keterangan: <span class="italic text-slate-700">${p.notes || '-'}</span></p>
                                 </div>
                                 <div class="flex justify-between items-center pt-1.5 border-t border-slate-100 text-[10px]">
@@ -1578,7 +1645,7 @@
             } else if (currentRole === 'courier') {
                 nav.innerHTML = `
                     <button onclick="courierTab = 'pool'; renderAppView();" class="${courierTab === 'pool' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Antrean (${localParcels.filter(p=>p.status==='At_Security').length})</span></button>
-                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-motorcycle text-sm mb-0.5"></i><span>Aktif</span></button>
+                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-people-carry-box text-sm mb-0.5"></i><span>Aktif</span></button>
                     <button onclick="courierTab = 'completed'; renderAppView();" class="${courierTab === 'completed' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-check text-sm mb-0.5"></i><span>Selesai</span></button>
                 `;
 
@@ -1609,14 +1676,14 @@
                                             <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
                                         <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> (${p.category})</p>
-                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3'}</p>
+                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3 Utama'}</p>
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
                                     </div>
                                     <div class="flex justify-between items-center pt-1 border-t border-slate-100 text-[10px] text-slate-400 font-mono">
                                         <span><i class="fa-regular fa-clock mr-1"></i>${p.timestampFormatted || ''}</span>
                                     </div>
                                     <button onclick="claimTask('${p.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow active:scale-95 flex items-center justify-center space-x-1 cursor-pointer">
-                                        <i class="fa-solid fa-hand-holding-box"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3'}</span>
+                                        <i class="fa-solid fa-people-carry-box"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
                                     </button>
                                 </div>
                             `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada antrean paket siap jemput.</div>'}
@@ -1626,7 +1693,7 @@
                     courierContent = `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-2xl shadow space-y-0.5">
-                                <h3 class="font-bold text-xs"><i class="fa-solid fa-motorcycle mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-people-carry-box mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
                                 <p class="text-[10px] text-amber-100">Segera antarkan atau kembalikan ke pos asal jika berhalangan.</p>
                             </div>
                             ${active.length ? active.map(p => `
@@ -1640,7 +1707,7 @@
                                             <p class="text-xs font-bold text-slate-900">Antar ke: ${p.recipient} (<span class="text-indigo-700">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
                                             <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
-                                        <p class="text-[10px] text-slate-500">Pengirim: ${p.sender} (${p.category}) | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3'}</span></p>
+                                        <p class="text-[10px] text-slate-500">Pengirim: ${p.sender} (${p.category}) | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
                                         <p class="text-[10px] text-slate-400 font-mono mt-1"><i class="fa-regular fa-clock mr-1"></i>Masuk: ${p.timestampFormatted || ''}</p>
                                     </div>
@@ -1719,7 +1786,7 @@
                                             <p class="font-bold text-slate-800">Tujuan: ${p.recipient} (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
                                             <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
-                                        <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3'}</span></p>
+                                        <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
                                         <p class="text-[10px] text-slate-500 mt-0.5">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
                                         <p class="text-[10px] text-slate-400 mt-1 font-mono"><i class="fa-regular fa-clock mr-1"></i>Masuk: ${p.timestampFormatted || ''}</p>
                                     </div>
@@ -1781,7 +1848,7 @@
                 nav.innerHTML = `
                     <button onclick="adminTab = 'overview'; renderAppView();" class="${adminTab === 'overview' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-gauge text-sm mb-0.5"></i><span>Overview</span></button>
                     <button onclick="adminTab = 'parcels'; renderAppView();" class="${adminTab === 'parcels' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Paket</span></button>
-                    <button onclick="adminTab = 'report'; renderAppView();" class="${adminTab === 'report' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-file-excel text-sm mb-0.5"></i><span>Rekap</span></button>
+                    <button onclick="adminTab = 'logs'; renderAppView();" class="${adminTab === 'logs' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-terminal text-sm mb-0.5"></i><span>Audit Log</span></button>
                     <button onclick="adminTab = 'staff'; renderAppView();" class="${adminTab === 'staff' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-users text-sm mb-0.5"></i><span>Staf</span></button>
                     <button onclick="toggleModal('modal-member', true)" class="bg-slate-900 text-white w-8 h-8 rounded-full flex items-center justify-center shadow active:scale-95 cursor-pointer"><i class="fa-solid fa-user-plus text-[9px]"></i></button>
                 `;
@@ -1848,7 +1915,7 @@
                                     </div>
                                     <div>
                                         <p class="text-[10px] text-slate-400">Penerima: <span class="font-bold text-slate-800">${p.recipient}</span> (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>) (${p.unitType || 'Teacher'})</p>
-                                        <p class="text-[10px] text-slate-400">Pengirim: <span class="text-slate-600">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3'}</span> | SLA: ${p.sla || '30 Menit'}</p>
+                                        <p class="text-[10px] text-slate-400">Pengirim: <span class="text-slate-600">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span> | SLA: ${p.sla || '30 Menit'}</p>
                                         <p class="text-[10px] text-slate-500 font-mono mt-0.5">Masuk: ${p.timestampFormatted || ''} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</p>
                                         <p class="text-[10px] text-slate-600 mt-0.5">Keterangan: ${p.notes || '-'}</p>
                                     </div>
@@ -1860,54 +1927,24 @@
                             `).join('')}
                         </div>
                     `;
-                } else if (adminTab === 'report') {
-                    const total = localParcels.length;
-                    const completed = localParcels.filter(p => p.status === 'Completed').length;
-                    const delivering = localParcels.filter(p => p.status === 'Delivering').length;
-                    const atSecurity = localParcels.filter(p => p.status === 'At_Security').length;
-
+                } else if (adminTab === 'logs') {
                     adminContent = `
-                        <div class="space-y-3 pb-6">
-                            <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-2">
-                                <div>
-                                    <h3 class="font-bold text-xs"><i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i>Menu Rekapitulasi & Laporan</h3>
-                                    <p class="text-[10px] text-slate-300">Gunakan tombol Excel/PDF di header atas untuk mengunduh rekap.</p>
-                                </div>
+                        <div class="space-y-2.5 pb-6">
+                            <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-1">
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Log Aktivitas & Error Sistem</h3>
+                                <p class="text-[10px] text-slate-300">Pencatatan real-time seluruh aksi transaksi, input, dan error dari semua role.</p>
                             </div>
-
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                                    <span class="text-[10px] text-slate-500 font-bold uppercase">Total Transaksi</span>
-                                    <h4 class="text-lg font-black text-slate-900">${total}</h4>
-                                </div>
-                                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                                    <span class="text-[10px] text-emerald-600 font-bold uppercase">Selesai Diantar</span>
-                                    <h4 class="text-lg font-black text-emerald-700">${completed}</h4>
-                                </div>
-                                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                                    <span class="text-[10px] text-amber-600 font-bold uppercase">Proses Kurir</span>
-                                    <h4 class="text-lg font-black text-amber-700">${delivering}</h4>
-                                </div>
-                                <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                                    <span class="text-[10px] text-blue-600 font-bold uppercase">Antrean POS</span>
-                                    <h4 class="text-lg font-black text-blue-700">${atSecurity}</h4>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2 text-xs">
-                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Tabel Rangkuman Logistik (${localParcels.length} Item)</h4>
-                                <div class="space-y-2 max-h-64 overflow-y-auto no-scrollbar">
-                                    ${localParcels.map(p => `
-                                        <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
-                                            <div class="flex justify-between items-center">
-                                                <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
-                                                <span class="text-[9px] font-bold px-2 py-0.5 rounded ${p.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${p.status}</span>
-                                            </div>
-                                            <p class="text-[10px] text-slate-600">Penerima: <span class="font-bold">${p.recipient}</span> (${p.destinationRoom || 'Ruangan'})</p>
-                                            <p class="text-[9px] text-slate-400 font-mono">Masuk: ${p.timestampFormatted || '-'} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</p>
+                            <div class="space-y-2">
+                                ${localLogs.map(l => `
+                                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-1">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-bold ${l.type === 'ERROR' ? 'text-red-600 bg-red-50' : (l.type === 'SUCCESS' ? 'text-emerald-600 bg-emerald-50' : (l.type === 'WARNING' ? 'text-amber-600 bg-amber-50' : 'text-blue-600 bg-blue-50'))} px-2 py-0.5 rounded text-[9px]">${l.type}</span>
+                                            <span class="text-[9px] text-slate-400 font-mono">${l.timestamp}</span>
                                         </div>
-                                    `).join('')}
-                                </div>
+                                        <p class="text-[10px] font-semibold text-slate-800">Aktor: <span class="text-blue-600">${l.actor}</span></p>
+                                        <p class="text-[10px] text-slate-600">${l.action}</p>
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
                     `;
