@@ -15,28 +15,32 @@
     <meta name="mobile-web-app-capable" content="yes">
 
     <style>
-        body {
+        * { box-sizing: border-box; }
+        html, body {
             background-color: #0f172a;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
         }
         .android-container {
-            width: 100%;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
             max-width: 412px;
-            height: 100%;
             max-height: 860px;
             background-color: #f8fafc;
             display: flex;
             flex-direction: column;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         @media (min-width: 413px) {
             .android-container {
@@ -200,10 +204,10 @@
             </div>
 
             <!-- Body Viewport (Scrollable with bottom padding for navigation bar) -->
-            <div id="app-body" class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3 pb-20"></div>
+            <div id="app-body" class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-3 pb-24"></div>
 
-            <!-- Bottom Navigation Bar (Fixed at bottom) -->
-            <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-3 py-2 flex justify-around items-center z-40 shadow-lg"></div>
+            <!-- Bottom Navigation Bar (Fixed at bottom inside android container) -->
+            <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-3 py-2.5 flex justify-around items-center z-40 shadow-lg"></div>
         </div>
 
         <!-- Modal Parcel Intake (Security) -->
@@ -1398,7 +1402,7 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-2 pb-6">
                         <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat</h4>
                         ${localParcels.length ? localParcels.map(p => `
                             <div class="bg-white p-3 rounded-2xl shadow-sm border ${p.sourceType === 'internal' ? 'border-purple-200' : 'border-slate-200'} space-y-1.5 text-xs">
@@ -1438,7 +1442,7 @@
                 let courierContent = '';
                 if (courierTab === 'pool') {
                     courierContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-box-archive mr-1"></i>Antrean Paket Siap Ambil (${pool.length})</h3>
                                 <p class="text-[10px] text-blue-100">Ambil paket sesuai pos penjemputan awal.</p>
@@ -1470,7 +1474,7 @@
                     `;
                 } else if (courierTab === 'active') {
                     courierContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-motorcycle mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
                                 <p class="text-[10px] text-amber-100">Segera antarkan atau kembalikan ke pos asal jika berhalangan.</p>
@@ -1504,7 +1508,7 @@
                     `;
                 } else if (courierTab === 'completed') {
                     courierContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i>Riwayat Selesai & Review Foto (${completed.length})</h3>
                                 <p class="text-[10px] text-emerald-100">Daftar kiriman berhasil diantar lengkap tanggal & jam.</p>
@@ -1546,7 +1550,7 @@
                 let recipientContent = '';
                 if (recipientTab === 'incoming') {
                     recipientContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-bullhorn mr-1"></i>Paket Masuk Menuju Meja Anda (${incoming.length})</h3>
                                 <p class="text-[10px] text-indigo-100">Pantau secara real-time kiriman dari POS gerbang.</p>
@@ -1576,7 +1580,7 @@
                     `;
                 } else if (recipientTab === 'history') {
                     recipientContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-2">
                                 <div class="flex justify-between items-center">
                                     <div>
@@ -1636,7 +1640,7 @@
                     const activeParcels = totalParcels - completedParcels;
 
                     adminContent = `
-                        <div class="space-y-3">
+                        <div class="space-y-3 pb-6">
                             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
                                 <div>
                                     <h3 class="font-bold text-slate-800 text-xs">Dashboard Admin</h3>
@@ -1676,7 +1680,7 @@
                     `;
                 } else if (adminTab === 'parcels') {
                     adminContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="flex justify-between items-center">
                                 <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Monitoring Paket (${localParcels.length})</h4>
                             </div>
@@ -1710,7 +1714,7 @@
                     const atSecurity = localParcels.filter(p => p.status === 'At_Security').length;
 
                     adminContent = `
-                        <div class="space-y-3">
+                        <div class="space-y-3 pb-6">
                             <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-2">
                                 <div>
                                     <h3 class="font-bold text-xs"><i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i>Menu Rekapitulasi & Laporan</h3>
@@ -1756,7 +1760,7 @@
                     `;
                 } else if (adminTab === 'staff') {
                     adminContent = `
-                        <div class="space-y-2.5">
+                        <div class="space-y-2.5 pb-6">
                             <div class="flex justify-between items-center">
                                 <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Direktori Staf & Akun Login (${localMembers.length})</h4>
                                 <button onclick="toggleModal('modal-member', true)" class="bg-slate-900 text-white text-[9px] px-2.5 py-1 rounded-xl font-bold shadow-sm cursor-pointer"><i class="fa-solid fa-plus mr-1"></i>Staf</button>
