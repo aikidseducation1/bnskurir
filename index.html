@@ -94,7 +94,7 @@
             <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="text-center">
                     <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl mx-auto mb-2 shadow-sm border border-blue-100">
-                        <i class="fa-solid fa-motorcycle text-blue-600"></i>
+                        <i class="fa-solid fa-people-carry-box text-blue-600"></i>
                     </div>
                     <h1 class="text-base font-bold text-slate-900">Kurir Sekolah Cloud</h1>
                     <p class="text-[11px] text-slate-500">Autentikasi Staf & Anggota Terdaftar</p>
@@ -108,7 +108,7 @@
                                 <i class="fa-solid fa-shield-halved"></i><span>Security</span>
                             </button>
                             <button type="button" onclick="selectRole('courier')" id="role-btn-courier" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
-                                <i class="fa-solid fa-motorcycle"></i><span>Kurir</span>
+                                <i class="fa-solid fa-people-carry-box"></i><span>Kurir</span>
                             </button>
                             <button type="button" onclick="selectRole('recipient')" id="role-btn-recipient" class="role-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1 cursor-pointer">
                                 <i class="fa-solid fa-chalkboard-user"></i><span>Penerima</span>
@@ -167,7 +167,7 @@
                             <!-- Google Script Code Helper for Copy -->
                             <div class="pt-2 border-t border-amber-200">
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="text-[10px] font-bold text-amber-900">Google Apps Script (Auto Daily & Monthly):</span>
+                                    <span class="text-[10px] font-bold text-amber-900">Google Apps Script (Separate Daily Sheets & Monthly Files):</span>
                                     <button onclick="copyGoogleScriptCode()" class="bg-amber-700 hover:bg-amber-800 text-white text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer">
                                         <i class="fa-solid fa-copy mr-1"></i>Salin Script
                                     </button>
@@ -192,13 +192,13 @@
       if (baseSheetName === 'Log_Aktivitas') {
         sheet.appendRow(["Timestamp", "Tipe Log", "Aktor", "Aksi / Deskripsi"]);
       } else {
-        sheet.appendRow(["Timestamp", "Tipe", "ID Transaksi", "No Resi", "Sumber", "Pengirim", "Penerima", "Ruangan", "Status", "Keterangan"]);
+        sheet.appendRow(["Timestamp", "Tipe", "ID Transaksi", "No Resi", "Sumber", "Pengirim", "Penerima", "Ruangan", "Petugas / Security", "Status", "Keterangan"]);
       }
     }
     if (baseSheetName === 'Log_Aktivitas') {
       sheet.appendRow([new Date(), data.type || 'LOG', data.actor || '-', data.action || '-']);
     } else {
-      sheet.appendRow([new Date(), data.type || 'TRANSACTION', data.txId || '-', data.tracking || '-', data.sourceType || '-', data.sender || '-', data.recipient || '-', data.destinationRoom || '-', data.status || '-', data.notes || data.deliveryNotes || '-']);
+      sheet.appendRow([new Date(), data.type || 'TRANSACTION', data.txId || '-', data.tracking || '-', data.sourceType || '-', data.sender || '-', data.recipient || '-', data.destinationRoom || '-', data.securityOfficer || data.officer || '-', data.status || '-', data.notes || data.deliveryNotes || '-']);
     }
     return ContentService.createTextOutput(JSON.stringify({"status": "success", "file": monthlyFileName, "sheet": dailySheetName})).setMimeType(ContentService.MimeType.JSON);
   } catch(error) {
@@ -242,7 +242,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             <div class="bg-white px-3 py-2.5 border-b border-slate-200 flex justify-between items-center shrink-0 z-20 shadow-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xs shadow">
-                        <i class="fa-solid fa-motorcycle"></i>
+                        <i class="fa-solid fa-people-carry-box"></i>
                     </div>
                     <div>
                         <div class="flex items-center space-x-1.5">
@@ -342,7 +342,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                         <label class="block text-[11px] font-bold text-slate-700"><i class="fa-solid fa-network-wired mr-1 text-blue-600"></i>Tipe Sumber Paket:</label>
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" onclick="setParcelSource('external')" id="source-btn-external" class="source-select-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 px-2 rounded-xl text-[11px] font-bold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer">
-                                <i class="fa-solid fa-motorcycle"></i><span>Eksternal (Kurir)</span>
+                                <i class="fa-solid fa-people-carry-box"></i><span>Eksternal (Kurir)</span>
                             </button>
                             <button type="button" onclick="setParcelSource('internal')" id="source-btn-internal" class="source-select-btn border-2 border-slate-200 text-slate-600 py-2 px-2 rounded-xl text-[11px] font-semibold transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer">
                                 <i class="fa-solid fa-building-columns"></i><span>Internal Sekolah</span>
@@ -353,7 +353,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                     <!-- FRAME EKSTERNAL -->
                     <div id="frame-source-external" class="bg-gradient-to-br from-blue-50/80 to-indigo-50/50 border-2 border-blue-200 p-3 rounded-2xl space-y-2.5 shadow-sm">
                         <div class="flex items-center space-x-1.5 text-blue-800 font-bold text-[11px] border-b border-blue-200 pb-1">
-                            <i class="fa-solid fa-motorcycle"></i>
+                            <i class="fa-solid fa-people-carry-box"></i>
                             <span>Detail Pengiriman Eksternal (Ekspedisi Luar)</span>
                         </div>
                         <div>
@@ -775,9 +775,10 @@ function getOrCreateMonthlySpreadsheet(fileName) {
         let currentFilterCategory = 'all';
         let currentFilterSla = 'all';
         let currentSearchQuery = '';
+        let currentLogSortOrder = 'newest'; // 'newest' or 'oldest'
         
         let localParcels = [
-            { id: '101', txId: 'TX-20261006-001', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
+            { id: '101', txId: 'TX-20261006-001', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3 Utama)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
         ];
 
         let localMembers = [
@@ -795,6 +796,8 @@ function getOrCreateMonthlySpreadsheet(fileName) {
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-courier-free-spark';
 
         window.addEventListener('DOMContentLoaded', () => {
+            requestNotificationPermission();
+
             const savedApiKey = localStorage.getItem('kurir_school_api_key');
             const savedProjectId = localStorage.getItem('kurir_school_project_id');
             const savedWebhook = localStorage.getItem('kurir_school_webhook_url');
@@ -816,6 +819,30 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             setupFormAutoSave();
             populateSecurityOfficersDropdown();
         });
+
+        async function requestNotificationPermission() {
+            if ("Notification" in window) {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === "granted") {
+                        console.log("Browser push notification permission granted.");
+                    }
+                } catch (e) {
+                    console.log("Notification permission error:", e);
+                }
+            }
+        }
+
+        function triggerBrowserPushNotification(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification(title, {
+                        body: body,
+                        icon: "https://placehold.co/192x192/2563eb/ffffff?text=KS"
+                    });
+                } catch (e) {}
+            }
+        }
 
         window.togglePasswordVisibility = function(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -1152,6 +1179,8 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                 </div>
             `;
             container.appendChild(notif);
+            triggerBrowserPushNotification(title, msg);
+
             setTimeout(() => {
                 notif.style.opacity = '0';
                 setTimeout(() => notif.remove(), 300);
@@ -1546,7 +1575,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                 } catch (err) {}
             }
 
-            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}).`);
+            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}). Petugas: ${securityOfficer}`);
 
             window.toggleModal('modal-parcel', false);
             capturedPhotoPkgUrl = null;
@@ -1798,9 +1827,9 @@ function getOrCreateMonthlySpreadsheet(fileName) {
 
         window.exportDataExcel = function() {
             window.logSystemEvent('INFO', currentRole, 'Mengekspor data logistik ke format Excel (CSV).');
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,Resi,Sumber,Pengirim,Penerima,Ruangan,Unit,Pos Asal,Kategori,SLA,Status,Kurir,Waktu Masuk,Waktu Selesai\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,Resi,Sumber,Pengirim,Penerima,Ruangan,Unit,Pos Asal,Kategori,SLA,Status,Kurir,Petugas Security,Waktu Masuk,Waktu Selesai\n";
             localParcels.forEach(p => {
-                csvContent += `"${p.txId || 'TX'}","${p.tracking}","${p.sourceType}","${p.sender}","${p.recipient}","${p.destinationRoom}","${p.unitType}","${p.pickupLocation}","${p.category}","${p.sla}","${p.status}","${p.courier || '-'}","${p.timestampFormatted || '-'}","${p.completedAtFormatted || '-'}"\n`;
+                csvContent += `"${p.txId || 'TX'}","${p.tracking}","${p.sourceType}","${p.sender}","${p.recipient}","${p.destinationRoom}","${p.unitType}","${p.pickupLocation}","${p.category}","${p.sla}","${p.status}","${p.courier || '-'}","${p.securityOfficer || '-'}","${p.timestampFormatted || '-'}","${p.completedAtFormatted || '-'}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -1816,7 +1845,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             window.logSystemEvent('INFO', currentRole, 'Mengekspor laporan rekapitulasi teks/PDF.');
             let reportText = `=========================================\nREKAPITULASI LAPORAN KURIR SEKOLAH CLOUD\nTanggal Ekspor: ${new Date().toLocaleDateString('id-ID')} | Peran: ${currentRole.toUpperCase()}\n=========================================\n\n`;
             localParcels.forEach((p, idx) => {
-                reportText += `${idx + 1}. [${p.txId || 'TX'}] Resi: ${p.tracking}\n   - Sumber: ${p.sourceType} (${p.sender})\n   - Tujuan: ${p.recipient} (${p.destinationRoom})\n   - Status: ${p.status} | Masuk: ${p.timestampFormatted || '-'}\n   -------------------------------------\n`;
+                reportText += `${idx + 1}. [${p.txId || 'TX'}] Resi: ${p.tracking}\n   - Sumber: ${p.sourceType} (${p.sender})\n   - Tujuan: ${p.recipient} (${p.destinationRoom})\n   - Petugas: ${p.securityOfficer || '-'}\n   - Status: ${p.status} | Masuk: ${p.timestampFormatted || '-'}\n   -------------------------------------\n`;
             });
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(reportText).then(() => {
@@ -2007,6 +2036,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
         window.updateFilterCategory = function(val) { currentFilterCategory = val; renderAppView(); };
         window.updateFilterSla = function(val) { currentFilterSla = val; renderAppView(); };
         window.updateSearchQuery = function(val) { currentSearchQuery = val.toLowerCase(); renderAppView(); };
+        window.updateLogSortOrder = function(val) { currentLogSortOrder = val; renderAppView(); };
 
         function getFilteredParcels(parcelsList) {
             // Sort newest first by creation timestamp
@@ -2119,7 +2149,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                                         <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                         ${(p.hasPkgPhoto || p.hasResiPhoto || p.hasDeliveryPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || p.notes || ''}', '${p.completedAtFormatted || p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                         <span class="text-[9px] font-bold ${p.sourceType === 'internal' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} px-2 py-0.5 rounded-lg">
-                                            <i class="fa-solid ${p.sourceType === 'internal' ? 'fa-building-columns' : 'fa-motorcycle'} mr-0.5"></i>${p.sourceType === 'internal' ? 'Internal' : 'Eksternal'}
+                                            <i class="fa-solid ${p.sourceType === 'internal' ? 'fa-building-columns' : 'fa-people-carry-box'} mr-0.5"></i>${p.sourceType === 'internal' ? 'Internal' : 'Eksternal'}
                                         </span>
                                     </div>
                                 </div>
@@ -2142,7 +2172,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
             } else if (currentRole === 'courier') {
                 nav.innerHTML = `
                     <button onclick="courierTab = 'pool'; renderAppView();" class="${courierTab === 'pool' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Antrean</span></button>
-                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-motorcycle text-sm mb-0.5"></i><span>Aktif</span></button>
+                    <button onclick="courierTab = 'active'; renderAppView();" class="${courierTab === 'active' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-people-carry-box text-sm mb-0.5"></i><span>Aktif</span></button>
                     <button onclick="courierTab = 'completed'; renderAppView();" class="${courierTab === 'completed' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-check text-sm mb-0.5"></i><span>Selesai</span></button>
                 `;
 
@@ -2177,7 +2207,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
                                     </div>
                                     <button onclick="claimTask('${p.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow active:scale-95 flex items-center justify-center space-x-1 cursor-pointer">
-                                        <i class="fa-solid fa-motorcycle"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
+                                        <i class="fa-solid fa-people-carry-box"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
                                     </button>
                                 </div>
                             `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada antrean paket siap jemput.</div>'}
@@ -2187,7 +2217,7 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                     courierContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-3 rounded-2xl shadow space-y-0.5">
-                                <h3 class="font-bold text-xs"><i class="fa-solid fa-motorcycle mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-people-carry-box mr-1"></i>Tugas Aktif Saya (${active.length})</h3>
                                 <p class="text-[10px] text-amber-100">Segera antarkan atau kembalikan ke pos asal jika berhalangan.</p>
                             </div>
                             ${active.length ? active.map(p => `
@@ -2410,14 +2440,24 @@ function getOrCreateMonthlySpreadsheet(fileName) {
                         </div>
                     `;
                 } else if (adminTab === 'logs') {
+                    const sortedLogs = [...localLogs].sort((a, b) => {
+                        return currentLogSortOrder === 'newest' ? (b.createdAt || 0) - (a.createdAt || 0) : (a.createdAt || 0) - (b.createdAt || 0);
+                    });
+
                     adminContent = `
                         <div class="space-y-2.5 pb-6">
-                            <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-1">
-                                <h3 class="font-bold text-xs"><i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Log Aktivitas & Audit Sistem</h3>
+                            <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-bold text-xs"><i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Log Aktivitas & Audit Sistem</h3>
+                                    <select onchange="updateLogSortOrder(this.value)" class="bg-slate-800 border border-slate-700 text-white text-[10px] font-semibold rounded-lg px-2 py-1 outline-none">
+                                        <option value="newest" ${currentLogSortOrder === 'newest' ? 'selected' : ''}>Urutan: Terbaru</option>
+                                        <option value="oldest" ${currentLogSortOrder === 'oldest' ? 'selected' : ''}>Urutan: Terlama</option>
+                                    </select>
+                                </div>
                                 <p class="text-[10px] text-slate-300">Pencatatan real-time seluruh aksi dari semua role.</p>
                             </div>
                             <div class="space-y-2">
-                                ${localLogs.map(l => `
+                                ${sortedLogs.map(l => `
                                     <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-1">
                                         <div class="flex justify-between items-center">
                                             <span class="font-bold ${l.type === 'ERROR' ? 'text-red-600 bg-red-50' : (l.type === 'SUCCESS' ? 'text-emerald-600 bg-emerald-50' : 'text-blue-600 bg-blue-50')} px-2 py-0.5 rounded text-[9px]">${l.type}</span>
