@@ -6,6 +6,13 @@
     <title>Kurir Sekolah Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         body {
             background-color: #0f172a;
@@ -65,13 +72,14 @@
                 <h3 id="modal-title" class="font-bold text-base text-slate-900">Informasi</h3>
                 <p id="modal-message" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">Pesan sistem...</p>
                 <div id="modal-buttons" class="flex space-x-2 pt-1">
-                    <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow active:scale-95">
+                    <button onclick="closeModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow active:scale-95 cursor-pointer">
                         Mengerti
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Login Screen -->
         <div id="login-screen" class="flex-1 bg-blue-600 flex flex-col justify-center p-4 text-white overflow-y-auto no-scrollbar">
             <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="text-center">
@@ -150,30 +158,43 @@
                         <span id="login-btn-text">Masuk Sistem (Autentikasi)</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
+
+                    <!-- PWA Install Button Container -->
+                    <div id="pwa-install-container" class="hidden pt-1">
+                        <button id="pwa-install-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-download"></i><span>Install Aplikasi di Android (PWA)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Main App Screen (Fixed Frame) -->
         <div id="app-screen" class="hidden flex-1 flex flex-col bg-slate-50 overflow-hidden relative">
-            <!-- Header -->
-            <div class="bg-white px-4 py-3 border-b border-slate-200 flex justify-between items-center shrink-0 z-10">
+            <!-- Header with Clean Export Toolbar -->
+            <div class="bg-white px-3 py-2.5 border-b border-slate-200 flex justify-between items-center shrink-0 z-10 shadow-sm">
                 <div class="flex items-center space-x-2">
                     <div class="w-7 h-7 bg-blue-600 text-white rounded-lg flex items-center justify-center text-xs shadow">
                         <i class="fa-solid fa-box-open"></i>
                     </div>
                     <div>
-                        <h2 class="font-bold text-xs text-slate-900 leading-tight">Kurir Sekolah Cloud</h2>
+                        <h2 class="font-bold text-xs text-slate-900 leading-tight">Kurir Sekolah</h2>
                         <span id="badge-role" class="text-[9px] font-bold text-blue-600 uppercase">SECURITY</span>
                     </div>
                 </div>
-                <div class="flex items-center space-x-1.5">
-                    <button onclick="exportDataExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer" title="Ekspor ke Excel / CSV">
+                
+                <!-- Clean Unified Export & Logout Toolbar -->
+                <div class="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button onclick="exportDataExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke Excel / CSV">
                         <i class="fa-solid fa-file-excel"></i><span>Excel</span>
                     </button>
-                    <button onclick="exportDataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer" title="Ekspor ke PDF / Teks">
+                    <button onclick="exportDataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Ekspor ke PDF / Teks">
                         <i class="fa-solid fa-file-pdf"></i><span>PDF</span>
                     </button>
-                    <button onclick="handleLogout()" class="text-slate-400 hover:text-red-600 p-1 text-xs ml-1 cursor-pointer" title="Keluar"><i class="fa-solid fa-right-from-bracket"></i></button>
+                    <div class="h-4 w-[1px] bg-slate-300 mx-0.5"></div>
+                    <button onclick="handleLogout()" class="text-slate-500 hover:text-red-600 p-1 text-xs cursor-pointer transition" title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
                 </div>
             </div>
 
@@ -511,6 +532,7 @@
 
     </div>
 
+    <!-- Firebase SDK Imports -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -522,6 +544,7 @@
         };
     </script>
 
+    <!-- Main Application Script & PWA Service Worker Registration -->
     <script>
         let currentRole = 'security';
         let adminTab = 'overview'; 
@@ -565,6 +588,42 @@
                     initFirebaseAndLoginAuto(savedApiKey, savedProjectId);
                 }, 500);
             }
+
+            // Register PWA Service Worker
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
+                    self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+                    self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
+            }
+
+            // PWA Install Prompt Handler
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                const installContainer = document.getElementById('pwa-install-container');
+                if (installContainer) installContainer.classList.remove('hidden');
+
+                const installBtn = document.getElementById('pwa-install-btn');
+                if (installBtn) {
+                    installBtn.addEventListener('click', async () => {
+                        if (deferredPrompt) {
+                            deferredPrompt.prompt();
+                            const { outcome } = await deferredPrompt.userChoice;
+                            if (outcome === 'accepted') {
+                                console.log('User accepted the install prompt');
+                            }
+                            deferredPrompt = null;
+                            installContainer.classList.add('hidden');
+                        }
+                    });
+                }
+            });
         });
 
         window.toggleFirebaseConfigPanel = function() {
@@ -1573,10 +1632,6 @@
                                     <h3 class="font-bold text-slate-800 text-xs">Dashboard Admin</h3>
                                     <p class="text-[10px] text-slate-500">Statistik Logistik & Ekspor Laporan PDF/Excel</p>
                                 </div>
-                                <div class="flex items-center space-x-1">
-                                    <button onclick="exportDataExcel()" class="bg-emerald-600 text-white px-2 py-1 rounded text-[9px] font-bold cursor-pointer"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                                    <button onclick="exportDataPDF()" class="bg-rose-600 text-white px-2 py-1 rounded text-[9px] font-bold cursor-pointer"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                                </div>
                             </div>
 
                             <div class="grid grid-cols-3 gap-1.5">
@@ -1614,10 +1669,6 @@
                         <div class="space-y-2.5">
                             <div class="flex justify-between items-center">
                                 <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Monitoring Paket (${localParcels.length})</h4>
-                                <div class="flex space-x-1">
-                                    <button onclick="exportDataExcel()" class="bg-emerald-600 text-white text-[9px] px-2 py-1 rounded font-bold cursor-pointer"><i class="fa-solid fa-file-excel"></i> Excel</button>
-                                    <button onclick="exportDataPDF()" class="bg-rose-600 text-white text-[9px] px-2 py-1 rounded font-bold cursor-pointer"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-                                </div>
                             </div>
                             ${localParcels.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
@@ -1651,19 +1702,9 @@
                     adminContent = `
                         <div class="space-y-3">
                             <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h3 class="font-bold text-xs"><i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i>Menu Rekapitulasi & Ekspor PDF/Excel</h3>
-                                        <p class="text-[10px] text-slate-300">Rekapitulasi lengkap pengiriman logistik sekolah</p>
-                                    </div>
-                                    <div class="flex space-x-1">
-                                        <button onclick="exportDataExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl shadow active:scale-95 flex items-center space-x-1 cursor-pointer">
-                                            <i class="fa-solid fa-file-excel"></i><span>Excel</span>
-                                        </button>
-                                        <button onclick="exportDataPDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-xl shadow active:scale-95 flex items-center space-x-1 cursor-pointer">
-                                            <i class="fa-solid fa-file-pdf"></i><span>PDF</span>
-                                        </button>
-                                    </div>
+                                <div>
+                                    <h3 class="font-bold text-xs"><i class="fa-solid fa-file-excel mr-1 text-emerald-400"></i>Menu Rekapitulasi & Laporan</h3>
+                                    <p class="text-[10px] text-slate-300">Gunakan tombol Excel/PDF di header atas untuk mengunduh rekap.</p>
                                 </div>
                             </div>
 
