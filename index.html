@@ -89,6 +89,7 @@
             </div>
         </div>
 
+        <!-- LOGIN SCREEN -->
         <div id="login-screen" class="flex-1 bg-blue-600 flex flex-col justify-center p-4 text-white overflow-y-auto no-scrollbar">
             <div class="bg-white text-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="text-center">
@@ -130,7 +131,12 @@
                         </div>
                         <div>
                             <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Kata Sandi (Password)</label>
-                            <input type="password" id="login-password" placeholder="••••••••" class="w-full border border-slate-300 rounded-lg p-1.5 text-xs bg-white font-medium shadow-inner" value="">
+                            <div class="relative">
+                                <input type="password" id="login-password" placeholder="••••••••" class="w-full border border-slate-300 rounded-lg p-1.5 pr-8 text-xs bg-white font-medium shadow-inner" value="">
+                                <button type="button" onclick="togglePasswordVisibility('login-password', 'login-pwd-icon')" class="absolute right-2 top-2 text-slate-400 hover:text-slate-600 text-xs">
+                                    <i id="login-pwd-icon" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -143,7 +149,7 @@
                     <!-- Firebase & Sheets Webhook Config Box -->
                     <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl space-y-1.5 shadow-sm">
                         <div class="flex items-center justify-between cursor-pointer" onclick="toggleFirebaseConfigPanel()">
-                            <span class="text-[10px] font-bold text-amber-800"><i class="fa-solid fa-key mr-1"></i>FIREBASE & SHEETS WEBHOOK</span>
+                            <span class="text-[10px] font-bold text-amber-800"><i class="fa-solid fa-key mr-1"></i>FIREBASE & GOOGLE SHEETS WEBHOOK</span>
                             <div class="flex items-center space-x-1">
                                 <span id="firebase-status" class="text-[9px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded-full font-bold">Offline / Mock</span>
                                 <i id="firebase-toggle-icon" class="fa-solid fa-chevron-down text-[10px] text-amber-700 transition-transform"></i>
@@ -161,31 +167,57 @@
                             <!-- Google Script Code Helper for Copy -->
                             <div class="pt-2 border-t border-amber-200">
                                 <div class="flex justify-between items-center mb-1">
-                                    <span class="text-[10px] font-bold text-amber-900">Google Apps Script (Copy):</span>
+                                    <span class="text-[10px] font-bold text-amber-900">Google Apps Script (Auto Daily & Monthly):</span>
                                     <button onclick="copyGoogleScriptCode()" class="bg-amber-700 hover:bg-amber-800 text-white text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer">
                                         <i class="fa-solid fa-copy mr-1"></i>Salin Script
                                     </button>
                                 </div>
                                 <textarea id="google-script-code-box" readonly class="w-full h-24 text-[9px] font-mono border border-amber-300 rounded p-1 bg-white text-slate-700 select-all">function doPost(e) {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = JSON.parse(e.postData.contents);
+    var now = new Date();
+    var day = Utilities.formatDate(now, Session.getScriptTimeZone(), "dd");
+    var month = Utilities.formatDate(now, Session.getScriptTimeZone(), "MM");
+    var year = Utilities.formatDate(now, Session.getScriptTimeZone(), "yyyy");
+    var monthName = Utilities.formatDate(now, Session.getScriptTimeZone(), "MMMM_yyyy");
+    
+    var baseSheetName = (data.type === 'LOG' || data.type === 'SYSTEM_LOG') ? 'Log_Aktivitas' : 'Log_Transaksi';
+    var dailySheetName = baseSheetName + "_" + day + "_" + month + "_" + year;
+    var monthlyFileName = "Kurir_Sekolah_Log_" + monthName;
+    var targetSpreadsheet = getOrCreateMonthlySpreadsheet(monthlyFileName);
+    var sheet = targetSpreadsheet.getSheetByName(dailySheetName);
+    
+    if (!sheet) { sheet = targetSpreadsheet.insertSheet(dailySheetName); }
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["Timestamp", "Tipe", "ID Transaksi", "No Resi", "Pengirim", "Penerima", "Status", "Keterangan"]);
+      if (baseSheetName === 'Log_Aktivitas') {
+        sheet.appendRow(["Timestamp", "Tipe Log", "Aktor", "Aksi / Deskripsi"]);
+      } else {
+        sheet.appendRow(["Timestamp", "Tipe", "ID Transaksi", "No Resi", "Sumber", "Pengirim", "Penerima", "Ruangan", "Status", "Keterangan"]);
+      }
     }
-    sheet.appendRow([
-      new Date(),
-      data.type || 'TRANSACTION',
-      data.txId || '-',
-      data.tracking || '-',
-      data.sender || '-',
-      data.recipient || '-',
-      data.status || '-',
-      data.notes || data.deliveryNotes || data.action || '-'
-    ]);
-    return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+    if (baseSheetName === 'Log_Aktivitas') {
+      sheet.appendRow([new Date(), data.type || 'LOG', data.actor || '-', data.action || '-']);
+    } else {
+      sheet.appendRow([new Date(), data.type || 'TRANSACTION', data.txId || '-', data.tracking || '-', data.sourceType || '-', data.sender || '-', data.recipient || '-', data.destinationRoom || '-', data.status || '-', data.notes || data.deliveryNotes || '-']);
+    }
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "file": monthlyFileName, "sheet": dailySheetName})).setMimeType(ContentService.MimeType.JSON);
   } catch(error) {
     return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": error.toString()})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getOrCreateMonthlySpreadsheet(fileName) {
+  var files = DriveApp.getFilesByName(fileName);
+  if (files.hasNext()) {
+    return SpreadsheetApp.open(files.next());
+  } else {
+    var newSpreadsheet = SpreadsheetApp.create(fileName);
+    var defaultSheet = newSpreadsheet.getSheetByName("Sheet1");
+    if (defaultSheet) {
+      defaultSheet.setName("Info_Bulan");
+      defaultSheet.appendRow(["File Logistik Bulanan", fileName, "Dibuat pada:", new Date()]);
+    }
+    return newSpreadsheet;
   }
 }</textarea>
                             </div>
@@ -200,17 +232,11 @@
                         <span id="login-btn-text">Masuk Sistem (Autentikasi)</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
-
-                    <!-- PWA Install Button Container -->
-                    <div id="pwa-install-container" class="pt-1 hidden">
-                        <button id="pwa-install-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
-                            <i class="fa-solid fa-download"></i><span>Install Aplikasi di Android (PWA)</span>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- MAIN APP SCREEN -->
         <div id="app-screen" class="hidden absolute inset-0 flex flex-col bg-slate-50 overflow-hidden">
             <!-- Header with Realtime Indicator & Renewal Toolbar -->
             <div class="bg-white px-3 py-2.5 border-b border-slate-200 flex justify-between items-center shrink-0 z-20 shadow-sm">
@@ -221,7 +247,6 @@
                     <div>
                         <div class="flex items-center space-x-1.5">
                             <h2 class="font-bold text-xs text-slate-900 leading-tight">Kurir Sekolah</h2>
-                            <!-- Realtime Badge Indicator -->
                             <div id="realtime-badge" class="flex items-center space-x-1 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full" title="Real-time sinkronisasi aktif">
                                 <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
                                 <span class="text-[8px] font-bold text-emerald-700">Live</span>
@@ -231,7 +256,6 @@
                     </div>
                 </div>
                 
-                <!-- Unified Toolbar -->
                 <div id="header-toolbar" class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
                     <button onclick="manualRefreshData()" id="refresh-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm flex items-center space-x-1 cursor-pointer transition active:scale-95" title="Tarik data / Renewal transaksi">
                         <i id="refresh-icon" class="fa-solid fa-rotate"></i>
@@ -256,6 +280,7 @@
             <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-3 py-2.5 flex justify-around items-center z-40 shadow-lg"></div>
         </div>
 
+        <!-- MODALS -->
         <!-- Modal Parcel Intake (Security) -->
         <div id="modal-parcel" class="hidden absolute inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
             <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto no-scrollbar">
@@ -265,9 +290,8 @@
                 </div>
                 
                 <div class="space-y-3 text-xs">
-                    <!-- Dual Camera Capture Section (Compressed) -->
+                    <!-- Dual Camera Capture Section -->
                     <div class="grid grid-cols-2 gap-2">
-                        <!-- 1. Foto Paket -->
                         <div class="space-y-1">
                             <span class="text-[10px] font-bold text-slate-700 block"><i class="fa-solid fa-box mr-1 text-blue-600"></i>1. Foto Paket</span>
                             <div class="relative bg-slate-900 rounded-xl h-24 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
@@ -287,7 +311,6 @@
                             </div>
                         </div>
 
-                        <!-- 2. Foto Resi -->
                         <div class="space-y-1">
                             <span class="text-[10px] font-bold text-slate-700 block"><i class="fa-solid fa-barcode mr-1 text-blue-600"></i>2. Foto Resi / Struk</span>
                             <div class="relative bg-slate-900 rounded-xl h-24 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
@@ -308,7 +331,13 @@
                         </div>
                     </div>
 
-                    <!-- Tipe Sumber Paket Frame -->
+                    <!-- Scan Barcode Button -->
+                    <div>
+                        <button type="button" onclick="openBarcodeScannerModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow flex items-center justify-center space-x-1.5 cursor-pointer">
+                            <i class="fa-solid fa-barcode"></i><span>Scan Barcode Resi (Otomatis / Manual)</span>
+                        </button>
+                    </div>
+
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                         <label class="block text-[11px] font-bold text-slate-700"><i class="fa-solid fa-network-wired mr-1 text-blue-600"></i>Tipe Sumber Paket:</label>
                         <div class="grid grid-cols-2 gap-2">
@@ -351,13 +380,12 @@
                         </div>
                     </div>
 
-                    <!-- SECURITY & MANUAL LOCATION FRAME -->
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-700 mb-0.5">Petugas Pos Security</label>
                                 <select id="input-security-officer" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white font-bold text-blue-700 shadow-inner">
-                                    <!-- Populated dynamically from security members -->
+                                    <!-- Populated dynamically -->
                                 </select>
                             </div>
                             <div id="pickup-location-container">
@@ -366,12 +394,11 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nomor Resi / Kode Dokumen (Manual)</label>
+                            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Nomor Resi / Kode Dokumen (Manual / Scan)</label>
                             <input type="text" id="input-tracking" placeholder="Contoh: JNE-987654321 atau INT-001" class="w-full border border-slate-300 rounded-xl p-2 text-xs font-mono bg-white text-blue-700 font-bold shadow-inner">
                         </div>
                     </div>
 
-                    <!-- RECIPIENT DESTINATION & UNIT FRAME -->
                     <div class="bg-indigo-50/50 p-3 rounded-2xl border border-indigo-200 shadow-sm space-y-2.5">
                         <div class="flex items-center space-x-1.5 text-indigo-900 font-bold text-[11px] border-b border-indigo-200 pb-1">
                             <i class="fa-solid fa-bullseye"></i>
@@ -405,7 +432,6 @@
                         </div>
                     </div>
 
-                    <!-- CATEGORY & SLA FRAME -->
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2.5">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-700 mb-1">Kategori Paket</label>
@@ -451,6 +477,39 @@
             </div>
         </div>
 
+        <!-- Modal Barcode Scanner -->
+        <div id="modal-barcode-scanner" class="hidden absolute inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-barcode mr-1 text-indigo-600"></i>Scan Barcode / QR Resi</h3>
+                    <button onclick="toggleModal('modal-barcode-scanner', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <p class="text-[11px] text-slate-600">Pindai barcode pada resi atau gunakan tombol simulasi instan di bawah:</p>
+                    
+                    <div class="relative bg-slate-900 rounded-xl h-40 flex flex-col items-center justify-center overflow-hidden border border-slate-700 shadow-inner">
+                        <video id="barcode-camera-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
+                        <div id="barcode-placeholder" class="text-center p-2 space-y-1 z-10">
+                            <i class="fa-solid fa-barcode text-2xl text-indigo-400 animate-pulse"></i>
+                            <p class="text-[10px] text-slate-300">Arahkan kamera ke barcode resi</p>
+                            <button type="button" onclick="simulateBarcodeScan()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold px-3 py-1.5 rounded shadow cursor-pointer">
+                                Simulasi Scan Otomatis
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-700 mb-1">Atau Ketik Kode Resi Manual:</label>
+                        <input type="text" id="manual-scan-input" placeholder="Contoh: JNE-88219034" class="w-full border border-slate-300 rounded-xl p-2 text-xs font-mono font-bold text-indigo-700 shadow-inner">
+                    </div>
+
+                    <button onclick="applyScannedBarcode()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition shadow active:scale-95 cursor-pointer">
+                        Gunakan Kode Resi Ini
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal Proof of Delivery Camera -->
         <div id="modal-delivery-proof" class="hidden absolute inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
             <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto no-scrollbar">
@@ -484,14 +543,13 @@
                         </div>
                     </div>
 
-                    <!-- Quick Options -->
                     <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 shadow-sm space-y-2">
                         <label class="block text-[11px] font-bold text-slate-700"><i class="fa-solid fa-bolt mr-1 text-emerald-600"></i>Opsi Cepat Catatan Penerimaan:</label>
                         <div class="grid grid-cols-2 gap-1.5">
-                            <button type="button" onclick="setQuickProofNote('Diterima langsung oleh penerima')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl shadow-sm text-left truncate cursor-pointer">✓ Diterima Langsung</button>
-                            <button type="button" onclick="setQuickProofNote('Diterima oleh rekan kerja / staff meja')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl shadow-sm text-left truncate cursor-pointer">✓ Diterima Rekan Meja</button>
-                            <button type="button" onclick="setQuickProofNote('Dititipkan di meja / di depan pintu ruangan')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl shadow-sm text-left truncate cursor-pointer">✓ Dititipkan di Meja</button>
-                            <button type="button" onclick="setQuickProofNote('Penerima sedang mengajar, paket diamankan')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl shadow-sm text-left truncate cursor-pointer">✓ Penerima Mengajar</button>
+                            <button type="button" onclick="setQuickProofNote('Diterima langsung oleh penerima')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl text-left truncate cursor-pointer">✓ Diterima Langsung</button>
+                            <button type="button" onclick="setQuickProofNote('Diterima oleh rekan kerja / staff meja')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl text-left truncate cursor-pointer">✓ Diterima Rekan Meja</button>
+                            <button type="button" onclick="setQuickProofNote('Dititipkan di meja / di depan pintu ruangan')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl text-left truncate cursor-pointer">✓ Dititipkan di Meja</button>
+                            <button type="button" onclick="setQuickProofNote('Penerima sedang mengajar, paket diamankan')" class="quick-note-btn bg-white hover:bg-emerald-50 text-slate-700 border border-slate-200 text-[10px] font-semibold py-1.5 px-2 rounded-xl text-left truncate cursor-pointer">✓ Penerima Mengajar</button>
                         </div>
                     </div>
 
@@ -519,7 +577,7 @@
                 </div>
                 
                 <div class="space-y-3 text-xs">
-                    <p class="text-[11px] text-slate-600">Berikan keterangan mengapa paket belum dapat diselesaikan hari ini. Paket yang ditunda akan dikembalikan ke posisi asal (sesuai pos penjemputan awal) dan dijadwalkan ulang untuk besok (SLA diubah ke Besok 24 Jam).</p>
+                    <p class="text-[11px] text-slate-600">Berikan keterangan mengapa paket belum dapat diselesaikan hari ini. Paket yang ditunda akan dikembalikan ke posisi asal dan dijadwalkan ulang untuk besok.</p>
                     
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih Alasan Penundaan Cepat:</label>
@@ -551,7 +609,7 @@
                     <button onclick="toggleModal('modal-photo-viewer', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div id="photo-viewer-container" class="bg-slate-900 rounded-xl h-64 flex flex-col items-center justify-center text-white p-2 text-center relative overflow-hidden">
-                    <!-- Dynamic Photo Viewer Content -->
+                    <!-- Dynamic Content -->
                 </div>
                 <button onclick="toggleModal('modal-photo-viewer', false)" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2 rounded-xl text-xs cursor-pointer">
                     Tutup
@@ -588,7 +646,12 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Kata Sandi</label>
-                        <input type="password" id="member-pass" placeholder="••••••••" class="w-full border border-slate-300 rounded-xl p-2 text-xs shadow-inner" value="123456">
+                        <div class="relative">
+                            <input type="password" id="member-pass" placeholder="••••••••" class="w-full border border-slate-300 rounded-xl p-2 pr-8 text-xs shadow-inner" value="123456">
+                            <button type="button" onclick="togglePasswordVisibility('member-pass', 'member-pwd-icon')" class="absolute right-2 top-2 text-slate-400 hover:text-slate-600 text-xs">
+                                <i id="member-pwd-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">Departemen / Unit Kerja</label>
@@ -597,6 +660,77 @@
                     <button id="member-submit-btn" onclick="saveNewMember()" class="w-full bg-slate-900 hover:bg-black text-white font-bold py-2.5 rounded-xl transition shadow active:scale-95 mt-2 text-xs cursor-pointer">
                         Simpan Anggota Baru
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Reset Password (Admin) -->
+        <div id="modal-reset-password" class="hidden absolute inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-sm p-4 space-y-3 shadow-2xl">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-key mr-1 text-amber-600"></i>Reset Password Staf</h3>
+                    <button onclick="toggleModal('modal-reset-password', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <input type="hidden" id="reset-member-id" value="">
+                <div class="space-y-2.5 text-xs">
+                    <p id="reset-target-info" class="font-bold text-slate-700"></p>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-1">Kata Sandi Baru</label>
+                        <div class="relative">
+                            <input type="password" id="new-reset-pass" placeholder="••••••••" class="w-full border border-slate-300 rounded-xl p-2 pr-8 text-xs shadow-inner" value="123456">
+                            <button type="button" onclick="togglePasswordVisibility('new-reset-pass', 'reset-pwd-icon')" class="absolute right-2 top-2 text-slate-400 hover:text-slate-600 text-xs">
+                                <i id="reset-pwd-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="executeResetPassword()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl transition shadow cursor-pointer">
+                        Simpan Password Baru
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Admin Edit/Delete Parcel -->
+        <div id="modal-admin-parcel" class="hidden absolute inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center backdrop-blur-sm">
+            <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto no-scrollbar">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-xs text-slate-900"><i class="fa-solid fa-pen-to-square mr-1 text-blue-600"></i>Edit / Kelola Transaksi Paket</h3>
+                    <button onclick="toggleModal('modal-admin-parcel', false)" class="text-slate-400 hover:text-slate-600 p-1 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <input type="hidden" id="admin-edit-parcel-id" value="">
+                <div class="space-y-2.5 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Nomor Resi / Dokumen</label>
+                        <input type="text" id="admin-edit-tracking" class="w-full border border-slate-300 rounded-xl p-2 font-mono text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Nama Pengirim</label>
+                        <input type="text" id="admin-edit-sender" class="w-full border border-slate-300 rounded-xl p-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Nama Penerima</label>
+                        <input type="text" id="admin-edit-recipient" class="w-full border border-slate-300 rounded-xl p-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Ruangan Tujuan</label>
+                        <input type="text" id="admin-edit-room" class="w-full border border-slate-300 rounded-xl p-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Status Paket</label>
+                        <select id="admin-edit-status" class="w-full border border-slate-300 rounded-xl p-2 text-xs bg-white">
+                            <option value="At_Security">At_Security (Di Pos)</option>
+                            <option value="Delivering">Delivering (Proses Kurir)</option>
+                            <option value="Completed">Completed (Selesai)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-600 mb-0.5">Catatan</label>
+                        <input type="text" id="admin-edit-notes" class="w-full border border-slate-300 rounded-xl p-2 text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="saveAdminEditedParcel()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl cursor-pointer">Simpan Perubahan</button>
+                        <button onclick="deleteParcelByAdmin()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl cursor-pointer">Hapus Transaksi</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -629,24 +763,21 @@
         let isCloudActive = false;
         let googleSheetsWebhookUrl = '';
 
-        // Camera streams & photos
         let cameraStreamPkg = null;
         let capturedPhotoPkgUrl = null;
         let cameraStreamResi = null;
         let capturedPhotoResiUrl = null;
         let deliveryCameraStream = null;
         let deliveryPhotoDataUrl = null;
-        let deferredPwaPrompt = null;
         let backgroundSyncInterval = null;
 
-        // Filter states for roles
         let currentFilterStatus = 'all';
         let currentFilterCategory = 'all';
         let currentFilterSla = 'all';
         let currentSearchQuery = '';
         
         let localParcels = [
-            { id: '101', txId: 'TX-20261006-01', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
+            { id: '101', txId: 'TX-20261006-001', sourceType: 'external', tracking: 'JNE-992101', sender: 'JNE Express', recipient: 'Ibu Siti Aminah, S.Pd', destinationRoom: 'Ruang Guru', unitType: 'Teacher', securityOfficer: 'Pak Slamet (POS 3)', pickupLocation: 'POS 3 Utama', category: 'Dokumen', sla: '30 Menit', status: 'Completed', courier: 'Ahmad (Kurir)', notes: 'Rapot semester', hasPkgPhoto: true, pkgPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', hasResiPhoto: true, resiPhotoUrl: 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80', hasDeliveryPhoto: true, deliveryPhotoUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80', deliveryNotes: 'Diterima langsung oleh Ibu Siti', createdAt: Date.now() - 3600000, timestampFormatted: '06 Okt 2026 • 13:45', completedAtFormatted: '06 Okt 2026 • 14:10' }
         ];
 
         let localMembers = [
@@ -658,7 +789,7 @@
         ];
 
         let localLogs = [
-            { id: 'l1', type: 'INFO', actor: 'System', action: 'Inisialisasi sistem aplikasi Kurir Sekolah Cloud.', timestamp: '06 Okt 2026 • 12:00:00' }
+            { id: 'l1', type: 'INFO', actor: 'System', action: 'Inisialisasi sistem aplikasi Kurir Sekolah Cloud.', timestamp: '06 Okt 2026 • 12:00:00', createdAt: Date.now() }
         ];
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-courier-free-spark';
@@ -684,49 +815,20 @@
             restoreFormInputs();
             setupFormAutoSave();
             populateSecurityOfficersDropdown();
-
-            if ('serviceWorker' in navigator) {
-                const swCode = `
-                    const CACHE_NAME = 'kurir-sekolah-v18';
-                    const urlsToCache = ['./index.html'];
-                    self.addEventListener('install', (e) => {
-                        e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)).then(() => self.skipWaiting()));
-                    });
-                    self.addEventListener('activate', (e) => {
-                        e.waitUntil(self.clients.claim());
-                    });
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-                    });
-                `;
-                const blob = new Blob([swCode], { type: 'text/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW registration error:', err));
-            }
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPwaPrompt = e;
-                const installContainer = document.getElementById('pwa-install-container');
-                if (installContainer) installContainer.classList.remove('hidden');
-            });
-
-            const installBtn = document.getElementById('pwa-install-btn');
-            if (installBtn) {
-                installBtn.addEventListener('click', async () => {
-                    if (deferredPwaPrompt) {
-                        deferredPwaPrompt.prompt();
-                        const { outcome } = await deferredPwaPrompt.userChoice;
-                        if (outcome === 'accepted') {
-                            window.showFloatingNotification('PWA Terpasang', 'Aplikasi berhasil ditambahkan ke Layar Utama Android.', 'success');
-                        }
-                        deferredPwaPrompt = null;
-                    } else {
-                        window.showModal('Panduan Install PWA', 'Untuk menginstal aplikasi ini di perangkat Android:\n\n1. Ketuk ikon menu titik tiga (⋮) di pojok kanan atas browser Chrome.\n2. Pilih menu "Tambahkan ke Layar Utama" (Add to Home screen) atau "Instal Aplikasi".\n3. Konfirmasi instalasi, dan ikon aplikasi Kurir Sekolah akan muncul di menu HP Anda!');
-                    }
-                });
-            }
         });
+
+        window.togglePasswordVisibility = function(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input || !icon) return;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        };
 
         window.copyGoogleScriptCode = function() {
             const textarea = document.getElementById('google-script-code-box');
@@ -746,12 +848,8 @@
             inputs.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
-                    el.addEventListener('input', (e) => {
-                        localStorage.setItem('kurir_form_' + id, e.target.value);
-                    });
-                    el.addEventListener('change', (e) => {
-                        localStorage.setItem('kurir_form_' + id, e.target.value);
-                    });
+                    el.addEventListener('input', (e) => localStorage.setItem('kurir_form_' + id, e.target.value));
+                    el.addEventListener('change', (e) => localStorage.setItem('kurir_form_' + id, e.target.value));
                 }
             });
         }
@@ -793,9 +891,11 @@
                 localLogs.unshift({ id: String(Date.now()), ...logEntry });
             }
 
-            if (googleSheetsWebhookUrl) {
+            const webhookEl = document.getElementById('sheets-webhook-url');
+            const activeWebhook = webhookEl ? webhookEl.value.trim() : googleSheetsWebhookUrl;
+            if (activeWebhook) {
                 try {
-                    fetch(googleSheetsWebhookUrl, {
+                    fetch(activeWebhook, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
@@ -941,8 +1041,8 @@
             );
 
             if (!matchedMember) {
-                window.logSystemEvent('ERROR', emailOrId, `Gagal login sebagai ${currentRole.toUpperCase()}: Akun tidak ditemukan di database.`);
-                window.showModal('Autentikasi Gagal', `Akun dengan email/nama "${emailOrId}" tidak ditemukan atau tidak memiliki hak akses sebagai ${currentRole.toUpperCase()}.\n\nPastikan Anda mendaftarkan akun tersebut terlebih dahulu di menu Admin.`);
+                window.logSystemEvent('ERROR', emailOrId, `Gagal login sebagai ${currentRole.toUpperCase()}: Akun tidak ditemukan.`);
+                window.showModal('Autentikasi Gagal', `Akun dengan email/nama "${emailOrId}" tidak ditemukan atau tidak memiliki hak akses sebagai ${currentRole.toUpperCase()}.`);
                 return;
             }
 
@@ -954,24 +1054,6 @@
 
             if (currentRole === 'security') {
                 loggedInOfficerName = `${matchedMember.name} (${matchedMember.dept || 'POS Utama'})`;
-                const officerDropdown = document.getElementById('input-security-officer');
-                if (officerDropdown) {
-                    let found = false;
-                    for (let i = 0; i < officerDropdown.options.length; i++) {
-                        if (officerDropdown.options[i].value.includes(matchedMember.name)) {
-                            officerDropdown.selectedIndex = i;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        const opt = document.createElement('option');
-                        opt.value = `${matchedMember.name} (${matchedMember.dept || 'POS'})`;
-                        opt.text = `${matchedMember.name} (${matchedMember.dept || 'POS'})`;
-                        officerDropdown.add(opt);
-                        officerDropdown.value = opt.value;
-                    }
-                }
             }
 
             const loginScr = document.getElementById('login-screen');
@@ -1008,31 +1090,24 @@
                 try {
                     const parcelsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels'));
                     localParcels = [];
-                    parcelsSnap.forEach(docSnap => {
-                        localParcels.push({ id: docSnap.id, ...docSnap.data() });
-                    });
+                    parcelsSnap.forEach(docSnap => localParcels.push({ id: docSnap.id, ...docSnap.data() }));
 
                     const membersSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'members'));
                     if (!membersSnap.empty) {
                         localMembers = [];
-                        membersSnap.forEach(docSnap => {
-                            localMembers.push({ id: docSnap.id, ...docSnap.data() });
-                        });
+                        membersSnap.forEach(docSnap => localMembers.push({ id: docSnap.id, ...docSnap.data() }));
                         populateSecurityOfficersDropdown();
                     }
 
                     const logsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs'));
                     if (!logsSnap.empty) {
                         localLogs = [];
-                        logsSnap.forEach(docSnap => {
-                            localLogs.push({ id: docSnap.id, ...docSnap.data() });
-                        });
+                        logsSnap.forEach(docSnap => localLogs.push({ id: docSnap.id, ...docSnap.data() }));
                     }
 
                     renderAppView();
                     window.showFloatingNotification('Data Diperbarui', 'Transaksi berhasil disinkronkan ulang dari Cloud.', 'success');
                 } catch (err) {
-                    console.error("Manual refresh error:", err);
                     window.showFloatingNotification('Gangguan Jaringan', 'Gagal menarik data terbaru, menampilkan cache lokal.', 'warning');
                 }
             } else {
@@ -1052,16 +1127,12 @@
                     try {
                         const parcelsSnap = await window.FB.getDocs(window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels'));
                         const fetchedParcels = [];
-                        parcelsSnap.forEach(docSnap => {
-                            fetchedParcels.push({ id: docSnap.id, ...docSnap.data() });
-                        });
+                        parcelsSnap.forEach(docSnap => fetchedParcels.push({ id: docSnap.id, ...docSnap.data() }));
                         if (fetchedParcels.length !== localParcels.length) {
                             localParcels = fetchedParcels;
                             renderAppView();
                         }
-                    } catch (e) {
-                        // Silent background retry
-                    }
+                    } catch (e) {}
                 }
             }, 15000);
         }
@@ -1115,9 +1186,7 @@
             if (!modal) return;
             if (show) {
                 modal.classList.remove('hidden');
-                if (id === 'modal-parcel') {
-                    populateSecurityOfficersDropdown();
-                }
+                if (id === 'modal-parcel') populateSecurityOfficersDropdown();
             } else {
                 modal.classList.add('hidden');
                 if (id === 'modal-parcel') {
@@ -1128,20 +1197,36 @@
             }
         };
 
+        window.openBarcodeScannerModal = function() {
+            window.toggleModal('modal-barcode-scanner', true);
+        };
+
+        window.simulateBarcodeScan = function() {
+            const randomCode = 'BARCODE-' + Math.floor(100000 + Math.random() * 900000);
+            const manualInput = document.getElementById('manual-scan-input');
+            if (manualInput) manualInput.value = randomCode;
+            window.showFloatingNotification('Scan Berhasil', 'Kode barcode berhasil terbaca: ' + randomCode, 'success');
+        };
+
+        window.applyScannedBarcode = function() {
+            const manualInput = document.getElementById('manual-scan-input');
+            const trackingInput = document.getElementById('input-tracking');
+            if (manualInput && trackingInput) {
+                const code = manualInput.value.trim() || ('SCAN-' + Math.floor(100000 + Math.random() * 900000));
+                trackingInput.value = code;
+                window.toggleModal('modal-barcode-scanner', false);
+                window.showFloatingNotification('Resi Terisi', 'Nomor resi berhasil dimasukkan otomatis.', 'success');
+            }
+        };
+
         window.openPhotoViewer = function(title, pkgUrl, resiUrl, deliveryUrl, notes, completedTime) {
             const container = document.getElementById('photo-viewer-container');
             if (!container) return;
             
             let htmlContent = '';
-            if (pkgUrl) {
-                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-blue-400 block mb-1">📸 Foto Paket:</span><img src="${pkgUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
-            }
-            if (resiUrl) {
-                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-amber-400 block mb-1">📸 Foto Resi:</span><img src="${resiUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
-            }
-            if (deliveryUrl) {
-                htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-emerald-400 block mb-1">📸 Bukti Serah Terima:</span><img src="${deliveryUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
-            }
+            if (pkgUrl) htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-blue-400 block mb-1">📸 Foto Paket:</span><img src="${pkgUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
+            if (resiUrl) htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-amber-400 block mb-1">📸 Foto Resi:</span><img src="${resiUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
+            if (deliveryUrl) htmlContent += `<div class="mb-2"><span class="text-[10px] font-bold text-emerald-400 block mb-1">📸 Bukti Serah Terima:</span><img src="${deliveryUrl}" class="w-full h-32 object-cover rounded-lg"></div>`;
             if (!pkgUrl && !resiUrl && !deliveryUrl) {
                 htmlContent = `<div class="p-4 text-center"><i class="fa-solid fa-triangle-exclamation text-2xl text-amber-400 mb-2"></i><p class="text-xs text-slate-300">Tidak ada arsip foto untuk transaksi ini.</p></div>`;
             }
@@ -1188,9 +1273,7 @@
             selectedCategory = cat;
             ['Dokumen', 'Makanan/Minuman', 'Barang'].forEach(c => {
                 const el = document.getElementById(`cat-${c}`);
-                if (el) {
-                    el.className = c === cat ? "cat-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "cat-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
-                }
+                if (el) el.className = c === cat ? "cat-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "cat-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
             });
         };
 
@@ -1198,9 +1281,7 @@
             selectedSla = sla;
             ['30 Menit', '2 Jam', 'Besok (24 Jam)'].forEach(s => {
                 const el = document.getElementById(`sla-${s}`);
-                if (el) {
-                    el.className = s === sla ? "sla-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "sla-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
-                }
+                if (el) el.className = s === sla ? "sla-btn border-2 border-blue-600 bg-blue-50 text-blue-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "sla-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
             });
         };
 
@@ -1208,9 +1289,7 @@
             selectedUnitType = type;
             ['Teacher', 'Staff', 'Student'].forEach(t => {
                 const el = document.getElementById(`unit-${t}`);
-                if (el) {
-                    el.className = t === type ? "unit-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "unit-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
-                }
+                if (el) el.className = t === type ? "unit-btn border-2 border-indigo-600 bg-indigo-50 text-indigo-700 py-2 rounded-xl text-[10px] font-bold transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer" : "unit-btn border-2 border-slate-200 text-slate-600 py-2 rounded-xl text-[10px] font-medium transition flex items-center justify-center space-x-1 shadow-sm cursor-pointer";
             });
         };
 
@@ -1224,7 +1303,6 @@
             if (notesEl) notesEl.value = text;
         };
 
-        // Dual Camera Handlers with Compression
         window.startCamera = async function(type) {
             const video = document.getElementById(`camera-preview-${type}`);
             const placeholder = document.getElementById(`camera-placeholder-${type}`);
@@ -1242,9 +1320,7 @@
                 }
             } catch (err) {
                 if (placeholder) {
-                    placeholder.innerHTML = `
-                        <button type="button" onclick="simulateCapture('${type}')" class="bg-emerald-600 text-white text-[8px] font-bold px-2 py-0.5 rounded shadow cursor-pointer">Simulasi Jepret</button>
-                    `;
+                    placeholder.innerHTML = `<button type="button" onclick="simulateCapture('${type}')" class="bg-emerald-600 text-white text-[8px] font-bold px-2 py-0.5 rounded shadow cursor-pointer">Simulasi Jepret</button>`;
                 }
             }
         };
@@ -1256,28 +1332,22 @@
 
             let dataUrl = '';
             if (video && canvas && stream) {
-                const maxWidth = 600;
-                const maxHeight = 600;
+                const maxWidth = 500;
+                const maxHeight = 500;
                 let width = video.videoWidth || 320;
                 let height = video.videoHeight || 240;
 
                 if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
+                    if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
                 } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
-                    }
+                    if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
                 }
 
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, width, height);
-                dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                dataUrl = canvas.toDataURL('image/jpeg', 0.5);
             } else {
                 dataUrl = type === 'pkg' ? 'https://images.unsplash.com/photo-1568667256549-094345857637?w=400&q=80' : 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
@@ -1337,9 +1407,7 @@
                 }
             } catch (err) {
                 if (placeholder) {
-                    placeholder.innerHTML = `
-                        <button type="button" onclick="simulateDeliveryCapture()" class="bg-emerald-600 text-white text-[9px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">Simpan Bukti Foto</button>
-                    `;
+                    placeholder.innerHTML = `<button type="button" onclick="simulateDeliveryCapture()" class="bg-emerald-600 text-white text-[9px] font-bold px-2.5 py-1 rounded shadow cursor-pointer">Simpan Bukti Foto</button>`;
                 }
             }
         };
@@ -1348,28 +1416,22 @@
             const video = document.getElementById('delivery-camera-preview');
             const canvas = document.getElementById('delivery-camera-canvas');
             if (video && canvas && deliveryCameraStream) {
-                const maxWidth = 600;
-                const maxHeight = 600;
+                const maxWidth = 500;
+                const maxHeight = 500;
                 let width = video.videoWidth || 320;
                 let height = video.videoHeight || 240;
 
                 if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width;
-                        width = maxWidth;
-                    }
+                    if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
                 } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height;
-                        height = maxHeight;
-                    }
+                    if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
                 }
 
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, width, height);
-                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                deliveryPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.5);
             } else {
                 deliveryPhotoDataUrl = 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80';
             }
@@ -1423,17 +1485,18 @@
             const pickupLocation = parcelSourceType === 'external' ? (pickupLocationEl ? pickupLocationEl.value.trim() : 'POS 3 Utama') : 'Internal Sekolah';
             const notes = notesEl ? notesEl.value.trim() : '';
 
-            // Mandatory validation check
             if (!tracking || !sender || !recipient || !destinationRoom || (parcelSourceType === 'external' && !pickupLocation)) {
                 window.logSystemEvent('ERROR', 'Security', 'Gagal catat paket: Terdapat field wajib yang belum diisi.');
-                window.showModal('Form Belum Lengkap', 'Harap isi semua bagian wajib berikut sebelum menyimpan:\n\n• Nomor Resi / Kode Dokumen\n• Nama Pengirim / Ekspedisi\n• Nama Penerima\n• Tempat Tujuan (Ruangan)\n' + (parcelSourceType === 'external' ? '• Lokasi Asal (Ambil Kurir)\n\n*(Foto dan catatan bersifat opsional)*' : '\n*(Foto dan catatan bersifat opsional)*'));
+                window.showModal('Form Belum Lengkap', 'Harap isi semua bagian wajib:\n\n• Nomor Resi / Kode Dokumen\n• Nama Pengirim / Ekspedisi\n• Nama Penerima\n• Tempat Tujuan (Ruangan)\n' + (parcelSourceType === 'external' ? '• Lokasi Asal (Ambil Kurir)' : ''));
                 return;
             }
 
             const now = new Date();
             const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+            
+            // Continuous sequential ID generation
             const totalCount = localParcels.length + 1;
-            const seq = String(totalCount).padStart(2, '0');
+            const seq = String(totalCount).padStart(3, '0');
             const txId = `TX-${dateStr}-${seq}`;
             const formattedTime = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) + ' • ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -1464,17 +1527,17 @@
                 try {
                     const parcelsCol = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels');
                     await window.FB.addDoc(parcelsCol, newParcelData);
-                } catch (e) {
-                    console.error("Firestore error:", e);
-                }
+                } catch (e) { console.error(e); }
             } else {
                 localParcels.unshift({ id: String(Date.now()), ...newParcelData });
                 renderAppView();
             }
 
-            if (googleSheetsWebhookUrl) {
+            const webhookEl = document.getElementById('sheets-webhook-url');
+            const activeWebhook = webhookEl ? webhookEl.value.trim() : googleSheetsWebhookUrl;
+            if (activeWebhook) {
                 try {
-                    fetch(googleSheetsWebhookUrl, {
+                    fetch(activeWebhook, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
@@ -1483,7 +1546,7 @@
                 } catch (err) {}
             }
 
-            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}). SLA: ${selectedSla}`);
+            window.logSystemEvent('TRANSACTION', 'Security (' + securityOfficer + ')', `Mencatat paket masuk baru [Resi: ${tracking}] dari ${sender} untuk ${recipient} (${destinationRoom}).`);
 
             window.toggleModal('modal-parcel', false);
             capturedPhotoPkgUrl = null;
@@ -1497,9 +1560,8 @@
             if (destinationRoomEl) destinationRoomEl.value = '';
             if (notesEl) notesEl.value = '';
 
-            window.showFloatingNotification('Paket Baru Masuk (' + pickupLocation + ')', `Resi: ${tracking} | Tujuan: ${recipient} (${destinationRoom})`, 'info');
-
-            window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nTipe: ${parcelSourceType === 'external' ? 'Eksternal' : 'Internal'}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}\nLokasi Penjemputan: ${pickupLocation}\nKategori: ${selectedCategory} (SLA: ${selectedSla})`);
+            window.showFloatingNotification('Paket Baru Masuk', `Resi: ${tracking} | Tujuan: ${recipient}`, 'info');
+            window.showModal('Transaksi Berhasil!', `ID Transaksi: ${txId}\nWaktu Masuk: ${formattedTime}\nNo Resi: ${tracking}\nPenerima: ${recipient} (${selectedUnitType})\nTujuan: ${destinationRoom}`);
         };
 
         window.openAddMemberModal = function() {
@@ -1563,9 +1625,7 @@
                 try {
                     const membersCol = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'members');
                     await window.FB.addDoc(membersCol, newMemberData);
-                } catch (e) {
-                    console.error("Firestore error:", e);
-                }
+                } catch (e) { console.error(e); }
             } else {
                 localMembers.push({ id: String(Date.now()), ...newMemberData });
                 populateSecurityOfficersDropdown();
@@ -1574,10 +1634,7 @@
 
             window.logSystemEvent('SUCCESS', 'Admin', `Mendaftarkan staf baru: ${name} (${role.toUpperCase()}) - ${dept}`);
             window.toggleModal('modal-member', false);
-            if (nameEl) nameEl.value = '';
-            if (emailEl) emailEl.value = '';
-            if (deptEl) deptEl.value = '';
-            window.showModal('Berhasil!', `Anggota ${name} (${role.toUpperCase()}) berhasil didaftarkan dengan email ${email}.`);
+            window.showModal('Berhasil!', `Anggota ${name} (${role.toUpperCase()}) berhasil didaftarkan.`);
         };
 
         window.saveEditedMember = async function() {
@@ -1608,9 +1665,7 @@
                 try {
                     const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'members', id);
                     await window.FB.updateDoc(docRef, updatedData);
-                } catch (e) {
-                    console.error("Firestore error:", e);
-                }
+                } catch (e) { console.error(e); }
             } else {
                 localMembers = localMembers.map(m => m.id === id ? { ...m, ...updatedData } : m);
                 populateSecurityOfficersDropdown();
@@ -1620,6 +1675,41 @@
             window.logSystemEvent('SUCCESS', 'Admin', `Memperbarui data staf: ${name} (${role.toUpperCase()})`);
             window.toggleModal('modal-member', false);
             window.showModal('Berhasil Diperbarui', `Data staf ${name} berhasil disimpan.`);
+        };
+
+        window.openResetPasswordModal = function(id, name) {
+            const idEl = document.getElementById('reset-member-id');
+            const infoEl = document.getElementById('reset-target-info');
+            const passEl = document.getElementById('new-reset-pass');
+            if (idEl) idEl.value = id;
+            if (infoEl) infoEl.innerText = `Staf: ${name}`;
+            if (passEl) passEl.value = '123456';
+            window.toggleModal('modal-reset-password', true);
+        };
+
+        window.executeResetPassword = async function() {
+            const idEl = document.getElementById('reset-member-id');
+            const passEl = document.getElementById('new-reset-pass');
+            if (!idEl || !passEl) return;
+            const id = idEl.value;
+            const newPass = passEl.value.trim() || '123456';
+
+            const member = localMembers.find(m => m.id === id);
+            const memberName = member ? member.name : 'Staf';
+
+            if (isCloudActive && window.FB && window.FB.db) {
+                try {
+                    const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'members', id);
+                    await window.FB.updateDoc(docRef, { pass: newPass });
+                } catch (e) { console.error(e); }
+            } else {
+                localMembers = localMembers.map(m => m.id === id ? { ...m, pass: newPass } : m);
+                renderAppView();
+            }
+
+            window.logSystemEvent('SUCCESS', 'Admin', `Reset password untuk staf: ${memberName}`);
+            window.toggleModal('modal-reset-password', false);
+            window.showModal('Password Direset', `Password untuk ${memberName} berhasil diperbarui.`);
         };
 
         window.deleteMember = function(id, name) {
@@ -1644,14 +1734,55 @@
             window.showModal('Terhapus', 'Staf berhasil dihapus.');
         };
 
-        window.deleteParcel = function(id, tracking) {
-            window.showModal('Konfirmasi Hapus', `Hapus riwayat paket ${tracking}?`, `
+        window.openAdminEditParcelModal = function(id) {
+            const parcel = localParcels.find(p => p.id === id);
+            if (!parcel) return;
+            document.getElementById('admin-edit-parcel-id').value = id;
+            document.getElementById('admin-edit-tracking').value = parcel.tracking || '';
+            document.getElementById('admin-edit-sender').value = parcel.sender || '';
+            document.getElementById('admin-edit-recipient').value = parcel.recipient || '';
+            document.getElementById('admin-edit-room').value = parcel.destinationRoom || '';
+            document.getElementById('admin-edit-status').value = parcel.status || 'At_Security';
+            document.getElementById('admin-edit-notes').value = parcel.notes || '';
+            window.toggleModal('modal-admin-parcel', true);
+        };
+
+        window.saveAdminEditedParcel = async function() {
+            const id = document.getElementById('admin-edit-parcel-id').value;
+            const tracking = document.getElementById('admin-edit-tracking').value.trim();
+            const sender = document.getElementById('admin-edit-sender').value.trim();
+            const recipient = document.getElementById('admin-edit-recipient').value.trim();
+            const destinationRoom = document.getElementById('admin-edit-room').value.trim();
+            const status = document.getElementById('admin-edit-status').value;
+            const notes = document.getElementById('admin-edit-notes').value.trim();
+
+            const updatedFields = { tracking, sender, recipient, destinationRoom, status, notes };
+
+            if (isCloudActive && window.FB && window.FB.db) {
+                try {
+                    const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels', id);
+                    await window.FB.updateDoc(docRef, updatedFields);
+                } catch (e) { console.error(e); }
+            } else {
+                localParcels = localParcels.map(p => p.id === id ? { ...p, ...updatedFields } : p);
+                renderAppView();
+            }
+
+            window.logSystemEvent('SUCCESS', 'Admin', `Mengedit data transaksi [Resi: ${tracking}]`);
+            window.toggleModal('modal-admin-parcel', false);
+            window.showModal('Berhasil', 'Data transaksi berhasil diperbarui.');
+        };
+
+        window.deleteParcelByAdmin = function() {
+            const id = document.getElementById('admin-edit-parcel-id').value;
+            window.closeModal();
+            window.showModal('Konfirmasi Hapus', 'Hapus permanen transaksi paket ini?', `
                 <button onclick="closeModal()" class="flex-1 bg-slate-200 text-slate-700 font-semibold py-2 rounded-xl text-xs cursor-pointer">Batal</button>
-                <button onclick="executeDeleteParcel('${id}', '${tracking}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
+                <button onclick="executeDeleteParcel('${id}')" class="flex-1 bg-red-600 text-white font-semibold py-2 rounded-xl text-xs cursor-pointer">Hapus</button>
             `);
         };
 
-        window.executeDeleteParcel = async function(id, tracking) {
+        window.executeDeleteParcel = async function(id) {
             window.closeModal();
             if (isCloudActive && window.FB && window.FB.db) {
                 try {
@@ -1661,8 +1792,8 @@
                 localParcels = localParcels.filter(p => p.id !== id);
                 renderAppView();
             }
-            window.logSystemEvent('WARNING', 'Admin', `Menghapus data riwayat paket resi: ${tracking}`);
-            window.showModal('Terhapus', 'Riwayat paket berhasil dihapus.');
+            window.logSystemEvent('WARNING', 'Admin', `Menghapus transaksi paket ID: ${id}`);
+            window.showModal('Terhapus', 'Transaksi berhasil dihapus.');
         };
 
         window.exportDataExcel = function() {
@@ -1671,7 +1802,6 @@
             localParcels.forEach(p => {
                 csvContent += `"${p.txId || 'TX'}","${p.tracking}","${p.sourceType}","${p.sender}","${p.recipient}","${p.destinationRoom}","${p.unitType}","${p.pickupLocation}","${p.category}","${p.sla}","${p.status}","${p.courier || '-'}","${p.timestampFormatted || '-'}","${p.completedAtFormatted || '-'}"\n`;
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1679,48 +1809,26 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.showFloatingNotification('Ekspor Excel Berhasil', 'File CSV/Excel laporan logistik berhasil diunduh.', 'success');
+            window.showFloatingNotification('Ekspor Excel Berhasil', 'File laporan logistik berhasil diunduh.', 'success');
         };
 
         window.exportDataPDF = function() {
             window.logSystemEvent('INFO', currentRole, 'Mengekspor laporan rekapitulasi teks/PDF.');
-            let reportText = `=========================================\n`;
-            reportText += `REKAPITULASI LAPORAN KURIR SEKOLAH CLOUD\n`;
-            reportText += `Tanggal Ekspor: ${new Date().toLocaleDateString('id-ID')} | Peran: ${currentRole.toUpperCase()}\n`;
-            reportText += `=========================================\n\n`;
-            
+            let reportText = `=========================================\nREKAPITULASI LAPORAN KURIR SEKOLAH CLOUD\nTanggal Ekspor: ${new Date().toLocaleDateString('id-ID')} | Peran: ${currentRole.toUpperCase()}\n=========================================\n\n`;
             localParcels.forEach((p, idx) => {
-                reportText += `${idx + 1}. [${p.txId || 'TX'}] Resi: ${p.tracking}\n`;
-                reportText += `   - Sumber: ${p.sourceType} (${p.sender})\n`;
-                reportText += `   - Tujuan: ${p.recipient} (${p.destinationRoom} - ${p.unitType})\n`;
-                reportText += `   - Pos Asal: ${p.pickupLocation} | Kategori: ${p.category} (SLA: ${p.sla})\n`;
-                reportText += `   - Status: ${p.status} | Kurir: ${p.courier || '-'}\n`;
-                reportText += `   - Masuk: ${p.timestampFormatted || '-'}\n`;
-                if (p.completedAtFormatted) reportText += `   - Selesai: ${p.completedAtFormatted}\n`;
-                reportText += `   -------------------------------------\n`;
+                reportText += `${idx + 1}. [${p.txId || 'TX'}] Resi: ${p.tracking}\n   - Sumber: ${p.sourceType} (${p.sender})\n   - Tujuan: ${p.recipient} (${p.destinationRoom})\n   - Status: ${p.status} | Masuk: ${p.timestampFormatted || '-'}\n   -------------------------------------\n`;
             });
-
             if (navigator.clipboard) {
                 navigator.clipboard.writeText(reportText).then(() => {
-                    window.showModal('Ekspor Laporan PDF / Teks Berhasil!', 'Laporan format teks lengkap telah disalin ke clipboard Anda untuk dicetak atau dibagikan sebagai dokumen PDF/Word.');
-                }).catch(() => {
-                    window.showModal('Laporan Laporan', reportText);
-                });
-            } else {
-                window.showModal('Laporan Laporan', reportText);
-            }
+                    window.showModal('Ekspor Laporan PDF / Teks Berhasil!', 'Laporan format teks lengkap telah disalin ke clipboard.');
+                }).catch(() => { window.showModal('Laporan Laporan', reportText); });
+            } else { window.showModal('Laporan Laporan', reportText); }
         };
 
         window.claimTask = async function(id) {
             const parcel = localParcels.find(p => p.id === id);
-            const txId = parcel ? (parcel.txId || 'TX-OLD') : 'TX-NEW';
+            const txId = parcel ? (parcel.txId || 'TX') : 'TX';
             const tracking = parcel ? parcel.tracking : '-';
-            const recipient = parcel ? parcel.recipient : '-';
-            const room = parcel ? parcel.destinationRoom : '-';
-            const pickup = parcel ? (parcel.pickupLocation || 'POS 3 Utama') : 'POS 3 Utama';
-            const sender = parcel ? parcel.sender : '-';
-            const category = parcel ? parcel.category : '-';
-            const timeStr = parcel ? (parcel.timestampFormatted || 'Hari ini') : '-';
 
             if (isCloudActive && window.FB && window.FB.db) {
                 const docRef = window.FB.doc(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels', id);
@@ -1730,9 +1838,11 @@
                 renderAppView();
             }
 
-            if (googleSheetsWebhookUrl) {
+            const webhookEl = document.getElementById('sheets-webhook-url');
+            const activeWebhook = webhookEl ? webhookEl.value.trim() : googleSheetsWebhookUrl;
+            if (activeWebhook) {
                 try {
-                    fetch(googleSheetsWebhookUrl, {
+                    fetch(activeWebhook, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
@@ -1741,11 +1851,9 @@
                 } catch (err) {}
             }
 
-            window.logSystemEvent('TRANSACTION', 'Ahmad (Kurir)', `Mengklaim tugas pengantaran [Resi: ${tracking}] dari ${pickup} untuk ${recipient} (${room}).`);
-
-            window.showFloatingNotification('Tugas Diklaim Kurir', `ID: ${txId} | Resi: ${tracking} diambil dari ${pickup}`, 'success');
-
-            window.showModal('Tugas Berhasil Diklaim!', `ID Transaksi: ${txId}\nWaktu Masuk: ${timeStr}\nNo Resi: ${tracking}\nPengirim: ${sender}\nKategori: ${category}\nPenerima: ${recipient} (${room})\nLokasi Penjemputan: Silakan ambil fisik paket di ${pickup}.`);
+            window.logSystemEvent('TRANSACTION', 'Ahmad (Kurir)', `Mengklaim tugas pengantaran [Resi: ${tracking}]`);
+            window.showFloatingNotification('Tugas Diklaim', `Resi: ${tracking}`, 'success');
+            window.showModal('Tugas Berhasil Diklaim!', `ID Transaksi: ${txId}\nNo Resi: ${tracking}\nSilakan ambil fisik paket di pos.`);
         };
 
         window.openCompleteModal = function(id) {
@@ -1804,9 +1912,11 @@
                 renderAppView();
             }
 
-            if (googleSheetsWebhookUrl) {
+            const webhookEl = document.getElementById('sheets-webhook-url');
+            const activeWebhook = webhookEl ? webhookEl.value.trim() : googleSheetsWebhookUrl;
+            if (activeWebhook) {
                 try {
-                    fetch(googleSheetsWebhookUrl, {
+                    fetch(activeWebhook, {
                         method: 'POST',
                         mode: 'no-cors',
                         headers: { 'Content-Type': 'application/json' },
@@ -1815,12 +1925,11 @@
                 } catch (err) {}
             }
 
-            window.logSystemEvent('SUCCESS', 'Ahmad (Kurir)', `Menyelesaikan pengantaran paket [Resi: ${tracking}]. Catatan: "${proofNotes}" (${deliveryPhotoDataUrl ? 'Dengan Foto Bukti' : 'Tanpa Foto'}).`);
-
+            window.logSystemEvent('SUCCESS', 'Ahmad (Kurir)', `Menyelesaikan pengantaran paket [Resi: ${tracking}]`);
             window.toggleModal('modal-delivery-proof', false);
             stopDeliveryCamera();
-            window.showFloatingNotification('Pengantaran Selesai', `Paket berhasil diantar pada ${completedFormatted}`, 'success');
-            window.showModal('Selesai & Tersimpan', `Pengantaran berhasil diselesaikan.\nWaktu Selesai: ${completedFormatted}\nFoto Bukti: ${deliveryPhotoDataUrl ? 'Tersimpan (Sah)' : 'Catatan Saja'}`);
+            window.showFloatingNotification('Pengantaran Selesai', `Paket berhasil diantar`, 'success');
+            window.showModal('Selesai & Tersimpan', `Waktu Selesai: ${completedFormatted}`);
         };
 
         window.openRescheduleModal = function(id) {
@@ -1848,7 +1957,7 @@
                     status: 'At_Security',
                     sla: 'Besok (24 Jam)',
                     courier: null,
-                    notes: `Dikembalikan ke ${posAsal} (Jadwal Besok): ${rescheduleReason}`
+                    notes: `Dikembalikan ke ${posAsal}: ${rescheduleReason}`
                 });
             } else {
                 localParcels = localParcels.map(p => p.id === id ? { 
@@ -1856,16 +1965,15 @@
                     status: 'At_Security',
                     sla: 'Besok (24 Jam)',
                     courier: null,
-                    notes: `Dikembalikan ke ${posAsal} (Jadwal Besok): ${rescheduleReason}`
+                    notes: `Dikembalikan ke ${posAsal}: ${rescheduleReason}`
                 } : p);
                 renderAppView();
             }
 
-            window.logSystemEvent('WARNING', 'Ahmad (Kurir)', `Menunda pengantaran paket [Resi: ${tracking}]. Dikembalikan ke ${posAsal}. Alasan: ${rescheduleReason}`);
-
+            window.logSystemEvent('WARNING', 'Ahmad (Kurir)', `Menunda pengantaran paket [Resi: ${tracking}]`);
             window.toggleModal('modal-reschedule', false);
-            window.showFloatingNotification('Tugas Ditunda & Dikembalikan', `Paket dikembalikan ke ${posAsal} dan dijadwalkan besok.`, 'warning');
-            window.showModal('Tugas Dikembalikan ke Pos Asal', `Paket berhasil dikembalikan ke posisi asal (${posAsal}) karena gagal serah terima.\nAlasan: ${rescheduleReason}\nSLA Diubah ke: Besok (24 Jam).`);
+            window.showFloatingNotification('Tugas Ditunda', `Paket dikembalikan ke ${posAsal}`, 'warning');
+            window.showModal('Tugas Dikembalikan', `Paket dikembalikan ke ${posAsal} dan dijadwalkan besok.`);
         };
 
         function setupRealtimeListeners() {
@@ -1873,9 +1981,7 @@
             const parcelsQuery = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'parcels');
             window.FB.unsubscribeParcels = window.FB.onSnapshot(parcelsQuery, (snapshot) => {
                 localParcels = [];
-                snapshot.forEach(docSnap => {
-                    localParcels.push({ id: docSnap.id, ...docSnap.data() });
-                });
+                snapshot.forEach(docSnap => localParcels.push({ id: docSnap.id, ...docSnap.data() }));
                 renderAppView();
             }, (err) => console.error(err));
 
@@ -1883,9 +1989,7 @@
             window.FB.unsubscribeMembers = window.FB.onSnapshot(membersQuery, (snapshot) => {
                 if (!snapshot.empty) {
                     localMembers = [];
-                    snapshot.forEach(docSnap => {
-                        localMembers.push({ id: docSnap.id, ...docSnap.data() });
-                    });
+                    snapshot.forEach(docSnap => localMembers.push({ id: docSnap.id, ...docSnap.data() }));
                     populateSecurityOfficersDropdown();
                     renderAppView();
                 }
@@ -1894,35 +1998,20 @@
             const logsQuery = window.FB.collection(window.FB.db, 'artifacts', appId, 'public', 'data', 'logs');
             window.FB.unsubscribeLogs = window.FB.onSnapshot(logsQuery, (snapshot) => {
                 localLogs = [];
-                snapshot.forEach(docSnap => {
-                    localLogs.push({ id: docSnap.id, ...docSnap.data() });
-                });
+                snapshot.forEach(docSnap => localLogs.push({ id: docSnap.id, ...docSnap.data() }));
                 renderAppView();
             }, (err) => console.error(err));
         }
 
-        window.updateFilterStatus = function(val) {
-            currentFilterStatus = val;
-            renderAppView();
-        };
-
-        window.updateFilterCategory = function(val) {
-            currentFilterCategory = val;
-            renderAppView();
-        };
-
-        window.updateFilterSla = function(val) {
-            currentFilterSla = val;
-            renderAppView();
-        };
-
-        window.updateSearchQuery = function(val) {
-            currentSearchQuery = val.toLowerCase();
-            renderAppView();
-        };
+        window.updateFilterStatus = function(val) { currentFilterStatus = val; renderAppView(); };
+        window.updateFilterCategory = function(val) { currentFilterCategory = val; renderAppView(); };
+        window.updateFilterSla = function(val) { currentFilterSla = val; renderAppView(); };
+        window.updateSearchQuery = function(val) { currentSearchQuery = val.toLowerCase(); renderAppView(); };
 
         function getFilteredParcels(parcelsList) {
-            return parcelsList.filter(p => {
+            // Sort newest first by creation timestamp
+            const sorted = [...parcelsList].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            return sorted.filter(p => {
                 const matchStatus = currentFilterStatus === 'all' || p.status === currentFilterStatus;
                 const matchCategory = currentFilterCategory === 'all' || p.category === currentFilterCategory;
                 const matchSla = currentFilterSla === 'all' || p.sla === currentFilterSla;
@@ -1943,7 +2032,7 @@
             if (!body || !nav || !toolbar) return;
 
             if (currentRole === 'recipient') {
-                toolbar.style.display = 'none';
+                toolbar.style.display = 'flex';
             } else {
                 toolbar.style.display = 'flex';
             }
@@ -1984,7 +2073,7 @@
                 nav.innerHTML = `
                     <button class="text-blue-600 flex flex-col items-center text-[10px] font-bold py-1 cursor-pointer"><i class="fa-solid fa-house text-sm mb-0.5"></i><span>Beranda</span></button>
                     <button onclick="toggleModal('modal-parcel', true)" class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg -mt-4 active:scale-95 cursor-pointer"><i class="fa-solid fa-camera text-base"></i></button>
-                    <button onclick="showModal('Panduan SOP Petugas Pos Security', 'SOP Petugas Pos & Fitur Renewal:\n\n1. Sinyal Live hijau di atas menandakan sinkronisasi real-time aktif.\n2. Catat paket masuk dengan mengambil foto fisik paket dan foto resi/struk terpisah, serta mengetik nomor dokumen.\n3. Pastikan memilih SLA prioritas (30 Menit, 2 Jam, atau Besok 24 Jam) dengan benar.\n4. Gunakan tombol rotasi untuk memperbarui data secara manual jika jaringan lemah.')" class="text-slate-400 flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-info text-sm mb-0.5"></i><span>Info SOP</span></button>
+                    <button onclick="showModal('Panduan SOP Petugas Pos Security', 'SOP Petugas Pos & Fitur Otomatis Bulanan/Harian:\n\n1. Sinyal Live hijau menandakan sinkronisasi real-time aktif.\n2. Catat paket masuk dengan mengambil foto fisik paket dan foto resi.\n3. Gunakan tombol Scan Barcode pada resi untuk pengisian otomatis atau manual.\n4. Urutan riwayat secara otomatis menampilkan data terbaru di paling atas.\n5. Integrasi Google Sheets otomatis membuat sheet harian & file bulanan baru.')" class="text-slate-400 flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-circle-info text-sm mb-0.5"></i><span>Info SOP</span></button>
                 `;
 
                 const queueCount = localParcels.filter(p => p.status === 'At_Security').length;
@@ -2021,11 +2110,11 @@
                     ${filterBarHTML}
 
                     <div class="space-y-2 pb-6">
-                        <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat</h4>
+                        <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider px-0.5">Semua Transaksi Masuk & Riwayat (Terbaru)</h4>
                         ${filteredParcels.length ? filteredParcels.map(p => `
                             <div class="bg-white p-3 rounded-2xl shadow-sm border ${p.sourceType === 'internal' ? 'border-purple-200' : 'border-slate-200'} space-y-1.5 text-xs">
                                 <div class="flex justify-between items-center">
-                                    <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                    <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                     <div class="flex items-center space-x-1">
                                         <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                         ${(p.hasPkgPhoto || p.hasResiPhoto || p.hasDeliveryPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || p.notes || ''}', '${p.completedAtFormatted || p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
@@ -2047,7 +2136,7 @@
                                     <span class="text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i>${p.timestampFormatted || 'Hari ini'}</span>
                                 </div>
                             </div>
-                        `).join('') : '<div class="text-center py-8 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada data paket yang cocok dengan filter.</div>'}
+                        `).join('') : '<div class="text-center py-8 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Tidak ada data paket.</div>'}
                     </div>
                 `;
             } else if (currentRole === 'courier') {
@@ -2072,7 +2161,7 @@
                             ${pool.length ? pool.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                        <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
                                             ${(p.hasPkgPhoto || p.hasResiPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '', '${p.notes || ''}', '${p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
                                             <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
@@ -2084,11 +2173,8 @@
                                             <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
                                         <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> (${p.category})</p>
-                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3 Utama'} (Petugas: ${p.securityOfficer || '-'})</p>
+                                        <p class="text-[10px] text-blue-600 font-bold mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i>Lokasi Ambil: ${p.pickupLocation || 'POS 3 Utama'}</p>
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
-                                    </div>
-                                    <div class="flex justify-between items-center pt-1 border-t border-slate-100 text-[10px] text-slate-400 font-mono">
-                                        <span><i class="fa-regular fa-clock mr-1"></i>${p.timestampFormatted || ''}</span>
                                     </div>
                                     <button onclick="claimTask('${p.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow active:scale-95 flex items-center justify-center space-x-1 cursor-pointer">
                                         <i class="fa-solid fa-motorcycle"></i><span>Ambil Tugas Dari ${p.pickupLocation || 'POS 3 Utama'}</span>
@@ -2107,17 +2193,15 @@
                             ${active.length ? active.map(p => `
                                 <div class="bg-amber-50/60 p-3 rounded-2xl shadow-sm border border-amber-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                        <span class="font-mono font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                         <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                     </div>
                                     <div>
                                         <div class="flex items-center justify-between">
                                             <p class="text-xs font-bold text-slate-900">Antar ke: ${p.recipient} (<span class="text-indigo-700">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
-                                            <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
                                         </div>
                                         <p class="text-[10px] text-slate-500">Pengirim: ${p.sender} (${p.category}) | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
                                         <p class="text-[10px] text-slate-500 mt-1">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
-                                        <p class="text-[10px] text-slate-400 font-mono mt-1"><i class="fa-regular fa-clock mr-1"></i>Masuk: ${p.timestampFormatted || ''}</p>
                                     </div>
                                     <div class="grid grid-cols-2 gap-1.5 pt-1">
                                         <button onclick="openRescheduleModal('${p.id}')" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold py-2 rounded-xl transition shadow active:scale-95 flex items-center justify-center space-x-1 cursor-pointer">
@@ -2136,12 +2220,12 @@
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-0.5">
                                 <h3 class="font-bold text-xs"><i class="fa-solid fa-circle-check mr-1"></i>Riwayat Selesai & Review Foto (${completed.length})</h3>
-                                <p class="text-[10px] text-emerald-100">Daftar kiriman berhasil diantar lengkap tanggal & jam.</p>
+                                <p class="text-[10px] text-emerald-100">Daftar kiriman berhasil diantar.</p>
                             </div>
                             ${completed.length ? completed.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-emerald-600 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                        <span class="font-mono font-bold text-emerald-600 text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                         <button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Lihat Semua Foto</span></button>
                                     </div>
                                     <div class="flex justify-between items-start">
@@ -2150,9 +2234,6 @@
                                             <p class="text-[10px] text-slate-400">Pengirim: ${p.sender} • <span class="font-mono">Masuk: ${p.timestampFormatted || ''}</span></p>
                                             <p class="text-[10px] text-emerald-700 font-semibold mt-1"><i class="fa-solid fa-clipboard-check mr-1"></i>Catatan: ${p.deliveryNotes || '-'}</p>
                                             <p class="text-[10px] text-slate-500 font-mono font-bold mt-0.5">Selesai: ${p.completedAtFormatted || '-'}</p>
-                                        </div>
-                                        <div onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
-                                            ${p.deliveryPhotoUrl ? `<img src="${p.deliveryPhotoUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-base"></i>`}
                                         </div>
                                     </div>
                                 </div>
@@ -2165,7 +2246,8 @@
             } else if (currentRole === 'recipient') {
                 nav.innerHTML = `
                     <button onclick="recipientTab = 'incoming'; renderAppView();" class="${recipientTab === 'incoming' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-boxes-stacked text-sm mb-0.5"></i><span>Paket Masuk</span></button>
-                    <button onclick="recipientTab = 'history'; renderAppView();" class="${recipientTab === 'history' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-clock-rotate-left text-sm mb-0.5"></i><span>Semua Transaksi & Foto</span></button>
+                    <button onclick="recipientTab = 'history'; renderAppView();" class="${recipientTab === 'history' ? 'text-blue-600 font-bold' : 'text-slate-400'} flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-clock-rotate-left text-sm mb-0.5"></i><span>Semua Transaksi</span></button>
+                    <button onclick="handleLogout()" class="text-red-500 flex flex-col items-center text-[10px] py-1 cursor-pointer"><i class="fa-solid fa-right-from-bracket text-sm mb-0.5"></i><span>Keluar</span></button>
                 `;
 
                 const incoming = getFilteredParcels(localParcels.filter(p => p.status !== 'Completed'));
@@ -2183,71 +2265,45 @@
                             ${incoming.length ? incoming.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                        <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-lg text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
                                             <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
                                             ${(p.hasPkgPhoto || p.hasResiPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '', '${p.notes || ''}', '${p.timestampFormatted || ''}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
-                                            <span class="text-[9px] font-semibold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg">${p.category}</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="flex items-center justify-between">
-                                            <p class="font-bold text-slate-800">Tujuan: ${p.recipient} (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
-                                            <span class="text-[9px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg font-bold"><i class="fa-solid ${p.unitType === 'Teacher' ? 'fa-chalkboard-user' : (p.unitType === 'Staff' ? 'fa-id-badge' : 'fa-user-graduate')} mr-1"></i>${p.unitType || 'Teacher'}</span>
-                                        </div>
+                                        <p class="font-bold text-slate-800">Tujuan: ${p.recipient} (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>)</p>
                                         <p class="text-[10px] text-slate-500">Pengirim: <span class="font-semibold text-slate-700">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span></p>
                                         <p class="text-[10px] text-slate-500 mt-0.5">Keterangan: <span class="font-medium text-slate-700">${p.notes || '-'}</span></p>
-                                        <p class="text-[10px] text-slate-400 mt-1 font-mono"><i class="fa-regular fa-clock mr-1"></i>Masuk: ${p.timestampFormatted || ''}</p>
                                     </div>
                                     <div class="flex justify-between items-center pt-1.5 border-t border-slate-100 text-[10px]">
-                                        <span class="font-bold italic ${p.status === 'Delivering' ? 'text-amber-600' : 'text-blue-600'}">Status: ${p.status === 'Delivering' ? '🚀 Sedang Diantar Kurir' : '📦 Menunggu di ' + (p.pickupLocation || 'POS')}</span>
-                                        <span class="text-slate-400">Kurir: ${p.courier || 'Belum ditugaskan'}</span>
+                                        <span class="font-bold italic ${p.status === 'Delivering' ? 'text-amber-600' : 'text-blue-600'}">Status: ${p.status === 'Delivering' ? '🚀 Sedang Diantar' : '📦 Menunggu di Pos'}</span>
+                                        <span class="text-slate-400">Kurir: ${p.courier || 'Belum'}</span>
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada paket aktif yang cocok.</div>'}
+                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada paket aktif.</div>'}
                         </div>
                     `;
                 } else if (recipientTab === 'history') {
                     recipientContent += `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-3 rounded-2xl shadow space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <div>
-                                        <h3 class="font-bold text-xs"><i class="fa-solid fa-list-check mr-1"></i>Semua Transaksi & Foto Bukti</h3>
-                                        <p class="text-[10px] text-emerald-100">Arsip lengkap seluruh riwayat paket masuk & selesai.</p>
-                                    </div>
-                                    <div class="flex items-center space-x-1 text-[10px]">
-                                        <span class="text-emerald-100 font-semibold">Baris:</span>
-                                        <select onchange="recipientPageSize = parseInt(this.value); renderAppView();" class="bg-emerald-700 text-white border border-emerald-500 rounded px-1.5 py-0.5 font-bold cursor-pointer">
-                                            <option value="10" ${recipientPageSize === 10 ? 'selected' : ''}>10</option>
-                                            <option value="50" ${recipientPageSize === 50 ? 'selected' : ''}>50</option>
-                                            <option value="100" ${recipientPageSize === 100 ? 'selected' : ''}>100</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-list-check mr-1"></i>Semua Transaksi & Foto Bukti</h3>
                             </div>
                             ${displayedHistory.length ? displayedHistory.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
-                                        ${p.status === 'Completed' ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg flex items-center space-x-1 shadow-sm cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Foto Bukti</span></button>` : `<span class="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">${p.status}</span>`}
+                                        <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
+                                        ${p.status === 'Completed' ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="font-bold text-[9px] bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg cursor-pointer"><i class="fa-solid fa-image mr-1"></i><span>Foto Bukti</span></button>` : `<span class="text-[9px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">${p.status}</span>`}
                                     </div>
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <p class="font-bold text-slate-800 text-xs">${p.category} dari ${p.sender}</p>
-                                            <p class="text-[10px] text-slate-500">Tujuan: ${p.recipient} (${p.destinationRoom || 'Ruang Utama'})</p>
-                                            <p class="text-[10px] text-slate-400 font-mono">Masuk: ${p.timestampFormatted || ''}</p>
-                                            <p class="text-[10px] text-slate-600 font-medium mt-0.5">Keterangan: ${p.notes || '-'}</p>
-                                            ${p.completedAtFormatted ? `<p class="text-[10px] text-emerald-700 font-bold font-mono mt-0.5">Selesai: ${p.completedAtFormatted}</p>` : ''}
-                                        </div>
-                                        ${p.status === 'Completed' ? `
-                                            <div onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || ''}', '${p.completedAtFormatted || ''}')" class="w-12 h-12 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center justify-center shrink-0 text-emerald-600 shadow-sm cursor-pointer hover:bg-emerald-100 overflow-hidden">
-                                                ${p.deliveryPhotoUrl ? `<img src="${p.deliveryPhotoUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-base"></i>`}
-                                            </div>
-                                        ` : ''}
+                                    <div>
+                                        <p class="font-bold text-slate-800 text-xs">${p.category} dari ${p.sender}</p>
+                                        <p class="text-[10px] text-slate-500">Tujuan: ${p.recipient} (${p.destinationRoom || 'Ruang Utama'})</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">Masuk: ${p.timestampFormatted || ''}</p>
+                                        ${p.completedAtFormatted ? `<p class="text-[10px] text-emerald-700 font-bold font-mono mt-0.5">Selesai: ${p.completedAtFormatted}</p>` : ''}
                                     </div>
                                 </div>
-                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada transaksi tercatat.</div>'}
+                            `).join('') : '<div class="text-center py-10 bg-white rounded-2xl border text-slate-400 text-xs shadow-sm">Belum ada transaksi.</div>'}
                         </div>
                     `;
                 }
@@ -2267,14 +2323,14 @@
                     const totalParcels = localParcels.length;
                     const completedParcels = localParcels.filter(p => p.status === 'Completed').length;
                     const activeParcels = totalParcels - completedParcels;
+                    const externalCount = localParcels.filter(p => p.sourceType === 'external').length;
+                    const internalCount = localParcels.filter(p => p.sourceType === 'internal').length;
 
                     adminContent = `
                         <div class="space-y-3 pb-6">
-                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-center">
-                                <div>
-                                    <h3 class="font-bold text-slate-800 text-xs">Dashboard Admin</h3>
-                                    <p class="text-[10px] text-slate-500">Statistik Logistik & Ekspor Laporan PDF/Excel</p>
-                                </div>
+                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
+                                <h3 class="font-bold text-slate-800 text-xs">Dashboard Overview Admin</h3>
+                                <p class="text-[10px] text-slate-500">Statistik real-time logistik sekolah</p>
                             </div>
 
                             <div class="grid grid-cols-3 gap-1.5">
@@ -2292,14 +2348,38 @@
                                 </div>
                             </div>
 
+                            <!-- Visual Graphic Bar Breakdown -->
                             <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
-                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Aktivitas Real-Time & Jam Selesai</h4>
+                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Grafik Rasio Sumber Paket</h4>
+                                <div class="space-y-1.5">
+                                    <div>
+                                        <div class="flex justify-between text-[10px] font-semibold text-slate-600 mb-0.5">
+                                            <span>Eksternal (Kurir Luar)</span>
+                                            <span>${externalCount} (${totalParcels ? Math.round((externalCount/totalParcels)*100) : 0}%)</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-blue-600 h-full rounded-full" style="width: ${totalParcels ? (externalCount/totalParcels)*100 : 0}%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between text-[10px] font-semibold text-slate-600 mb-0.5">
+                                            <span>Internal Sekolah</span>
+                                            <span>${internalCount} (${totalParcels ? Math.round((internalCount/totalParcels)*100) : 0}%)</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-purple-600 h-full rounded-full" style="width: ${totalParcels ? (internalCount/totalParcels)*100 : 0}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-2 text-xs">
+                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Aktivitas Transaksi Terbaru</h4>
                                 ${localParcels.slice(0, 3).map(p => `
                                     <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
                                         <div>
-                                            <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
-                                            <p class="text-slate-500 text-[10px]">${p.recipient} (${p.destinationRoom || 'Ruang Utama'}) • <span class="font-mono">Masuk: ${p.timestampFormatted || ''}</span></p>
-                                            ${p.completedAtFormatted ? `<p class="text-[10px] text-emerald-600 font-mono font-bold">Selesai: ${p.completedAtFormatted}</p>` : ''}
+                                            <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
+                                            <p class="text-slate-500 text-[10px]">${p.recipient} • <span class="font-mono">${p.timestampFormatted || ''}</span></p>
                                         </div>
                                         <span class="text-[9px] font-bold px-2 py-0.5 rounded-lg ${p.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${p.status}</span>
                                     </div>
@@ -2311,28 +2391,19 @@
                     const filteredAdminParcels = getFilteredParcels(localParcels);
                     adminContent = filterBarHTML + `
                         <div class="space-y-2.5 pb-6 pt-1">
-                            <div class="flex justify-between items-center">
-                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Monitoring Paket (${filteredAdminParcels.length})</h4>
-                            </div>
+                            <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Kelola & Edit Paket (${filteredAdminParcels.length})</h4>
                             ${filteredAdminParcels.map(p => `
                                 <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 space-y-1.5 text-xs">
                                     <div class="flex justify-between items-center">
-                                        <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX-OLD'} | Resi: ${p.tracking}</span>
+                                        <span class="font-mono font-bold text-slate-700 text-[10px]">ID: ${p.txId || 'TX'} | Resi: ${p.tracking}</span>
                                         <div class="flex items-center space-x-1">
-                                            <span class="text-[9px] font-bold ${p.sla==='30 Menit'?'bg-red-100 text-red-700':(p.sla==='2 Jam'?'bg-amber-100 text-amber-700':'bg-blue-100 text-blue-700')} px-2 py-0.5 rounded-lg">${p.sla || '30 Menit'}</span>
-                                            ${(p.hasPkgPhoto || p.hasResiPhoto || p.hasDeliveryPhoto) ? `<button onclick="openPhotoViewer('Arsip Foto', '${p.pkgPhotoUrl || ''}', '${p.resiPhotoUrl || ''}', '${p.deliveryPhotoUrl || ''}', '${p.deliveryNotes || p.notes || ''}', '${p.completedAtFormatted || p.timestampFormatted || ''}')" class="bg-emerald-100 text-emerald-800 text-[9px] font-bold px-2 py-0.5 rounded cursor-pointer"><i class="fa-solid fa-image"></i> Foto</button>` : ''}
-                                            <button onclick="deleteParcel('${p.id}', '${p.tracking}')" class="text-red-500 hover:text-red-700 text-xs p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                                            <button onclick="openAdminEditParcelModal('${p.id}')" class="bg-blue-50 text-blue-700 text-[9px] font-bold px-2.5 py-1 rounded cursor-pointer"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit</button>
+                                            <button onclick="executeDeleteParcel('${p.id}')" class="text-red-500 hover:text-red-700 text-xs p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="text-[10px] text-slate-400">Penerima: <span class="font-bold text-slate-800">${p.recipient}</span> (<span class="text-indigo-600">${p.destinationRoom || 'Ruang Utama'}</span>) (${p.unitType || 'Teacher'})</p>
-                                        <p class="text-[10px] text-slate-400">Pengirim: <span class="text-slate-600">${p.sender}</span> | Asal: <span class="font-bold text-blue-700">${p.pickupLocation || 'POS 3 Utama'}</span> | SLA: ${p.sla || '30 Menit'}</p>
-                                        <p class="text-[10px] text-slate-500 font-mono mt-0.5">Petugas: ${p.securityOfficer || '-'} | Masuk: ${p.timestampFormatted || ''} ${p.completedAtFormatted ? '• Selesai: ' + p.completedAtFormatted : ''}</p>
-                                        <p class="text-[10px] text-slate-600 mt-0.5">Keterangan: ${p.notes || '-'}</p>
-                                    </div>
-                                    <div class="flex justify-between items-center pt-1 border-t border-slate-100 text-[10px]">
-                                        <span class="italic font-bold text-blue-600">Status: ${p.status}</span>
-                                        <span class="text-slate-400">Kurir: ${p.courier || 'Belum'}</span>
+                                        <p class="text-[10px] text-slate-400">Penerima: <span class="font-bold text-slate-800">${p.recipient}</span> (${p.destinationRoom || 'Ruang Utama'})</p>
+                                        <p class="text-[10px] text-slate-400">Pengirim: <span class="text-slate-600">${p.sender}</span> | Status: <span class="font-bold text-blue-600">${p.status}</span></p>
                                     </div>
                                 </div>
                             `).join('')}
@@ -2342,14 +2413,14 @@
                     adminContent = `
                         <div class="space-y-2.5 pb-6">
                             <div class="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-3 rounded-2xl shadow space-y-1">
-                                <h3 class="font-bold text-xs"><i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Log Aktivitas & Error Sistem</h3>
-                                <p class="text-[10px] text-slate-300">Pencatatan real-time seluruh aksi transaksi, input, dan error dari semua role.</p>
+                                <h3 class="font-bold text-xs"><i class="fa-solid fa-terminal mr-1 text-amber-400"></i>Log Aktivitas & Audit Sistem</h3>
+                                <p class="text-[10px] text-slate-300">Pencatatan real-time seluruh aksi dari semua role.</p>
                             </div>
                             <div class="space-y-2">
                                 ${localLogs.map(l => `
                                     <div class="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs space-y-1">
                                         <div class="flex justify-between items-center">
-                                            <span class="font-bold ${l.type === 'ERROR' ? 'text-red-600 bg-red-50' : (l.type === 'SUCCESS' ? 'text-emerald-600 bg-emerald-50' : (l.type === 'WARNING' ? 'text-amber-600 bg-amber-50' : 'text-blue-600 bg-blue-50'))} px-2 py-0.5 rounded text-[9px]">${l.type}</span>
+                                            <span class="font-bold ${l.type === 'ERROR' ? 'text-red-600 bg-red-50' : (l.type === 'SUCCESS' ? 'text-emerald-600 bg-emerald-50' : 'text-blue-600 bg-blue-50')} px-2 py-0.5 rounded text-[9px]">${l.type}</span>
                                             <span class="text-[9px] text-slate-400 font-mono">${l.timestamp}</span>
                                         </div>
                                         <p class="text-[10px] font-semibold text-slate-800">Aktor: <span class="text-blue-600">${l.actor}</span></p>
@@ -2363,7 +2434,7 @@
                     adminContent = `
                         <div class="space-y-2.5 pb-6">
                             <div class="flex justify-between items-center">
-                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Direktori Staf & Akun Login (${localMembers.length})</h4>
+                                <h4 class="font-bold text-slate-800 text-[11px] uppercase tracking-wider">Direktori Staf (${localMembers.length})</h4>
                                 <button onclick="openAddMemberModal()" class="bg-slate-900 text-white text-[9px] px-2.5 py-1 rounded-xl font-bold shadow-sm cursor-pointer"><i class="fa-solid fa-plus mr-1"></i>Staf</button>
                             </div>
                             ${localMembers.map(m => `
@@ -2374,6 +2445,7 @@
                                         <span class="text-[9px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg font-bold uppercase mt-1 inline-block">${m.role}</span>
                                     </div>
                                     <div class="flex items-center space-x-1">
+                                        <button onclick="openResetPasswordModal('${m.id}', '${m.name}')" class="text-amber-500 hover:text-amber-700 p-2 cursor-pointer" title="Reset Password"><i class="fa-solid fa-key"></i></button>
                                         <button onclick="openEditMemberModal('${m.id}')" class="text-blue-500 hover:text-blue-700 p-2 cursor-pointer" title="Edit Staf"><i class="fa-solid fa-pen-to-square"></i></button>
                                         <button onclick="deleteMember('${m.id}', '${m.name}')" class="text-red-400 hover:text-red-600 p-2 cursor-pointer" title="Hapus Staf"><i class="fa-solid fa-trash-can"></i></button>
                                     </div>
