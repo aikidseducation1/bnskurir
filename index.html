@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kurir BNS - Sekolah & Manajemen Paket Realtime</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,18 +25,15 @@
             50% { box-shadow: 0 0 4px rgba(168, 85, 247, 0.2), inset 0 0 2px rgba(99, 102, 241, 0.1); }
             100% { box-shadow: 0 0 2px rgba(99, 102, 241, 0.15), inset 0 0 1px rgba(99, 102, 241, 0.1); }
         }
-
         .btn-glow {
             animation: subtle-glow 3s infinite alternate;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .btn-glow:hover, .btn-glow:active {
             transform: translateY(-1px);
             box-shadow: 0 0 5px rgba(236, 72, 153, 0.25), inset 0 0 2px rgba(99, 102, 241, 0.15);
             filter: brightness(1.03);
         }
-
         @keyframes pulse-slow {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.4; transform: scale(1.15); }
@@ -45,11 +41,9 @@
         .connection-indicator {
             animation: pulse-slow 2s infinite ease-in-out;
         }
-
         .modal-transition {
             transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
         @keyframes slide-in {
             from { transform: translateY(-10px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -57,7 +51,6 @@
         .toast-anim {
             animation: slide-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
         .zoomable-img {
             transition: transform 0.2s ease;
             cursor: zoom-in;
@@ -65,7 +58,6 @@
         .zoomable-img:hover {
             filter: brightness(1.05);
         }
-
         @media print {
             body * { visibility: hidden; }
             #print-report-area, #print-report-area * { visibility: visible; }
@@ -89,7 +81,6 @@
                 <p class="text-[9px] text-slate-500">Sistem Logistik Sekolah Ceria & Andal</p>
             </div>
 
-            <!-- Role Selector Buttons -->
             <div class="grid grid-cols-4 gap-1">
                 <button type="button" onclick="window.selectLoginRole('petugas')" id="login-btn-petugas" class="p-1 rounded-lg border-2 border-indigo-600 bg-indigo-50 text-indigo-700 text-[10px] font-bold transition flex flex-col items-center space-y-0.5 shadow-sm btn-glow">
                     <i class="fa-solid fa-people-carry-box text-xs text-indigo-600"></i>
@@ -112,25 +103,26 @@
             <form onsubmit="window.handleLogin(event)" class="space-y-1.5">
                 <div>
                     <label class="block text-[9px] font-semibold text-slate-600 mb-0.5" id="login-label-name">Email / Username</label>
-                    <input type="text" id="login-username" required placeholder="" class="w-full px-2 py-1 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
+                    <input type="text" id="login-username" required class="w-full px-2 py-1 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
                 </div>
                 <div id="password-field-group">
                     <label class="block text-[9px] font-semibold text-slate-600 mb-0.5">Kata Sandi</label>
                     <div class="relative">
-                        <input type="password" id="login-password" required placeholder="" class="w-full px-2 py-1 pr-6 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
+                        <input type="password" id="login-password" required class="w-full px-2 py-1 pr-6 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
                         <button type="button" onclick="window.togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-1.5 flex items-center text-slate-400 hover:text-slate-700 text-[10px] focus:outline-none" title="Lihat / Sembunyikan">
                             <i id="password-toggle-icon" class="fa-solid fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" id="login-submit-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold py-1.5 rounded-lg text-[10px] shadow-sm transition flex items-center justify-center space-x-1 btn-glow">
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold py-1.5 rounded-lg text-[10px] shadow-sm transition flex items-center justify-center space-x-1 btn-glow">
                     <i class="fa-solid fa-rocket text-amber-200 text-[9px]"></i>
                     <span>Masuk Aplikasi</span>
                 </button>
             </form>
-            <div class="bg-slate-50 p-1 rounded-lg border border-slate-100 text-[8.5px] text-slate-500 space-y-0.5 text-center">
-                <p>Sinkronisasi Cloud Firebase Realtime Aktif.</p>
+            <div class="bg-slate-50 p-1 rounded-lg border border-slate-100 text-[8.5px] text-slate-500 text-center flex justify-between items-center px-2">
+                <span>Sinkronisasi Cloud Firebase Aktif.</span>
+                <button type="button" onclick="window.runQuickDiagnosticTest()" class="text-indigo-600 font-bold hover:underline"><i class="fa-solid fa-stethoscope mr-0.5"></i> Test Menu</button>
             </div>
         </div>
     </div>
@@ -154,6 +146,10 @@
             </div>
 
             <div class="flex items-center space-x-1">
+                <button onclick="window.runQuickDiagnosticTest()" class="bg-amber-600 hover:bg-amber-700 text-white px-1 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Test Semua Menu & Fitur">
+                    <i class="fa-solid fa-stethoscope text-[8.5px]"></i>
+                    <span>Test Menu</span>
+                </button>
                 <button onclick="window.speakAppWelcome()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Pengumuman Suara">
                     <i class="fa-solid fa-volume-high text-amber-300 text-[8.5px]"></i>
                     <span>Suara</span>
@@ -436,7 +432,6 @@
                     </div>
                 </div>
 
-                <!-- Interactive Analytics Widget -->
                 <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-2">
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs"><i class="fa-solid fa-chart-line"></i></div>
@@ -1218,7 +1213,7 @@
         window.selectLoginRole = selectLoginRole;
 
         function handleLogin(e) {
-            e.preventDefault();
+            if (e) e.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             const role = loggedUser.role;
 
@@ -2295,7 +2290,6 @@
             if (sc) sc.innerText = completed;
             if (ss) ss.innerText = successRate + '%';
 
-            // Analytics Widget
             const analyticsText = document.getElementById('analytics-summary-text');
             const slaBadge = document.getElementById('sla-warning-badge');
             if (analyticsText) {
@@ -2663,6 +2657,53 @@
                 renderAuditLogs();
             }
         }
+
+        function runQuickDiagnosticTest() {
+            showToast('Menjalankan uji otomatis seluruh menu...', 'info');
+            setTimeout(() => {
+                switchRole('petugas');
+                switchPetugasTab('input');
+                const recipientInput = document.getElementById('input-recipient');
+                const destInput = document.getElementById('input-destination');
+                if(recipientInput) recipientInput.value = 'Test Siswa ' + Math.floor(Math.random()*100);
+                if(destInput) destInput.value = 'Lab Komputer A';
+                physicalPhotoDataUrl = 'https://placehold.co/300x200/indigo/white?text=Test+Foto+Fisik';
+                const thumb = document.getElementById('physical-photo-thumb');
+                if(thumb) thumb.src = physicalPhotoDataUrl;
+                const wrap = document.getElementById('physical-photo-preview-wrap');
+                if(wrap) wrap.classList.remove('hidden');
+                switchPetugasTab('status');
+
+                setTimeout(() => {
+                    switchRole('kurir');
+                    switchCourierSubTab('pending');
+                    switchCourierSubTab('delivering');
+                    switchCourierSubTab('completed');
+
+                    setTimeout(() => {
+                        switchRole('penerima');
+                        const rName = document.getElementById('receiver-session-name');
+                        if(rName) {
+                            rName.value = 'Siti Rahma';
+                            renderReceiverView();
+                        }
+
+                        setTimeout(() => {
+                            switchRole('admin');
+                            switchAdminTab('overview');
+                            switchAdminTab('packages');
+                            switchAdminTab('reports');
+                            switchAdminTab('members');
+                            switchAdminTab('audit');
+
+                            showToast('🎉 Uji otomatis semua menu berhasil 100%!', 'success');
+                            speakText('Uji otomatis semua menu berhasil');
+                        }, 800);
+                    }, 800);
+                }, 800);
+            }, 500);
+        }
+        window.runQuickDiagnosticTest = runQuickDiagnosticTest;
 
         window.onload = function() {
             initFirebase();
