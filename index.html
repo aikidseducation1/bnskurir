@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://unpkg.com/@zxing/library@latest"></script>
+    
+    <link rel="manifest" id="pwa-manifest-link">
+    <meta name="theme-color" content="#4338ca">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kurir BNS">
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .tab-view { display: none; }
@@ -17,6 +24,8 @@
         .petugas-tab-panel:not(.hidden) { display: block; }
         .courier-panel { display: none; }
         .courier-panel:not(.hidden) { display: block; }
+        .petugas-status-panel { display: none; }
+        .petugas-status-panel:not(.hidden) { display: block; }
         .admin-tab-content { display: none; }
         .admin-tab-content:not(.hidden) { display: block; }
 
@@ -57,6 +66,14 @@
         }
         .zoomable-img:hover {
             filter: brightness(1.05);
+        }
+        #petugas-content-status.fullscreen-mode {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 9999 !important;
+            background: #f8fafc !important;
+            padding: 1rem !important;
+            overflow-y: auto !important;
         }
         @media print {
             body * { visibility: hidden; }
@@ -146,16 +163,20 @@
             </div>
 
             <div class="flex items-center space-x-1">
-                <button onclick="window.runQuickDiagnosticTest()" class="bg-amber-600 hover:bg-amber-700 text-white px-1 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Test Semua Menu & Fitur">
-                    <i class="fa-solid fa-stethoscope text-[8.5px]"></i>
-                    <span>Test Menu</span>
+                <button id="pwa-install-btn" onclick="window.installPwaApp()" class="hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-1.5 py-0.5 rounded-lg text-[9px] font-bold transition items-center space-x-0.5 shadow-sm btn-glow" title="Install Aplikasi (PWA)">
+                    <i class="fa-solid fa-download text-[8.5px]"></i>
+                    <span>Install App</span>
                 </button>
-                <button onclick="window.speakAppWelcome()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Pengumuman Suara">
+                <button onclick="window.runQuickDiagnosticTest()" class="bg-amber-600 hover:bg-amber-700 text-white px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Test Semua Menu & Fitur">
+                    <i class="fa-solid fa-stethoscope text-[8.5px]"></i>
+                    <span>Test</span>
+                </button>
+                <button onclick="window.speakAppWelcome()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Pengumuman Suara">
                     <i class="fa-solid fa-volume-high text-amber-300 text-[8.5px]"></i>
                     <span>Suara</span>
                 </button>
                 <div id="desktop-role-nav" class="hidden md:flex items-center space-x-1 bg-indigo-900/50 p-0.5 rounded-lg text-[9px] font-medium"></div>
-                <button onclick="window.logoutApp()" class="bg-indigo-800 hover:bg-indigo-900 text-indigo-100 px-1 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm">
+                <button onclick="window.logoutApp()" class="bg-indigo-800 hover:bg-indigo-900 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm">
                     <i class="fa-solid fa-right-from-bracket text-rose-300 text-[8.5px]"></i>
                     <span>Keluar</span>
                 </button>
@@ -267,21 +288,50 @@
 
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1 hidden">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1">
-                    <div class="flex flex-wrap justify-between items-center gap-0.5 border-b pb-0.5">
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi</h3>
-                            <p class="text-[7.5px] text-slate-500">Monitoring ID Transaksi dan No Resi paket sekolah real-time</p>
+                    <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
+                        <div class="grid grid-cols-3 gap-0.5 flex-1 min-w-[200px] mr-2">
+                            <button onclick="window.switchPetugasStatusSubTab('pending')" id="petugas-status-subtab-pending" class="py-0.5 px-0.5 rounded text-[8.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
+                                <i class="fa-solid fa-list-check text-amber-300"></i>
+                                <span>Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
+                            </button>
+                            <button onclick="window.switchPetugasStatusSubTab('delivering')" id="petugas-status-subtab-delivering" class="py-0.5 px-0.5 rounded text-[8.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5">
+                                <i class="fa-solid fa-paper-plane text-sky-400"></i>
+                                <span>Dikirim (<span id="count-petugas-delivering-badge">0</span>)</span>
+                            </button>
+                            <button onclick="window.switchPetugasStatusSubTab('completed')" id="petugas-status-subtab-completed" class="py-0.5 px-0.5 rounded text-[8.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                <span>Selesai (<span id="count-petugas-completed-badge">0</span>)</span>
+                            </button>
                         </div>
-                        <div class="flex items-center space-x-1 w-full md:w-auto">
-                            <div class="relative flex-1 md:w-36">
-                                <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Pencarian..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500">
+                        <div class="flex items-center space-x-1">
+                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-[8.5px] font-bold transition flex items-center space-x-1 border border-indigo-200" title="Mode Fullscreen / Normal">
+                                <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
+                                <span id="petugas-fullscreen-text">Fullscreen</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between">
+                        <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
+                            <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
+                            <div class="relative flex-1">
+                                <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500">
                                 <button type="button" onclick="window.startVoiceSearch('filter-petugas-search', window.renderPetugasStatusView)" class="absolute inset-y-0 right-0 px-1.5 flex items-center text-slate-400 hover:text-indigo-600 text-[10px]" title="Cari dengan Suara">
                                     <i id="mic-filter-petugas-search" class="fa-solid fa-microphone"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div id="petugas-status-list" class="space-y-1 max-h-[380px] overflow-y-auto pr-0.5"></div>
+
+                    <div id="petugas-status-panel-pending" class="petugas-status-panel space-y-1">
+                        <div id="list-petugas-status-pending" class="space-y-1 max-h-[380px] overflow-y-auto pr-0.5"></div>
+                    </div>
+                    <div id="petugas-status-panel-delivering" class="petugas-status-panel space-y-1 hidden">
+                        <div id="list-petugas-status-delivering" class="space-y-1 max-h-[380px] overflow-y-auto pr-0.5"></div>
+                    </div>
+                    <div id="petugas-status-panel-completed" class="petugas-status-panel space-y-1 hidden">
+                        <div id="list-petugas-status-completed" class="space-y-1 max-h-[380px] overflow-y-auto pr-0.5"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -635,7 +685,7 @@
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-2 text-center text-[9px] text-slate-500 mt-auto">
-        <p>© 2026 Aufah Tech. All Rights Reserved.</p>
+        <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
@@ -839,9 +889,69 @@
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        function installPwaApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('Terima kasih telah menginstall aplikasi Kurir BNS!');
+                    }
+                    deferredPrompt = null;
+                    const installBtn = document.getElementById('pwa-install-btn');
+                    if (installBtn) installBtn.classList.add('hidden');
+                });
+            } else {
+                showToast('Aplikasi sudah terinstall atau browser Anda membatasi instalasi PWA.', 'info');
+            }
+        }
+        window.installPwaApp = installPwaApp;
+
+        const manifestData = {
+            name: "Kurir BNS Express - Sekolah",
+            short_name: "Kurir BNS",
+            start_url: window.location.href,
+            display: "standalone",
+            background_color: "#f8fafc",
+            theme_color: "#4338ca",
+            icons: [
+                {
+                    src: "https://placehold.co/192x192/4338ca/white?text=BNS",
+                    sizes: "192x192",
+                    type: "image/png"
+                },
+                {
+                    src: "https://placehold.co/512x512/4338ca/white?text=BNS",
+                    sizes: "512x512",
+                    type: "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifestData);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        document.getElementById('pwa-manifest-link').setAttribute('href', manifestURL);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
+                self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
+                self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
+            `;
+            const swBlob = new Blob([swCode], {type: 'text/javascript'});
+            const swUrl = URL.createObjectURL(swBlob);
+            navigator.serviceWorker.register(swUrl).catch(err => {});
+        }
+
         let appId = typeof __app_id !== 'undefined' ? __app_id : 'bns-kurir-realtime';
         let db, auth, analytics;
-
         const SECRET_API_KEY = "AIzaSyDCRDC1ykV6UTeBYFAoNEBtlIKeyDphstU";
 
         let loggedUser = { role: 'petugas', name: 'Gari' };
@@ -855,6 +965,7 @@
         let activeCompletingId = null;
         let codeReader = null;
         let codeReaderControls = null;
+        let isPetugasFullscreen = false;
 
         let packages = [];
         let members = [
@@ -1377,9 +1488,51 @@
                     }
                 }
             });
-            if (tab === 'status') renderPetugasStatusView();
+            if (tab === 'status') {
+                switchPetugasStatusSubTab('pending');
+                renderPetugasStatusView();
+            }
         }
         window.switchPetugasTab = switchPetugasTab;
+
+        function switchPetugasStatusSubTab(tab) {
+            ['pending', 'delivering', 'completed'].forEach(t => {
+                const btn = document.getElementById(`petugas-status-subtab-${t}`);
+                const panel = document.getElementById(`petugas-status-panel-${t}`);
+                if (btn && panel) {
+                    if (t === tab) {
+                        btn.className = "py-0.5 px-0.5 rounded text-[8.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5";
+                        panel.classList.remove('hidden');
+                    } else {
+                        btn.className = "py-0.5 px-0.5 rounded text-[8.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5";
+                        panel.classList.add('hidden');
+                    }
+                }
+            });
+            renderPetugasStatusView();
+        }
+        window.switchPetugasStatusSubTab = switchPetugasStatusSubTab;
+
+        function togglePetugasFullscreen() {
+            isPetugasFullscreen = !isPetugasFullscreen;
+            const contentStatus = document.getElementById('petugas-content-status');
+            const icon = document.getElementById('petugas-fullscreen-icon');
+            const text = document.getElementById('petugas-fullscreen-text');
+            if (contentStatus) {
+                if (isPetugasFullscreen) {
+                    contentStatus.classList.add('fullscreen-mode');
+                    if(icon) icon.className = "fa-solid fa-compress";
+                    if(text) text.innerText = "Keluar Fullscreen";
+                    showToast('Mode Fullscreen Monitoring Aktif');
+                } else {
+                    contentStatus.classList.remove('fullscreen-mode');
+                    if(icon) icon.className = "fa-solid fa-expand";
+                    if(text) text.innerText = "Fullscreen";
+                    showToast('Mode Normal');
+                }
+            }
+        }
+        window.togglePetugasFullscreen = togglePetugasFullscreen;
 
         function switchSourceType(type) {
             sourceType = type;
@@ -2032,17 +2185,25 @@
         function renderPetugasStatusView() {
             const searchElem = document.getElementById('filter-petugas-search');
             const search = searchElem ? searchElem.value.toLowerCase() : '';
-            const container = document.getElementById('petugas-status-list');
-            if (!container) return;
-
+            
             const filtered = packages.filter(p => p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search));
 
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-[9px] text-slate-400 text-center py-2">Tidak ada transaksi ditemukan.</p>';
-                return;
-            }
+            const pending = filtered.filter(p => p.status === 'pending');
+            const delivering = filtered.filter(p => p.status === 'delivering');
+            const completed = filtered.filter(p => p.status === 'completed');
 
-            container.innerHTML = filtered.map(p => `
+            const pBadge = document.getElementById('count-petugas-pending-badge');
+            const dBadge = document.getElementById('count-petugas-delivering-badge');
+            const cBadge = document.getElementById('count-petugas-completed-badge');
+            if (pBadge) pBadge.innerText = pending.length;
+            if (dBadge) dBadge.innerText = delivering.length;
+            if (cBadge) cBadge.innerText = completed.length;
+
+            const listPending = document.getElementById('list-petugas-status-pending');
+            const listDelivering = document.getElementById('list-petugas-status-delivering');
+            const listCompleted = document.getElementById('list-petugas-status-completed');
+
+            const renderCard = (p) => `
                 <div class="p-1.5 rounded-lg border border-slate-200/80 bg-white shadow-sm space-y-1 text-[9px]">
                     <div class="flex flex-wrap justify-between items-center gap-0.5 border-b border-slate-100 pb-0.5">
                         <div class="flex items-center space-x-1">
@@ -2076,7 +2237,11 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+
+            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[9px] text-slate-400 text-center py-2">Tidak ada antrian paket</p>' : pending.map(renderCard).join('');
+            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[9px] text-slate-400 text-center py-2">Tidak ada paket dikirim</p>' : delivering.map(renderCard).join('');
+            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[9px] text-slate-400 text-center py-2">Belum ada riwayat selesai</p>' : completed.map(renderCard).join('');
         }
         window.renderPetugasStatusView = renderPetugasStatusView;
 
@@ -2673,6 +2838,7 @@
                 const wrap = document.getElementById('physical-photo-preview-wrap');
                 if(wrap) wrap.classList.remove('hidden');
                 switchPetugasTab('status');
+                switchPetugasStatusSubTab('pending');
 
                 setTimeout(() => {
                     switchRole('kurir');
