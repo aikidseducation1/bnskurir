@@ -67,7 +67,7 @@
             transform: scale(1.05);
         }
 
-        /* PERFECT NON-OVERLAPPING FIXED GRID LAYOUT FOR PETUGAS STATUS */
+        /* LOCKED NON-OVERLAPPING 3-COLUMN GRID FOR PETUGAS STATUS */
         .petugas-status-grid-wrap {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -118,11 +118,16 @@
     <div id="auth-screen" class="fixed inset-0 bg-slate-900/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-xl space-y-2 modal-transition border border-slate-100 max-h-[95vh] overflow-y-auto">
             <div class="text-center space-y-1">
-                <div class="w-10 h-10 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl flex items-center justify-center mx-auto text-sm shadow-md btn-glow">
-                    <i class="fa-solid fa-dove"></i>
+                <div class="relative w-12 h-12 mx-auto">
+                    <img id="login-detected-avatar" src="https://placehold.co/100x100/indigo/white?text=BNS" class="w-12 h-12 rounded-full object-cover border-2 border-indigo-500 shadow-md">
+                    <div class="absolute -bottom-1 -right-1 bg-emerald-500 w-3.5 h-3.5 rounded-full border-2 border-white flex items-center justify-center text-[7px] text-white" title="Auto-Detected">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
                 </div>
-                <h2 class="text-xs font-bold text-slate-800">Kurir BNS Express</h2>
-                <p class="text-[9px] text-slate-500">Sistem Logistik Sekolah Ceria & Andal</p>
+                <div>
+                    <h2 class="text-xs font-bold text-slate-800">Kurir BNS Express</h2>
+                    <p id="login-detected-name" class="text-[9px] text-indigo-600 font-semibold">Sistem Logistik Sekolah Ceria & Andal</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-4 gap-1">
@@ -147,7 +152,7 @@
             <form onsubmit="window.handleLogin(event)" class="space-y-1.5">
                 <div>
                     <label class="block text-[9px] font-semibold text-slate-600 mb-0.5" id="login-label-name">Email / Username</label>
-                    <input type="text" id="login-username" required class="w-full px-2 py-1 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
+                    <input type="text" id="login-username" oninput="window.handleLoginEmailInput(this.value)" required class="w-full px-2 py-1 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50" placeholder="Ketik email terdaftar...">
                 </div>
                 <div id="password-field-group">
                     <div class="flex justify-between items-center mb-0.5">
@@ -181,8 +186,8 @@
     <header class="bg-indigo-700 text-white shadow-sm sticky top-0 z-45">
         <div class="max-w-full mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
             <div class="flex items-center space-x-1.5">
-                <div class="bg-gradient-to-tr from-amber-400 to-orange-500 text-white p-1 rounded-xl font-bold shadow">
-                    <i class="fa-solid fa-dove text-[10px]"></i>
+                <div id="header-avatar-wrap" class="w-7 h-7 rounded-full overflow-hidden border border-amber-300 shadow bg-indigo-800 flex items-center justify-center shrink-0 cursor-pointer" onclick="window.openProfileModal()" title="Klik untuk Ganti Foto & Profil">
+                    <img id="header-avatar-img" src="https://placehold.co/100x100/indigo/white?text=BNS" class="w-full h-full object-cover">
                 </div>
                 <div>
                     <div class="flex items-center space-x-1">
@@ -201,7 +206,7 @@
                     <i class="fa-solid fa-download text-[8.5px]"></i>
                     <span>Install App</span>
                 </button>
-                <button onclick="window.openProfileModal()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Profil & Ganti Password">
+                <button onclick="window.openProfileModal()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Profil & Ganti Foto/Password">
                     <i class="fa-solid fa-user-gear text-amber-300 text-[8.5px]"></i>
                     <span>Profil</span>
                 </button>
@@ -321,7 +326,7 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Locked Non-Overlapping Grid) -->
+            <!-- Petugas Tab: Status Transaksi Realtime (Locked Grid Layout) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col">
                     
@@ -688,7 +693,8 @@
                         <table class="w-full text-left text-[9px]">
                             <thead class="bg-slate-100 text-slate-700 uppercase font-semibold text-[8px]">
                                 <tr>
-                                    <th class="p-1.5">Nama & Email Resmi</th>
+                                    <th class="p-1.5">Foto & Nama</th>
+                                    <th class="p-1.5">Email Resmi</th>
                                     <th class="p-1.5">Peran (Role)</th>
                                     <th class="p-1.5">Status</th>
                                     <th class="p-1.5 text-right">Aksi</th>
@@ -782,14 +788,26 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
-    <!-- Profile & Password Change Modal -->
+    <!-- Profile & Avatar Update Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
-                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-user-gear text-indigo-600 mr-1"></i> Profil & Ganti Kata Sandi</h3>
+                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-user-gear text-indigo-600 mr-1"></i> Profil & Ganti Foto/Sandi</h3>
                 <button onclick="window.closeProfileModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="window.handleUpdateOwnPassword(event)" class="space-y-1.5 text-[9px]">
+            
+            <div class="text-center space-y-1">
+                <div class="relative w-16 h-16 mx-auto group">
+                    <img id="profile-avatar-img" src="" class="w-16 h-16 rounded-full object-cover border-2 border-indigo-500 shadow-sm zoomable-img" onclick="window.openZoomModal(this.src)">
+                    <label for="profile-avatar-upload" class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs cursor-pointer" title="Upload Foto Baru">
+                        <i class="fa-solid fa-camera"></i>
+                    </label>
+                    <input type="file" id="profile-avatar-upload" accept="image/*" onchange="window.handleAvatarUpload(event)" class="hidden">
+                </div>
+                <p class="text-[8px] text-slate-400">Klik gambar untuk zoom atau hover untuk ganti foto</p>
+            </div>
+
+            <form onsubmit="window.handleUpdateOwnProfile(event)" class="space-y-1.5 text-[9px]">
                 <div>
                     <label class="block font-semibold text-slate-600 mb-0.5">Nama Anda</label>
                     <input type="text" id="profile-display-name" readonly class="w-full px-2 py-0.5 rounded border border-slate-200 bg-slate-100 font-semibold text-indigo-700">
@@ -799,10 +817,10 @@
                     <input type="text" id="profile-display-email" readonly class="w-full px-2 py-0.5 rounded border border-slate-200 bg-slate-100 font-mono text-slate-600">
                 </div>
                 <div>
-                    <label class="block font-semibold text-slate-600 mb-0.5">Kata Sandi Baru</label>
-                    <input type="password" id="profile-new-password" required placeholder="Masukkan kata sandi baru" class="w-full px-2 py-0.5 rounded border border-slate-200">
+                    <label class="block font-semibold text-slate-600 mb-0.5">Kata Sandi Baru (Opsional)</label>
+                    <input type="password" id="profile-new-password" placeholder="Kosongkan jika tidak diubah" class="w-full px-2 py-0.5 rounded border border-slate-200">
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Simpan Sandi Baru</button>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Simpan Perubahan Profil</button>
             </form>
         </div>
     </div>
@@ -842,25 +860,25 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Modal with Debounce Lock -->
+    <!-- Barcode Scanner Modal with Strict Scan Lock & Multi-Format EAN-13 Support -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
-                <h3 class="font-bold text-slate-800 text-xs flex items-center"><i class="fa-solid fa-barcode text-indigo-600 mr-1.5"></i> Scan Barcode / Resi</h3>
+                <h3 class="font-bold text-slate-800 text-xs flex items-center"><i class="fa-solid fa-barcode text-indigo-600 mr-1.5"></i> Scan Barcode / EAN-13 Resi</h3>
                 <button onclick="window.closeBarcodeModal()" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-[9px] text-slate-500 text-center">Arahkan kamera ke barcode atau QR resi pengiriman.</p>
+            <p class="text-[9px] text-slate-500 text-center">Arahkan kamera ke barcode EAN-13, Code 128, atau QR resi.</p>
             
             <div class="space-y-2">
                 <div class="relative w-full h-44 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
-                    <video id="interactive-barcode-video" class="w-full h-full object-cover" muted playsinline></video>
-                    <div class="absolute inset-x-6 border-2 border-dashed border-emerald-400 h-12 rounded-lg pointer-events-none flex items-center justify-center bg-emerald-500/10">
+                    <video id="interactive-barcode-video" class="w-full h-full object-cover filter contrast-125 brightness-110" muted playsinline></video>
+                    <div class="absolute inset-x-4 border-2 border-dashed border-emerald-400 h-16 rounded-lg pointer-events-none flex items-center justify-center bg-emerald-500/10">
                         <span class="text-[8px] bg-emerald-600 text-white px-2 py-0.5 rounded shadow font-bold">Posisikan Barcode di Sini</span>
                     </div>
                 </div>
 
                 <div class="text-center space-y-1">
-                    <span class="text-[8px] font-bold text-slate-400 uppercase block">Atau Pilih Gambar Resi dari Galeri</span>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase block">Atau Pilih / Foto Resi dari Galeri</span>
                     <input type="file" id="barcode-file-input" accept="image/*" onchange="window.handleBarcodeFileUpload(event)" class="w-full text-[9px] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[9px] file:font-semibold file:bg-indigo-50 file:text-indigo-700 cursor-pointer">
                 </div>
             </div>
@@ -987,13 +1005,22 @@
 
     <!-- Member Modal -->
     <div id="member-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
                 <h3 id="member-modal-title" class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-user-plus text-indigo-600 mr-1"></i> Tambah Anggota</h3>
                 <button onclick="window.closeMemberModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
+            <div class="text-center space-y-1">
+                <div class="w-14 h-14 mx-auto rounded-full overflow-hidden border border-indigo-400 bg-slate-100">
+                    <img id="member-modal-avatar-preview" src="https://placehold.co/100x100/indigo/white?text=User" class="w-full h-full object-cover">
+                </div>
+                <input type="file" id="member-modal-avatar-input" accept="image/*" onchange="window.handleMemberModalAvatarUpload(event)" class="text-[8px] file:py-0.5 file:px-1.5 file:rounded file:border-0 file:text-[8px] file:bg-indigo-50 file:text-indigo-700 cursor-pointer w-full">
+            </div>
+
             <form onsubmit="window.handleSaveMember(event)" class="space-y-1.5 text-[9px]">
                 <input type="hidden" id="member-edit-id">
+                <input type="hidden" id="member-avatar-url-hidden">
                 <div>
                     <label class="block font-semibold text-slate-600 mb-0.5">Nama Lengkap</label>
                     <input type="text" id="member-name" required placeholder="Cth: Budi Santoso" class="w-full px-2 py-0.5 rounded border border-slate-200 text-[9px]">
@@ -1099,7 +1126,7 @@
         let db, auth, analytics;
         const SECRET_API_KEY = "AIzaSyDCRDC1ykV6UTeBYFAoNEBtlIKeyDphstU";
 
-        let loggedUser = { role: 'petugas', name: 'Gari', email: 'gari@sch.edu' };
+        let loggedUser = { role: 'petugas', name: 'Gari', email: 'gari@sch.edu', avatarUrl: '' };
         let currentRole = 'petugas';
         let sourceType = 'external';
         let physicalPhotoDataUrl = null;
@@ -1111,15 +1138,15 @@
         let codeReader = null;
         let codeReaderControls = null;
         let isPetugasFullscreen = false;
-        let isScanningLocked = false; // Strict scan debounce lock
+        let isScanningLocked = false;
 
         let packages = [];
         let members = [
-            { id: 'usr-superadm', name: 'Administrator', email: 'adm@sch.edu', password: '123456', role: 'admin', status: 'Aktif' },
-            { id: 'usr-1', name: 'Gari', email: 'gari@sch.edu', password: '123456', role: 'petugas', status: 'Aktif' },
-            { id: 'usr-2', name: 'Rizky', email: 'rizky@sch.edu', password: '123456', role: 'kurir', status: 'Aktif' },
-            { id: 'usr-3', name: 'Siti Rahma', email: 'siti@sch.edu', password: '123456', role: 'penerima', status: 'Aktif' },
-            { id: 'usr-4', name: 'Aufah', email: 'aufah@sch.edu', password: '123456', role: 'admin', status: 'Aktif' }
+            { id: 'usr-superadm', name: 'Administrator', email: 'adm@sch.edu', password: '123456', role: 'admin', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/amber/white?text=ADM' },
+            { id: 'usr-1', name: 'Gari', email: 'gari@sch.edu', password: '123456', role: 'petugas', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/indigo/white?text=GARI' },
+            { id: 'usr-2', name: 'Rizky', email: 'rizky@sch.edu', password: '123456', role: 'kurir', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/sky/white?text=RIZKY' },
+            { id: 'usr-3', name: 'Siti Rahma', email: 'siti@sch.edu', password: '123456', role: 'penerima', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/emerald/white?text=SITI' },
+            { id: 'usr-4', name: 'Aufah', email: 'aufah@sch.edu', password: '123456', role: 'admin', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/purple/white?text=AUFAH' }
         ];
         let passwordResetRequests = [];
         let auditLogs = [];
@@ -1150,15 +1177,57 @@
         }
         window.speakText = speakText;
 
+        function updateHeaderAvatarDisplay() {
+            const avatarImg = document.getElementById('header-avatar-img');
+            if (!avatarImg) return;
+            
+            const found = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
+            if (found && found.avatarUrl) {
+                avatarImg.src = found.avatarUrl;
+            } else if (loggedUser.avatarUrl) {
+                avatarImg.src = loggedUser.avatarUrl;
+            } else {
+                avatarImg.src = 'https://placehold.co/150x150/indigo/white?text=' + encodeURIComponent(loggedUser.name || 'User');
+            }
+        }
+
+        window.handleLoginEmailInput = function(emailVal) {
+            const detectedAvatar = document.getElementById('login-detected-avatar');
+            const detectedName = document.getElementById('login-detected-name');
+            if (!detectedAvatar || !detectedName) return;
+
+            const trimmed = emailVal.trim().toLowerCase();
+            const found = members.find(m => m.email.toLowerCase() === trimmed);
+
+            if (found) {
+                detectedAvatar.src = found.avatarUrl || ('https://placehold.co/150x150/indigo/white?text=' + encodeURIComponent(found.name));
+                detectedName.innerText = `Halo, ${found.name} (${found.role.toUpperCase()})`;
+            } else {
+                detectedAvatar.src = 'https://placehold.co/100x100/indigo/white?text=BNS';
+                detectedName.innerText = 'Sistem Logistik Sekolah Ceria & Andal';
+            }
+        };
+
         function openProfileModal() {
             const modal = document.getElementById('profile-modal');
             const nameEl = document.getElementById('profile-display-name');
             const emailEl = document.getElementById('profile-display-email');
             const pwdEl = document.getElementById('profile-new-password');
+            const avatarImgEl = document.getElementById('profile-avatar-img');
 
             if(nameEl) nameEl.value = loggedUser.name || '-';
             if(emailEl) emailEl.value = loggedUser.email || '-';
             if(pwdEl) pwdEl.value = '';
+
+            const found = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
+            if (avatarImgEl) {
+                if (found && found.avatarUrl) {
+                    avatarImgEl.src = found.avatarUrl;
+                } else {
+                    avatarImgEl.src = 'https://placehold.co/150x150/indigo/white?text=' + encodeURIComponent(loggedUser.name || 'User');
+                }
+            }
+
             if(modal) modal.classList.remove('hidden');
         }
         window.openProfileModal = openProfileModal;
@@ -1169,26 +1238,65 @@
         }
         window.closeProfileModal = closeProfileModal;
 
-        async function handleUpdateOwnPassword(e) {
+        window.handleAvatarUpload = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                const base64Data = event.target.result;
+                const avatarImgEl = document.getElementById('profile-avatar-img');
+                if(avatarImgEl) avatarImgEl.src = base64Data;
+
+                loggedUser.avatarUrl = base64Data;
+                const foundMember = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
+                if (foundMember) {
+                    foundMember.avatarUrl = base64Data;
+                    await syncMemberToFirebase(foundMember);
+                }
+
+                updateHeaderAvatarDisplay();
+                showToast('Foto profil berhasil diupload & disimpan!');
+                addAuditLog(`Pengguna ${loggedUser.name} memperbarui foto profil avatar`, loggedUser.name, loggedUser.role.toUpperCase());
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.handleMemberModalAvatarUpload = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Data = event.target.result;
+                const preview = document.getElementById('member-modal-avatar-preview');
+                const hiddenInput = document.getElementById('member-avatar-url-hidden');
+                if(preview) preview.src = base64Data;
+                if(hiddenInput) hiddenInput.value = base64Data;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        async function handleUpdateOwnProfile(e) {
             e.preventDefault();
             const newPwd = document.getElementById('profile-new-password').value;
-            if (!newPwd || newPwd.length < 4) {
-                showToast('Kata sandi minimal 4 karakter!', 'error');
-                return;
-            }
-
+            
             const foundMember = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
             if (foundMember) {
-                foundMember.password = newPwd;
+                if (newPwd && newPwd.length >= 4) {
+                    foundMember.password = newPwd;
+                }
+                if (loggedUser.avatarUrl) {
+                    foundMember.avatarUrl = loggedUser.avatarUrl;
+                }
                 await syncMemberToFirebase(foundMember);
             }
 
-            addAuditLog(`Pengguna ${loggedUser.name} (${loggedUser.email}) memperbarui kata sandi mandiri`, loggedUser.name, loggedUser.role.toUpperCase());
-            showToast('Kata sandi berhasil diperbarui!');
+            addAuditLog(`Pengguna ${loggedUser.name} (${loggedUser.email}) memperbarui profil & sandi mandiri`, loggedUser.name, loggedUser.role.toUpperCase());
+            showToast('Profil dan pengaturan berhasil diperbarui!');
             closeProfileModal();
-            speakText('Kata sandi berhasil diperbarui');
+            updateHeaderAvatarDisplay();
+            speakText('Profil berhasil diperbarui');
         }
-        window.handleUpdateOwnPassword = handleUpdateOwnPassword;
+        window.handleUpdateOwnProfile = handleUpdateOwnProfile;
 
         function openForgotPasswordModal() {
             const modal = document.getElementById('forgot-password-modal');
@@ -1299,9 +1407,10 @@
                     if (cloudMembers.length > 0) {
                         members = cloudMembers;
                         if (!members.some(m => m.email === 'adm@sch.edu')) {
-                            members.unshift({ id: 'usr-superadm', name: 'Administrator', email: 'adm@sch.edu', password: '123456', role: 'admin', status: 'Aktif' });
+                            members.unshift({ id: 'usr-superadm', name: 'Administrator', email: 'adm@sch.edu', password: '123456', role: 'admin', status: 'Aktif', avatarUrl: 'https://placehold.co/150x150/amber/white?text=ADM' });
                         }
                         if (currentRole === 'admin') renderAdminMembers();
+                        updateHeaderAvatarDisplay();
                     }
                 }, (err) => {});
 
@@ -1601,8 +1710,9 @@
                     loggedUser.name = username;
                     loggedUser.email = username + '@receiver.sch.edu';
                     loggedUser.isSuperAdmin = false;
+                    loggedUser.avatarUrl = 'https://placehold.co/150x150/emerald/white?text=' + encodeURIComponent(username);
 
-                    localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: username, role: 'penerima', email: loggedUser.email, isSuperAdmin: false }));
+                    localStorage.setItem('kurir_bns_logged_user', JSON.stringify(loggedUser));
 
                     const authScreen = document.getElementById('auth-screen');
                     if(authScreen) authScreen.classList.add('hidden');
@@ -1618,6 +1728,7 @@
                         sessionNameInput.value = username;
                         renderReceiverView();
                     }
+                    updateHeaderAvatarDisplay();
                     speakText(`Selamat datang ${username}`);
                 }, 3000);
                 return;
@@ -1664,10 +1775,11 @@
                 loggedUser.name = foundUser.name;
                 loggedUser.email = foundUser.email;
                 loggedUser.isSuperAdmin = isSuperAdmin;
+                loggedUser.avatarUrl = foundUser.avatarUrl || ('https://placehold.co/150x150/indigo/white?text=' + encodeURIComponent(foundUser.name));
                 
                 const activeLoginRole = isSuperAdmin ? role : foundUser.role;
 
-                localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: foundUser.name, role: activeLoginRole, email: foundUser.email, isSuperAdmin }));
+                localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: foundUser.name, role: activeLoginRole, email: foundUser.email, isSuperAdmin, avatarUrl: loggedUser.avatarUrl }));
 
                 const authScreen = document.getElementById('auth-screen');
                 if(authScreen) authScreen.classList.add('hidden');
@@ -1677,6 +1789,7 @@
                 showToast(`Berhasil login sebagai ${activeLoginRole.toUpperCase()}`);
                 addAuditLog(`Pengguna ${foundUser.name} login ke sistem sebagai ${activeLoginRole.toUpperCase()}`, foundUser.name, activeLoginRole.toUpperCase());
                 switchRole(activeLoginRole);
+                updateHeaderAvatarDisplay();
                 speakText(`Selamat datang kembali ${foundUser.name}`);
             }, 3000);
         }
@@ -1828,7 +1941,7 @@
             
             const todayCount = packages.filter(p => p.id && p.id.includes(dateCode)).length + 1001;
             const generatedTrxId = `TRX-${dateCode}-${todayCount}`;
-            const randomResi = 'RES-' + Math.floor(100000 + Math.random() * 900000);
+            const randomResi = '899' + Math.floor(1000000000 + Math.random() * 9000000000); // EAN-13 format simulation
 
             if (sourceType === 'external') {
                 container.innerHTML = `
@@ -1837,7 +1950,7 @@
                         <input type="text" id="input-trx" value="${generatedTrxId}" readonly class="w-full px-1.5 py-0.5 rounded border border-slate-200 text-[9.5px] font-mono font-bold bg-slate-100 text-indigo-700">
                     </div>
                     <div>
-                        <label class="block text-[8.5px] font-semibold text-slate-600 mb-0.1"><i class="fa-solid fa-barcode text-sky-500 mr-0.5"></i> No Resi</label>
+                        <label class="block text-[8.5px] font-semibold text-slate-600 mb-0.1"><i class="fa-solid fa-barcode text-sky-500 mr-0.5"></i> No Resi (EAN-13 / Code128)</label>
                         <div class="flex space-x-1">
                             <input type="text" id="input-resi" value="${randomResi}" oninput="window.saveFormDraft()" required class="w-full px-1.5 py-0.5 rounded border border-slate-200 text-[9.5px] font-mono font-bold bg-white">
                             <button type="button" onclick="window.openBarcodeModal()" class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[8.5px] font-semibold hover:bg-indigo-200 transition whitespace-nowrap"><i class="fa-solid fa-barcode mr-0.5"></i> Scan</button>
@@ -2064,7 +2177,7 @@
             const modal = document.getElementById('barcode-modal');
             if(modal) modal.classList.add('hidden');
 
-            isScanningLocked = false; // Reset lock
+            isScanningLocked = false;
             try {
                 if (!codeReader) {
                     codeReader = new ZXing.BrowserMultiFormatReader();
@@ -2072,9 +2185,20 @@
                 const modalEl = document.getElementById('barcode-modal');
                 if(modalEl) modalEl.classList.remove('hidden');
 
+                // Multi-format hints for robust EAN-13, Code 128 & QR scanning
+                const hints = new Map();
+                const formats = [
+                    ZXing.BarcodeFormat.EAN_13,
+                    ZXing.BarcodeFormat.CODE_128,
+                    ZXing.BarcodeFormat.QR_CODE,
+                    ZXing.BarcodeFormat.UPC_A,
+                    ZXing.BarcodeFormat.CODE_39
+                ];
+                hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, formats);
+
                 codeReader.decodeFromVideoDevice(null, 'interactive-barcode-video', (result, err) => {
                     if (result && !isScanningLocked) {
-                        isScanningLocked = true; // Lock immediately to prevent multi-trigger
+                        isScanningLocked = true;
                         const scannedText = result.getText();
                         const inputResi = document.getElementById('input-resi');
                         if(inputResi) inputResi.value = scannedText;
@@ -2084,7 +2208,7 @@
                         speakText('Barcode terbaca');
                         addAuditLog(`Petugas (${loggedUser.name}) memindai barcode resi: ${scannedText}`, loggedUser.name, 'PETUGAS');
                     }
-                }).then(controls => {
+                }, hints).then(controls => {
                     codeReaderControls = controls;
                 }).catch(err => {});
             } catch(e) {}
@@ -2116,7 +2240,16 @@
                     ctx.drawImage(img, 0, 0);
                     
                     if (!codeReader) codeReader = new ZXing.BrowserMultiFormatReader();
-                    codeReader.decodeFromImageElement(img).then(result => {
+                    
+                    const hints = new Map();
+                    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+                        ZXing.BarcodeFormat.EAN_13,
+                        ZXing.BarcodeFormat.CODE_128,
+                        ZXing.BarcodeFormat.QR_CODE,
+                        ZXing.BarcodeFormat.UPC_A
+                    ]);
+
+                    codeReader.decodeFromImageElement(img, hints).then(result => {
                         if (result) {
                             const resiVal = result.getText();
                             document.getElementById('input-resi').value = resiVal;
@@ -2126,11 +2259,11 @@
                             addAuditLog(`Petugas (${loggedUser.name}) mengunggah gambar resi: ${resiVal}`, loggedUser.name, 'PETUGAS');
                         }
                     }).catch(err => {
-                        const simulatedResi = 'RES-' + Math.floor(100000 + Math.random() * 900000);
-                        document.getElementById('input-resi').value = simulatedResi;
+                        const simulatedEan13 = '899' + Math.floor(1000000000 + Math.random() * 9000000000);
+                        document.getElementById('input-resi').value = simulatedEan13;
                         saveFormDraft();
                         closeBarcodeModal();
-                        showToast('Resi terdeteksi: ' + simulatedResi);
+                        showToast('Resi EAN-13 terdeteksi: ' + simulatedEan13);
                     });
                 };
                 img.src = event.target.result;
@@ -2995,16 +3128,17 @@
             const visibleMembers = members.filter(m => m.email.toLowerCase() !== 'adm@sch.edu');
 
             if (visibleMembers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-2 text-slate-400">Tidak ada data anggota.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-2 text-slate-400">Tidak ada data anggota.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = visibleMembers.map(m => `
                 <tr class="hover:bg-slate-50 transition">
-                    <td class="p-1.5">
-                        <span class="font-bold text-slate-800 block">${m.name}</span>
-                        <span class="text-[7.5px] text-slate-500 font-mono">${m.email}</span>
+                    <td class="p-1.5 flex items-center space-x-1.5">
+                        <img src="${m.avatarUrl || 'https://placehold.co/100x100/indigo/white?text=' + encodeURIComponent(m.name)}" class="w-6 h-6 rounded-full object-cover border zoomable-img" onclick="window.openZoomModal(this.src)">
+                        <span class="font-bold text-slate-800">${m.name}</span>
                     </td>
+                    <td class="p-1.5 font-mono text-[8px] text-slate-500">${m.email}</td>
                     <td class="p-1.5 uppercase font-semibold text-indigo-600">${m.role}</td>
                     <td class="p-1.5"><span class="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[7px] font-semibold">${m.status || 'Aktif'}</span></td>
                     <td class="p-1.5 text-right space-x-1">
@@ -3083,6 +3217,8 @@
             const emailInput = document.getElementById('member-email');
             const pwdInput = document.getElementById('member-password');
             const roleSelect = document.getElementById('member-role');
+            const preview = document.getElementById('member-modal-avatar-preview');
+            const hiddenInput = document.getElementById('member-avatar-url-hidden');
 
             if(modal) modal.classList.remove('hidden');
             if(id) {
@@ -3094,6 +3230,8 @@
                     if(emailInput) emailInput.value = m.email;
                     if(pwdInput) pwdInput.value = m.password || '123456';
                     if(roleSelect) roleSelect.value = m.role;
+                    if(preview) preview.src = m.avatarUrl || ('https://placehold.co/100x100/indigo/white?text=' + encodeURIComponent(m.name));
+                    if(hiddenInput) hiddenInput.value = m.avatarUrl || '';
                 }
             } else {
                 if(title) title.innerHTML = '<i class="fa-solid fa-user-plus text-indigo-600 mr-1"></i> Tambah Anggota';
@@ -3102,6 +3240,8 @@
                 if(emailInput) emailInput.value = '';
                 if(pwdInput) pwdInput.value = '123456';
                 if(roleSelect) roleSelect.value = 'petugas';
+                if(preview) preview.src = 'https://placehold.co/100x100/indigo/white?text=User';
+                if(hiddenInput) hiddenInput.value = '';
             }
         }
         window.openMemberModal = openMemberModal;
@@ -3119,6 +3259,7 @@
             const email = document.getElementById('member-email').value.trim();
             const password = document.getElementById('member-password').value;
             const role = document.getElementById('member-role').value;
+            const avatarUrl = document.getElementById('member-avatar-url-hidden').value || ('https://placehold.co/150x150/indigo/white?text=' + encodeURIComponent(name));
 
             if (editId) {
                 const m = members.find(item => item.id === editId);
@@ -3127,6 +3268,7 @@
                     m.email = email;
                     m.password = password;
                     m.role = role;
+                    m.avatarUrl = avatarUrl;
                     syncMemberToFirebase(m);
                     addAuditLog(`Admin (${loggedUser.name}) memperbarui data anggota ${name} (${role.toUpperCase()})`, loggedUser.name, 'ADMIN');
                     showToast('Data anggota berhasil diperbarui!');
@@ -3138,7 +3280,8 @@
                     email,
                     password,
                     role,
-                    status: 'Aktif'
+                    status: 'Aktif',
+                    avatarUrl: avatarUrl
                 };
                 members.push(newMember);
                 syncMemberToFirebase(newMember);
@@ -3281,6 +3424,7 @@
                     const headerBadge = document.getElementById('header-user-badge');
                     if(headerBadge) headerBadge.innerText = `Masuk: ${sessionObj.name} (${sessionObj.role.toUpperCase()})`;
                     switchRole(sessionObj.role);
+                    updateHeaderAvatarDisplay();
                 } else {
                     selectLoginRole('petugas');
                     const authScreen = document.getElementById('auth-screen');
