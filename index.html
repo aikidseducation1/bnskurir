@@ -67,6 +67,7 @@
             transform: scale(1.05);
         }
 
+        /* PERFECT NON-OVERLAPPING FULLSCREEN COMMAND CENTER MODE */
         #petugas-content-status.fullscreen-mode {
             position: fixed !important;
             inset: 0 !important;
@@ -161,24 +162,6 @@
         </div>
     </div>
 
-    <!-- Forgot Password Request Modal (Approval Admin) -->
-    <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
-        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
-            <div class="flex justify-between items-center border-b pb-1">
-                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-key text-amber-500 mr-1"></i> Permintaan Reset Sandi (Approval Admin)</h3>
-                <button onclick="window.closeForgotPasswordModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-[8px] text-slate-500">Masukkan email akun Anda. Permintaan reset akan dikirimkan kepada Administrator untuk disetujui.</p>
-            <form onsubmit="window.handleSendPasswordResetRequest(event)" class="space-y-1.5 text-[9px]">
-                <div>
-                    <label class="block font-semibold text-slate-600 mb-0.5">Email Terdaftar</label>
-                    <input type="email" id="forgot-email-input" required placeholder="Cth: petugas@sch.edu" class="w-full px-2 py-0.5 rounded border border-slate-200 text-[9px]">
-                </div>
-                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Kirim Permintaan ke Admin</button>
-            </form>
-        </div>
-    </div>
-
     <header class="bg-indigo-700 text-white shadow-sm sticky top-0 z-45">
         <div class="max-w-full mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
             <div class="flex items-center space-x-1.5">
@@ -222,7 +205,6 @@
 
     <main class="flex-1 max-w-full w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
-        <!-- PETUGAS VIEW -->
         <div id="view-petugas" class="tab-view space-y-1">
             <div class="flex space-x-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100 sticky top-10 z-40">
                 <button onclick="window.switchPetugasTab('input')" id="petugas-tab-input" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
@@ -325,6 +307,7 @@
             <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen Mode) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
+                    <!-- Title Bar at the Very Top in Fullscreen to prevent overlap -->
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
                         <div class="order-1">
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
@@ -338,8 +321,9 @@
                         </div>
                     </div>
 
+                    <!-- Search & Filters (Hidden in Fullscreen) -->
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
-                        <div class="flex items-center space-x-1 w-full flex-1">
+                        <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
                                 <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi berdasarkan nama, resi, tujuan..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500 bg-slate-50">
@@ -348,9 +332,24 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="flex items-center space-x-1 text-[9px]">
+                            <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700 text-[9px]">
+                                <option value="today">📅 Hari Ini</option>
+                                <option value="yesterday">⏪ Kemarin</option>
+                                <option value="week">📊 Minggu Ini</option>
+                                <option value="month">📈 Bulan Ini</option>
+                                <option value="all">🌐 Semua Waktu</option>
+                            </select>
+                            <select id="filter-petugas-sla" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[9px]">
+                                <option value="all">Semua SLA</option>
+                                <option value="30 menit">30 Menit</option>
+                                <option value="2 jam">2 Jam</option>
+                                <option value="24 jam">24 Jam</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized 100% Space -->
+                    <!-- Horizontal Grid Side-by-Side (100% Maximized Space) -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
                             <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
@@ -375,7 +374,6 @@
             </div>
         </div>
 
-        <!-- KURIR VIEW -->
         <div id="view-kurir" class="tab-view space-y-1">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-10 z-40">
                 <div class="grid grid-cols-3 gap-0.5 flex-1 mr-2">
@@ -390,6 +388,12 @@
                     <button onclick="window.switchCourierSubTab('completed')" id="courier-subtab-completed" class="py-0.5 px-0.5 rounded text-[8.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5">
                         <i class="fa-solid fa-circle-check text-emerald-400"></i>
                         <span>Selesai (<span id="count-completed-badge">0</span>)</span>
+                    </button>
+                </div>
+                <div>
+                    <button onclick="window.exportCourierReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 whitespace-nowrap btn-glow" title="Export Laporan Kurir">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Export CSV</span>
                     </button>
                 </div>
             </div>
@@ -442,7 +446,6 @@
             </div>
         </div>
 
-        <!-- PENERIMA VIEW -->
         <div id="view-penerima" class="tab-view space-y-1">
             <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-xl p-2 shadow-sm flex flex-wrap justify-between items-center gap-1">
                 <div>
@@ -473,7 +476,6 @@
             </div>
         </div>
 
-        <!-- ADMIN VIEW -->
         <div id="view-admin" class="tab-view space-y-2">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 overflow-x-auto sticky top-10 z-40">
                 <div class="flex space-x-1">
@@ -746,7 +748,6 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
-    <!-- Profile & Password Change Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -771,6 +772,24 @@
         </div>
     </div>
 
+    <!-- Forgot Password Request Modal -->
+    <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
+            <div class="flex justify-between items-center border-b pb-1">
+                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-key text-amber-500 mr-1"></i> Permintaan Reset Sandi (Approval Admin)</h3>
+                <button onclick="window.closeForgotPasswordModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-[8px] text-slate-500">Masukkan email akun Anda. Permintaan reset akan dikirimkan kepada Administrator untuk disetujui.</p>
+            <form onsubmit="window.handleSendPasswordResetRequest(event)" class="space-y-1.5 text-[9px]">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-0.5">Email Terdaftar</label>
+                    <input type="email" id="forgot-email-input" required placeholder="Cth: petugas@sch.edu" class="w-full px-2 py-0.5 rounded border border-slate-200 text-[9px]">
+                </div>
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Kirim Permintaan ke Admin</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Physical Camera Modal -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
@@ -788,7 +807,7 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Modal -->
+    <!-- Barcode Scanner Modal with Debounce Lock -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -798,10 +817,10 @@
             <p class="text-[9px] text-slate-500 text-center">Arahkan kamera ke barcode atau QR resi pengiriman.</p>
             
             <div class="space-y-2">
-                <div class="relative w-full h-40 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
+                <div class="relative w-full h-44 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
                     <video id="interactive-barcode-video" class="w-full h-full object-cover" muted playsinline></video>
-                    <div class="absolute inset-x-4 border-2 border-dashed border-emerald-400 h-10 rounded pointer-events-none flex items-center justify-center">
-                        <span class="text-[8px] bg-emerald-600 text-white px-1.5 py-0.5 rounded shadow">Posisikan Barcode di Sini</span>
+                    <div class="absolute inset-x-6 border-2 border-dashed border-emerald-400 h-12 rounded-lg pointer-events-none flex items-center justify-center bg-emerald-500/10">
+                        <span class="text-[8px] bg-emerald-600 text-white px-2 py-0.5 rounded shadow font-bold">Posisikan Barcode di Sini</span>
                     </div>
                 </div>
 
@@ -1208,6 +1227,7 @@
                     setupRealtimeSync();
                 });
             } catch (e) {
+                // Graceful fallback to local cache/offline mode if Firestore times out or is unreachable in iframe preview
                 const statusDot = document.getElementById('connection-dot');
                 const statusText = document.getElementById('connection-text');
                 if(statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 connection-indicator inline-block";
@@ -1234,7 +1254,13 @@
                         packages = cloudPkgs.sort((a,b) => b.id.localeCompare(a.id));
                         refreshActiveView();
                     }
-                }, (err) => {});
+                }, (err) => {
+                    // Suppress Firestore offline warning in console and switch status indicator
+                    const statusDot = document.getElementById('connection-dot');
+                    const statusText = document.getElementById('connection-text');
+                    if(statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 connection-indicator inline-block";
+                    if(statusText) statusText.innerText = "Offline Mode (Lokal)";
+                });
 
                 const refUsr = collection(db, 'artifacts', appId, 'public', 'data', 'members_col');
                 onSnapshot(refUsr, (snapshot) => {
@@ -2213,6 +2239,24 @@
         }
         window.switchCourierSubTab = switchCourierSubTab;
 
+        function exportCourierReport() {
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
+            packages.forEach(p => {
+                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_kurir_" + (loggedUser.name || 'kurir') + "_" + new Date().toISOString().slice(0,10) + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Laporan kurir berhasil diexport ke CSV / Excel');
+            addAuditLog(`Kurir (${loggedUser.name}) mengexport laporan kinerjanya`, loggedUser.name, 'KURIR');
+            speakText('Laporan kurir berhasil diexport');
+        }
+        window.exportCourierReport = exportCourierReport;
+
         function renderCourierView() {
             const searchElem = document.getElementById('filter-kurir-search');
             const limitElem = document.getElementById('courier-row-limit');
@@ -2368,7 +2412,7 @@
             if (pkg) {
                 pkg.status = 'completed';
                 pkg.courier = loggedUser.name;
-                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                 pkg.proofPhotoUrl = proofPhotoDataUrl ? proofPhotoDataUrl : 'https://placehold.co/300x200/emerald/white?text=Bukti+' + encodeURIComponent(receiverName);
                 pkg.completionOption = completionOption + ' (' + receiverName + ')';
                 
@@ -2384,9 +2428,37 @@
 
         function renderPetugasStatusView() {
             const searchElem = document.getElementById('filter-petugas-search');
+            const periodElem = document.getElementById('filter-petugas-period');
+            const slaElem = document.getElementById('filter-petugas-sla');
+
             const search = searchElem ? searchElem.value.toLowerCase() : '';
+            const period = periodElem ? periodElem.value : 'today';
+            const slaFilter = slaElem ? slaElem.value : 'all';
+
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const yesterdayStart = todayStart - 86400000;
+            const weekStart = todayStart - (7 * 86400000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
             
-            const filtered = packages.filter(p => p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search));
+            const filtered = packages.filter(p => {
+                const matchSearch = p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search) || (p.petugas && p.petugas.toLowerCase().includes(search)) || (p.courier && p.courier.toLowerCase().includes(search));
+                const matchSla = slaFilter === 'all' || (p.sla && p.sla.toLowerCase().includes(slaFilter));
+                
+                let matchPeriod = true;
+                const pTime = p.timestampRaw || now.getTime();
+                if (period === 'today') {
+                    matchPeriod = pTime >= todayStart;
+                } else if (period === 'yesterday') {
+                    matchPeriod = pTime >= yesterdayStart && pTime < todayStart;
+                } else if (period === 'week') {
+                    matchPeriod = pTime >= weekStart;
+                } else if (period === 'month') {
+                    matchPeriod = pTime >= monthStart;
+                }
+
+                return matchSearch && matchSla && matchPeriod;
+            });
 
             const pending = filtered.filter(p => p.status === 'pending');
             const delivering = filtered.filter(p => p.status === 'delivering');
@@ -2417,7 +2489,7 @@
                     </div>
                     <div class="flex justify-between items-center pt-0.5 border-t border-slate-100 text-[7.5px] text-slate-400 flex-wrap gap-1">
                         <span>Masuk: ${p.timestamp}</span>
-                        ${p.completedTimestamp ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200"><i class="fa-solid fa-clock mr-0.5"></i> Selesai: ${p.completedTimestamp}</span>` : ''}
+                        ${p.completedTimestamp ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200"><i class="fa-solid fa-clock mr-0.5"></i> Selesai Pukul: ${p.completedTimestamp}</span>` : ''}
                         <div class="flex space-x-1 ml-auto">
                             ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" title="Fisik" class="w-6 h-6 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
                             ${p.proofPhotoUrl ? `<img src="${p.proofPhotoUrl}" title="Bukti" class="w-6 h-6 object-cover rounded border border-emerald-400 zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
