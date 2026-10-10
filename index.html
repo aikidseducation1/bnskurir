@@ -205,6 +205,7 @@
 
     <main class="flex-1 max-w-full w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
+        <!-- PETUGAS VIEW -->
         <div id="view-petugas" class="tab-view space-y-1">
             <div class="flex space-x-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100 sticky top-10 z-40">
                 <button onclick="window.switchPetugasTab('input')" id="petugas-tab-input" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
@@ -304,36 +305,40 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen Mode) -->
+            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen & Time Filters) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
-                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
-                    <!-- Title Bar at the Very Top in Fullscreen to prevent overlap -->
-                    <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
-                        <div class="order-1">
+                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col h-full">
+                    
+                    <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
+                        <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
-                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan secara langsung</p>
+                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket berdasarkan waktu secara terpisah</p>
                         </div>
-                        <div class="order-2 ml-auto">
-                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen / Normal">
+                        <div class="flex items-center space-x-1">
+                            <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Berdasarkan Filter Waktu">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Export CSV</span>
+                            </button>
+                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
                                 <span id="petugas-fullscreen-text">Fullscreen</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Search & Filters (Hidden in Fullscreen) -->
+                    <!-- TIME SEGMENTATION FILTERS -->
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
                         <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
                                 <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi berdasarkan nama, resi, tujuan..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500 bg-slate-50">
-                                <button type="button" onclick="window.startVoiceSearch('filter-petugas-search', window.renderPetugasStatusView)" class="absolute inset-y-0 right-0 px-1.5 flex items-center text-slate-400 hover:text-indigo-600 text-[10px]" title="Cari dengan Suara">
+                                <button type="button" onclick="window.startVoiceSearch('filter-petugas-search', window.renderPetugasStatusView)" class="absolute inset-y-0 right-0 px-1.5 flex items-center text-slate-400 hover:text-indigo-600 text-[10px]" title="Cari Suara">
                                     <i id="mic-filter-petugas-search" class="fa-solid fa-microphone"></i>
                                 </button>
                             </div>
                         </div>
                         <div class="flex items-center space-x-1 text-[9px]">
-                            <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700 text-[9px]">
+                            <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700">
                                 <option value="today">📅 Hari Ini</option>
                                 <option value="yesterday">⏪ Kemarin</option>
                                 <option value="week">📊 Minggu Ini</option>
@@ -349,8 +354,8 @@
                         </div>
                     </div>
 
-                    <!-- Horizontal Grid Side-by-Side (100% Maximized Space) -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen">
+                    <!-- Horizontal Grid Side-by-Side - 100% Maximized Space -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen flex-1">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
                             <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
@@ -374,6 +379,7 @@
             </div>
         </div>
 
+        <!-- KURIR VIEW -->
         <div id="view-kurir" class="tab-view space-y-1">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-10 z-40">
                 <div class="grid grid-cols-3 gap-0.5 flex-1 mr-2">
@@ -446,6 +452,7 @@
             </div>
         </div>
 
+        <!-- PENERIMA VIEW -->
         <div id="view-penerima" class="tab-view space-y-1">
             <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-xl p-2 shadow-sm flex flex-wrap justify-between items-center gap-1">
                 <div>
@@ -476,6 +483,7 @@
             </div>
         </div>
 
+        <!-- ADMIN VIEW -->
         <div id="view-admin" class="tab-view space-y-2">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 overflow-x-auto sticky top-10 z-40">
                 <div class="flex space-x-1">
@@ -611,12 +619,22 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
                         <div>
+                            <label class="block font-semibold text-slate-600 mb-0.5">Periode Laporan</label>
+                            <select id="report-period-preset" onchange="window.handleReportPresetChange()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white font-semibold text-indigo-700">
+                                <option value="today">📅 Hari Ini</option>
+                                <option value="yesterday">⏪ Kemarin</option>
+                                <option value="week">📊 Minggu Ini</option>
+                                <option value="month">📈 Bulan Ini</option>
+                                <option value="custom">⚙️ Kustom Tanggal</option>
+                            </select>
+                        </div>
+                        <div id="custom-date-from-wrap" class="hidden">
                             <label class="block font-semibold text-slate-600 mb-0.5">Dari Tanggal</label>
                             <input type="date" id="report-date-from" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
-                        <div>
+                        <div id="custom-date-to-wrap" class="hidden">
                             <label class="block font-semibold text-slate-600 mb-0.5">Sampai Tanggal</label>
                             <input type="date" id="report-date-to" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
@@ -748,6 +766,7 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
+    <!-- Profile & Password Change Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -1227,7 +1246,6 @@
                     setupRealtimeSync();
                 });
             } catch (e) {
-                // Graceful fallback to local cache/offline mode if Firestore times out or is unreachable in iframe preview
                 const statusDot = document.getElementById('connection-dot');
                 const statusText = document.getElementById('connection-text');
                 if(statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 connection-indicator inline-block";
@@ -1254,13 +1272,7 @@
                         packages = cloudPkgs.sort((a,b) => b.id.localeCompare(a.id));
                         refreshActiveView();
                     }
-                }, (err) => {
-                    // Suppress Firestore offline warning in console and switch status indicator
-                    const statusDot = document.getElementById('connection-dot');
-                    const statusText = document.getElementById('connection-text');
-                    if(statusDot) statusDot.className = "w-1.5 h-1.5 rounded-full bg-amber-400 connection-indicator inline-block";
-                    if(statusText) statusText.innerText = "Offline Mode (Lokal)";
-                });
+                }, (err) => {});
 
                 const refUsr = collection(db, 'artifacts', appId, 'public', 'data', 'members_col');
                 onSnapshot(refUsr, (snapshot) => {
@@ -2257,6 +2269,42 @@
         }
         window.exportCourierReport = exportCourierReport;
 
+        function exportPetugasReport() {
+            const periodElem = document.getElementById('filter-petugas-period');
+            const period = periodElem ? periodElem.value : 'today';
+
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const yesterdayStart = todayStart - 86400000;
+            const weekStart = todayStart - (7 * 86400000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+            let filtered = packages.filter(p => {
+                const pTime = p.timestampRaw || now.getTime();
+                if (period === 'today') return pTime >= todayStart;
+                if (period === 'yesterday') return pTime >= yesterdayStart && pTime < todayStart;
+                if (period === 'week') return pTime >= weekStart;
+                if (period === 'month') return pTime >= monthStart;
+                return true;
+            });
+
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
+            filtered.forEach(p => {
+                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_petugas_" + period + "_" + new Date().toISOString().slice(0,10) + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Laporan Petugas (' + period.toUpperCase() + ') berhasil diexport!');
+            addAuditLog(`Petugas (${loggedUser.name}) mengexport laporan periode ${period}`, loggedUser.name, 'PETUGAS');
+            speakText('Laporan petugas berhasil diexport');
+        }
+        window.exportPetugasReport = exportPetugasReport;
+
         function renderCourierView() {
             const searchElem = document.getElementById('filter-kurir-search');
             const limitElem = document.getElementById('courier-row-limit');
@@ -2614,19 +2662,48 @@
         window.switchAdminTab = switchAdminTab;
 
         function exportAdminReport() {
+            const preset = document.getElementById('report-period-preset')?.value || 'today';
+            const dateFrom = document.getElementById('report-date-from')?.value;
+            const dateTo = document.getElementById('report-date-to')?.value;
+
+            const now = new Date();
+            let start = 0;
+            let end = now.getTime();
+
+            if (preset === 'custom') {
+                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
+                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
+            } else if (preset === 'today') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            } else if (preset === 'yesterday') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+                end = start + 86399999;
+            } else if (preset === 'week') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
+            } else if (preset === 'month') {
+                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            } else if (preset === 'all') {
+                start = 0;
+            }
+
+            let filtered = packages.filter(p => {
+                const pTime = p.timestampRaw || now.getTime();
+                return pTime >= start && pTime <= end;
+            });
+
             let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
-            packages.forEach(p => {
+            filtered.forEach(p => {
                 csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_kurir_bns_" + new Date().toISOString().slice(0,10) + ".csv");
+            link.setAttribute("download", "laporan_kurir_bns_" + preset + "_" + new Date().toISOString().slice(0,10) + ".csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast('Laporan berhasil diexport ke CSV / Excel');
-            addAuditLog(`Admin (${loggedUser.name}) mengexport laporan CSV`, loggedUser.name, 'ADMIN');
+            showToast('Laporan (' + preset.toUpperCase() + ') berhasil diexport ke CSV / Excel');
+            addAuditLog(`Admin (${loggedUser.name}) mengexport laporan CSV periode ${preset}`, loggedUser.name, 'ADMIN');
             speakText('Laporan berhasil diexport');
         }
         window.exportAdminReport = exportAdminReport;
@@ -2637,29 +2714,63 @@
         }
         window.printAdminReport = printAdminReport;
 
-        function resetReportFilter() {
+        function handleReportPresetChange() {
+            const preset = document.getElementById('report-period-preset')?.value;
+            const fromWrap = document.getElementById('custom-date-from-wrap');
+            const toWrap = document.getElementById('custom-date-to-wrap');
             const dateFrom = document.getElementById('report-date-from');
             const dateTo = document.getElementById('report-date-to');
-            if(dateFrom) dateFrom.value = '';
-            if(dateTo) dateTo.value = '';
+
+            if (preset === 'custom') {
+                if(fromWrap) fromWrap.classList.remove('hidden');
+                if(toWrap) toWrap.classList.remove('hidden');
+            } else {
+                if(fromWrap) fromWrap.classList.add('hidden');
+                if(toWrap) toWrap.classList.add('hidden');
+                if(dateFrom) dateFrom.value = '';
+                if(dateTo) dateTo.value = '';
+            }
             renderAdminReports();
-            showToast('Filter laporan direset');
+        }
+        window.handleReportPresetChange = handleReportPresetChange;
+
+        function resetReportFilter() {
+            const preset = document.getElementById('report-period-preset');
+            if(preset) preset.value = 'today';
+            handleReportPresetChange();
+            showToast('Filter laporan direset ke Hari Ini');
         }
         window.resetReportFilter = resetReportFilter;
 
         function renderAdminReports() {
+            const preset = document.getElementById('report-period-preset')?.value || 'today';
             const dateFrom = document.getElementById('report-date-from')?.value;
             const dateTo = document.getElementById('report-date-to')?.value;
 
-            let filtered = packages;
-            if (dateFrom && dateTo) {
-                const start = new Date(dateFrom).setHours(0,0,0,0);
-                const end = new Date(dateTo).setHours(23,59,59,999);
-                filtered = packages.filter(p => {
-                    const pTime = p.timestampRaw || new Date().getTime();
-                    return pTime >= start && pTime <= end;
-                });
+            const now = new Date();
+            let start = 0;
+            let end = now.getTime();
+
+            if (preset === 'custom') {
+                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
+                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
+            } else if (preset === 'today') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            } else if (preset === 'yesterday') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+                end = start + 86399999;
+            } else if (preset === 'week') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
+            } else if (preset === 'month') {
+                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            } else if (preset === 'all') {
+                start = 0;
             }
+
+            let filtered = packages.filter(p => {
+                const pTime = p.timestampRaw || now.getTime();
+                return pTime >= start && pTime <= end;
+            });
 
             const officerStats = {};
             filtered.forEach(p => {
@@ -2679,7 +2790,7 @@
             const officerContainer = document.getElementById('report-officer-stats');
             if (officerContainer) {
                 const keys = Object.keys(officerStats);
-                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(o => `
+                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(o => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-user text-indigo-500 mr-1"></i> ${o}</span>
                         <span class="font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded">${officerStats[o].total} Paket Diterima</span>
@@ -2690,7 +2801,7 @@
             const courierContainer = document.getElementById('report-courier-stats');
             if (courierContainer) {
                 const keys = Object.keys(courierStats);
-                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(c => `
+                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(c => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-paper-plane text-sky-500 mr-1"></i> ${c}</span>
                         <span class="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">${courierStats[c].completed} Selesai / ${courierStats[c].total} Total</span>
