@@ -67,11 +67,11 @@
             transform: scale(1.05);
         }
 
-        /* PERFECT FULLSCREEN COMMAND CENTER MODE */
+        /* PERFECT NON-OVERLAPPING FULLSCREEN COMMAND CENTER MODE */
         #petugas-content-status.fullscreen-mode {
             position: fixed !important;
             inset: 0 !important;
-            z-index: 9999 !important;
+            z-index: 99999 !important;
             background: #f8fafc !important;
             padding: 0.75rem !important;
             overflow-y: auto !important;
@@ -150,7 +150,6 @@
             </form>
             <div class="bg-slate-50 p-1 rounded-lg border border-slate-100 text-[8.5px] text-slate-500 text-center flex justify-between items-center px-2">
                 <span>Sinkronisasi Cloud Firebase Aktif.</span>
-                <button type="button" onclick="window.runQuickDiagnosticTest()" class="text-indigo-600 font-bold hover:underline"><i class="fa-solid fa-stethoscope mr-0.5"></i> Test Menu</button>
             </div>
         </div>
     </div>
@@ -166,7 +165,7 @@
                         <h1 class="font-bold text-[10px] leading-tight">Kurir BNS Express</h1>
                         <div id="firebase-status-badge" class="flex items-center space-x-0.5 bg-emerald-900/40 text-emerald-300 text-[7.5px] px-1 py-0.2 rounded-full font-medium border border-emerald-500/30">
                             <span id="connection-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 connection-indicator inline-block"></span>
-                            <span id="connection-text">Cloud Sync (Terhubung)</span>
+                            <span id="connection-text">Cloud Sync</span>
                         </div>
                     </div>
                     <p id="header-user-badge" class="text-[8px] text-indigo-200 truncate max-w-[130px]">Masuk: -</p>
@@ -177,10 +176,6 @@
                 <button id="pwa-install-btn" onclick="window.installPwaApp()" class="hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-1.5 py-0.5 rounded-lg text-[9px] font-bold transition items-center space-x-0.5 shadow-sm btn-glow" title="Install Aplikasi (PWA)">
                     <i class="fa-solid fa-download text-[8.5px]"></i>
                     <span>Install App</span>
-                </button>
-                <button onclick="window.runQuickDiagnosticTest()" class="bg-amber-600 hover:bg-amber-700 text-white px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Test Semua Menu & Fitur">
-                    <i class="fa-solid fa-stethoscope text-[8.5px]"></i>
-                    <span>Test</span>
                 </button>
                 <button onclick="window.speakAppWelcome()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Pengumuman Suara">
                     <i class="fa-solid fa-volume-high text-amber-300 text-[8.5px]"></i>
@@ -298,15 +293,17 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Non-overlapping Fullscreen Mode) -->
+            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen & Time Filters) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
-                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
-                    <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
-                        <div class="order-1">
+                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col h-full">
+                    
+                    <!-- TOP TITLE BAR (Stays on top during Fullscreen with zero overlap) -->
+                    <div id="fullscreen-title-wrapper" class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
+                        <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
                             <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan secara langsung</p>
                         </div>
-                        <div class="order-2 ml-auto">
+                        <div>
                             <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen / Normal">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
                                 <span id="petugas-fullscreen-text">Fullscreen</span>
@@ -314,8 +311,9 @@
                         </div>
                     </div>
 
+                    <!-- TIME SEGMENTATION & SEARCH FILTERS (Hidden in Fullscreen) -->
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
-                        <div class="flex items-center space-x-1 w-full flex-1">
+                        <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
                                 <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi berdasarkan nama, resi, tujuan..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500 bg-slate-50">
@@ -324,10 +322,25 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="flex items-center space-x-1 text-[9px]">
+                            <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700">
+                                <option value="today">📅 Hari Ini</option>
+                                <option value="yesterday">⏪ Kemarin</option>
+                                <option value="week">📊 Minggu Ini</option>
+                                <option value="month">📈 Bulan Ini</option>
+                                <option value="all">🌐 Semua Waktu</option>
+                            </select>
+                            <select id="filter-petugas-sla" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[9px]">
+                                <option value="all">Semua SLA</option>
+                                <option value="30 menit">30 Menit</option>
+                                <option value="2 jam">2 Jam</option>
+                                <option value="24 jam">24 Jam</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized 100% Space -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen flex-1">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
                             <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
@@ -590,12 +603,22 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
                         <div>
+                            <label class="block font-semibold text-slate-600 mb-0.5">Periode Laporan</label>
+                            <select id="report-period-preset" onchange="window.handleReportPresetChange()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white font-semibold text-indigo-700">
+                                <option value="today">📅 Hari Ini</option>
+                                <option value="yesterday">⏪ Kemarin</option>
+                                <option value="week">📊 Minggu Ini</option>
+                                <option value="month">📈 Bulan Ini</option>
+                                <option value="custom">⚙️ Kustom Tanggal</option>
+                            </select>
+                        </div>
+                        <div id="custom-date-from-wrap" class="hidden">
                             <label class="block font-semibold text-slate-600 mb-0.5">Dari Tanggal</label>
                             <input type="date" id="report-date-from" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
-                        <div>
+                        <div id="custom-date-to-wrap" class="hidden">
                             <label class="block font-semibold text-slate-600 mb-0.5">Sampai Tanggal</label>
                             <input type="date" id="report-date-to" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
@@ -720,7 +743,7 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Modal -->
+    <!-- Barcode Scanner Modal with Debounce Lock & Target Box -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -730,10 +753,10 @@
             <p class="text-[9px] text-slate-500 text-center">Arahkan kamera ke barcode atau QR resi pengiriman.</p>
             
             <div class="space-y-2">
-                <div class="relative w-full h-40 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
+                <div class="relative w-full h-44 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
                     <video id="interactive-barcode-video" class="w-full h-full object-cover" muted playsinline></video>
-                    <div class="absolute inset-x-4 border-2 border-dashed border-emerald-400 h-10 rounded pointer-events-none flex items-center justify-center">
-                        <span class="text-[8px] bg-emerald-600 text-white px-1.5 py-0.5 rounded shadow">Posisikan Barcode di Sini</span>
+                    <div class="absolute inset-x-6 border-2 border-dashed border-emerald-400 h-12 rounded-lg pointer-events-none flex items-center justify-center bg-emerald-500/10">
+                        <span class="text-[8px] bg-emerald-600 text-white px-2 py-0.5 rounded shadow font-bold">Posisikan Barcode di Sini</span>
                     </div>
                 </div>
 
@@ -989,6 +1012,7 @@
         let codeReader = null;
         let codeReaderControls = null;
         let isPetugasFullscreen = false;
+        let isScanningLocked = false;
 
         let packages = [];
         let members = [
@@ -1799,6 +1823,7 @@
             const modal = document.getElementById('barcode-modal');
             if(modal) modal.classList.add('hidden');
 
+            isScanningLocked = false;
             try {
                 if (!codeReader) {
                     codeReader = new ZXing.BrowserMultiFormatReader();
@@ -1807,7 +1832,8 @@
                 if(modalEl) modalEl.classList.remove('hidden');
 
                 codeReader.decodeFromVideoDevice(null, 'interactive-barcode-video', (result, err) => {
-                    if (result) {
+                    if (result && !isScanningLocked) {
+                        isScanningLocked = true;
                         const scannedText = result.getText();
                         const inputResi = document.getElementById('input-resi');
                         if(inputResi) inputResi.value = scannedText;
@@ -1829,6 +1855,7 @@
                 codeReaderControls.stop();
                 codeReaderControls = null;
             }
+            isScanningLocked = false;
             const modal = document.getElementById('barcode-modal');
             if(modal) modal.classList.add('hidden');
         }
@@ -2042,12 +2069,18 @@
             const listDelivering = document.getElementById('list-courier-delivering');
             const listCompleted = document.getElementById('list-courier-completed');
 
+            const slaBadgeHtml = (sla) => {
+                const color = sla && sla.includes('30') ? 'bg-rose-100 text-rose-700' : (sla && sla.includes('2 jam') ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700');
+                return `<span class="px-1 py-0.2 rounded text-[7px] font-bold ${color}">${sla || 'Reguler'}</span>`;
+            };
+
             if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[9px] text-slate-400 text-center py-2">Tidak ada antrian paket</p>' : pending.slice(0, limit).map(p => `
                 <div class="p-1.5 rounded-lg border border-slate-100 bg-slate-50/70 space-y-1 text-[9px]">
                     <div class="flex justify-between items-start">
                         <div class="space-x-1">
                             <span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 py-0.2 rounded text-[8.5px]">${p.id}</span>
                             <span class="font-mono text-[7.5px] text-slate-500">Resi: ${p.resi || '-'}</span>
+                            ${slaBadgeHtml(p.sla)}
                         </div>
                         <span class="text-[7.5px] text-slate-400">${p.timestamp}</span>
                     </div>
@@ -2056,7 +2089,6 @@
                             <h4 class="font-bold text-slate-800">${p.recipient} <span class="text-indigo-600 font-normal">(${p.role})</span></h4>
                             <p class="text-slate-500"><i class="fa-solid fa-location-dot text-rose-500 mr-0.5"></i> ${p.destination}</p>
                             <p class="text-[7.5px] text-indigo-600"><span class="font-semibold">Petugas:</span> ${p.petugas}</p>
-                            <p class="text-[7.5px] text-sky-600"><span class="font-semibold">Kurir:</span> ${p.courier || 'Belum Ditugaskan'}</p>
                         </div>
                         <div class="text-right">
                             ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" class="w-8 h-8 object-cover rounded border shadow-sm ml-auto zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
@@ -2075,6 +2107,7 @@
                         <div class="space-x-1">
                             <span class="font-mono font-bold text-sky-600 bg-sky-50 px-1 py-0.2 rounded text-[8.5px]">${p.id}</span>
                             <span class="font-mono text-[7.5px] text-slate-500">Resi: ${p.resi || '-'}</span>
+                            ${slaBadgeHtml(p.sla)}
                         </div>
                         <span class="text-[7.5px] text-sky-700 bg-sky-100 px-1.5 py-0.2 rounded-full font-semibold">Dikirim</span>
                     </div>
@@ -2172,7 +2205,7 @@
             if (pkg) {
                 pkg.status = 'completed';
                 pkg.courier = loggedUser.name;
-                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                 pkg.proofPhotoUrl = proofPhotoDataUrl ? proofPhotoDataUrl : 'https://placehold.co/300x200/emerald/white?text=Bukti+' + encodeURIComponent(receiverName);
                 pkg.completionOption = completionOption + ' (' + receiverName + ')';
                 
@@ -2188,9 +2221,37 @@
 
         function renderPetugasStatusView() {
             const searchElem = document.getElementById('filter-petugas-search');
+            const periodElem = document.getElementById('filter-petugas-period');
+            const slaElem = document.getElementById('filter-petugas-sla');
+
             const search = searchElem ? searchElem.value.toLowerCase() : '';
+            const period = periodElem ? periodElem.value : 'today';
+            const slaFilter = slaElem ? slaElem.value : 'all';
+
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const yesterdayStart = todayStart - 86400000;
+            const weekStart = todayStart - (7 * 86400000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
             
-            const filtered = packages.filter(p => p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search));
+            const filtered = packages.filter(p => {
+                const matchSearch = p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search) || (p.petugas && p.petugas.toLowerCase().includes(search)) || (p.courier && p.courier.toLowerCase().includes(search));
+                const matchSla = slaFilter === 'all' || (p.sla && p.sla.toLowerCase().includes(slaFilter));
+                
+                let matchPeriod = true;
+                const pTime = p.timestampRaw || now.getTime();
+                if (period === 'today') {
+                    matchPeriod = pTime >= todayStart;
+                } else if (period === 'yesterday') {
+                    matchPeriod = pTime >= yesterdayStart && pTime < todayStart;
+                } else if (period === 'week') {
+                    matchPeriod = pTime >= weekStart;
+                } else if (period === 'month') {
+                    matchPeriod = pTime >= monthStart;
+                }
+
+                return matchSearch && matchSla && matchPeriod;
+            });
 
             const pending = filtered.filter(p => p.status === 'pending');
             const delivering = filtered.filter(p => p.status === 'delivering');
@@ -2219,10 +2280,10 @@
                         <p class="text-[8px] text-indigo-600 font-medium">Petugas: ${p.petugas} | Kurir: ${p.courier || '-'}</p>
                         ${p.completionOption ? `<p class="text-[8px] text-emerald-600 font-semibold mt-0.5 bg-emerald-50 p-0.5 rounded border border-emerald-100"><i class="fa-solid fa-circle-check"></i> ${p.completionOption}</p>` : ''}
                     </div>
-                    <div class="flex justify-between items-center pt-0.5 border-t border-slate-100 text-[7.5px] text-slate-400">
+                    <div class="flex justify-between items-center pt-0.5 border-t border-slate-100 text-[7.5px] text-slate-400 flex-wrap gap-1">
                         <span>Masuk: ${p.timestamp}</span>
-                        ${p.completedTimestamp ? `<span class="text-emerald-600 font-semibold">Selesai: ${p.completedTimestamp}</span>` : ''}
-                        <div class="flex space-x-1">
+                        ${p.completedTimestamp ? `<span class="text-emerald-600 font-bold bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200"><i class="fa-solid fa-clock mr-0.5"></i> Selesai: ${p.completedTimestamp}</span>` : ''}
+                        <div class="flex space-x-1 ml-auto">
                             ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" title="Fisik" class="w-6 h-6 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
                             ${p.proofPhotoUrl ? `<img src="${p.proofPhotoUrl}" title="Bukti" class="w-6 h-6 object-cover rounded border border-emerald-400 zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
                         </div>
@@ -2368,29 +2429,65 @@
         }
         window.printAdminReport = printAdminReport;
 
-        function resetReportFilter() {
+        function handleReportPresetChange() {
+            const preset = document.getElementById('report-period-preset')?.value;
+            const fromWrap = document.getElementById('custom-date-from-wrap');
+            const toWrap = document.getElementById('custom-date-to-wrap');
             const dateFrom = document.getElementById('report-date-from');
             const dateTo = document.getElementById('report-date-to');
-            if(dateFrom) dateFrom.value = '';
-            if(dateTo) dateTo.value = '';
+
+            const now = new Date();
+
+            if (preset === 'custom') {
+                if(fromWrap) fromWrap.classList.remove('hidden');
+                if(toWrap) toWrap.classList.remove('hidden');
+            } else {
+                if(fromWrap) fromWrap.classList.add('hidden');
+                if(toWrap) toWrap.classList.add('hidden');
+                if(dateFrom) dateFrom.value = '';
+                if(dateTo) dateTo.value = '';
+            }
             renderAdminReports();
-            showToast('Filter laporan direset');
+        }
+        window.handleReportPresetChange = handleReportPresetChange;
+
+        function resetReportFilter() {
+            const preset = document.getElementById('report-period-preset');
+            if(preset) preset.value = 'today';
+            handleReportPresetChange();
+            showToast('Filter laporan direset ke Hari Ini');
         }
         window.resetReportFilter = resetReportFilter;
 
         function renderAdminReports() {
+            const preset = document.getElementById('report-period-preset')?.value || 'today';
             const dateFrom = document.getElementById('report-date-from')?.value;
             const dateTo = document.getElementById('report-date-to')?.value;
 
-            let filtered = packages;
-            if (dateFrom && dateTo) {
-                const start = new Date(dateFrom).setHours(0,0,0,0);
-                const end = new Date(dateTo).setHours(23,59,59,999);
-                filtered = packages.filter(p => {
-                    const pTime = p.timestampRaw || new Date().getTime();
-                    return pTime >= start && pTime <= end;
-                });
+            const now = new Date();
+            let start = 0;
+            let end = now.getTime();
+
+            if (preset === 'custom') {
+                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
+                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
+            } else if (preset === 'today') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            } else if (preset === 'yesterday') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
+                end = start + 86399999;
+            } else if (preset === 'week') {
+                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
+            } else if (preset === 'month') {
+                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            } else if (preset === 'all') {
+                start = 0;
             }
+
+            let filtered = packages.filter(p => {
+                const pTime = p.timestampRaw || now.getTime();
+                return pTime >= start && pTime <= end;
+            });
 
             const officerStats = {};
             filtered.forEach(p => {
@@ -2410,7 +2507,7 @@
             const officerContainer = document.getElementById('report-officer-stats');
             if (officerContainer) {
                 const keys = Object.keys(officerStats);
-                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(o => `
+                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(o => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-user text-indigo-500 mr-1"></i> ${o}</span>
                         <span class="font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded">${officerStats[o].total} Paket Diterima</span>
@@ -2421,7 +2518,7 @@
             const courierContainer = document.getElementById('report-courier-stats');
             if (courierContainer) {
                 const keys = Object.keys(courierStats);
-                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(c => `
+                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(c => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-paper-plane text-sky-500 mr-1"></i> ${c}</span>
                         <span class="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">${courierStats[c].completed} Selesai / ${courierStats[c].total} Total</span>
@@ -2813,22 +2910,6 @@
                 renderAuditLogs();
             }
         }
-
-        function runQuickDiagnosticTest() {
-            showToast('Menjalankan uji otomatis seluruh menu...', 'info');
-            setTimeout(() => {
-                switchRole('petugas');
-                switchPetugasTab('status');
-                togglePetugasFullscreen();
-
-                setTimeout(() => {
-                    togglePetugasFullscreen();
-                    showToast('🎉 Uji fullscreen selesai!', 'success');
-                    speakText('Uji fullscreen selesai');
-                }, 1000);
-            }, 500);
-        }
-        window.runQuickDiagnosticTest = runQuickDiagnosticTest;
 
         window.onload = function() {
             initFirebase();
