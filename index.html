@@ -67,7 +67,6 @@
             transform: scale(1.05);
         }
 
-        /* PERFECT NON-OVERLAPPING FULLSCREEN COMMAND CENTER MODE */
         #petugas-content-status.fullscreen-mode {
             position: fixed !important;
             inset: 0 !important;
@@ -134,7 +133,10 @@
                     <input type="text" id="login-username" required class="w-full px-2 py-1 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
                 </div>
                 <div id="password-field-group">
-                    <label class="block text-[9px] font-semibold text-slate-600 mb-0.5">Kata Sandi</label>
+                    <div class="flex justify-between items-center mb-0.5">
+                        <label class="block text-[9px] font-semibold text-slate-600">Kata Sandi</label>
+                        <button type="button" onclick="window.openForgotPasswordModal()" class="text-[8.5px] text-indigo-600 hover:underline font-medium">Lupa Sandi?</button>
+                    </div>
                     <div class="relative">
                         <input type="password" id="login-password" required class="w-full px-2 py-1 pr-6 rounded-lg border border-slate-200 text-[11px] focus:outline-none focus:border-indigo-500 bg-slate-50">
                         <button type="button" onclick="window.togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-1.5 flex items-center text-slate-400 hover:text-slate-700 text-[10px] focus:outline-none" title="Lihat / Sembunyikan">
@@ -143,7 +145,12 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold py-1.5 rounded-lg text-[10px] shadow-sm transition flex items-center justify-center space-x-1 btn-glow">
+                <div id="login-error-alert" class="hidden p-1.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[8.5px] font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+                    <span id="login-error-text">Email atau kata sandi yang Anda masukkan salah.</span>
+                </div>
+
+                <button type="submit" id="login-submit-btn" class="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-semibold py-1.5 rounded-lg text-[10px] shadow-sm transition flex items-center justify-center space-x-1 btn-glow">
                     <i class="fa-solid fa-rocket text-amber-200 text-[9px]"></i>
                     <span>Masuk Aplikasi</span>
                 </button>
@@ -151,6 +158,24 @@
             <div class="bg-slate-50 p-1 rounded-lg border border-slate-100 text-[8.5px] text-slate-500 text-center flex justify-between items-center px-2">
                 <span>Sinkronisasi Cloud Firebase Aktif.</span>
             </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Request Modal (Approval Admin) -->
+    <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
+            <div class="flex justify-between items-center border-b pb-1">
+                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-key text-amber-500 mr-1"></i> Permintaan Reset Sandi (Approval Admin)</h3>
+                <button onclick="window.closeForgotPasswordModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-[8px] text-slate-500">Masukkan email akun Anda. Permintaan reset akan dikirimkan kepada Administrator untuk disetujui.</p>
+            <form onsubmit="window.handleSendPasswordResetRequest(event)" class="space-y-1.5 text-[9px]">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-0.5">Email Terdaftar</label>
+                    <input type="email" id="forgot-email-input" required placeholder="Cth: petugas@sch.edu" class="w-full px-2 py-0.5 rounded border border-slate-200 text-[9px]">
+                </div>
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Kirim Permintaan ke Admin</button>
+            </form>
         </div>
     </div>
 
@@ -176,6 +201,10 @@
                 <button id="pwa-install-btn" onclick="window.installPwaApp()" class="hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-1.5 py-0.5 rounded-lg text-[9px] font-bold transition items-center space-x-0.5 shadow-sm btn-glow" title="Install Aplikasi (PWA)">
                     <i class="fa-solid fa-download text-[8.5px]"></i>
                     <span>Install App</span>
+                </button>
+                <button onclick="window.openProfileModal()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Profil & Ganti Password">
+                    <i class="fa-solid fa-user-gear text-amber-300 text-[8.5px]"></i>
+                    <span>Profil</span>
                 </button>
                 <button onclick="window.speakAppWelcome()" class="bg-indigo-600 hover:bg-indigo-800 text-indigo-100 px-1.5 py-0.5 rounded-lg text-[9px] font-semibold transition flex items-center space-x-0.5 shadow-sm" title="Pengumuman Suara">
                     <i class="fa-solid fa-volume-high text-amber-300 text-[8.5px]"></i>
@@ -293,17 +322,15 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen & Time Filters) -->
+            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen Mode) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
-                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col h-full">
-                    
-                    <!-- TOP TITLE BAR (Stays on top during Fullscreen with zero overlap) -->
-                    <div id="fullscreen-title-wrapper" class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
-                        <div>
+                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
+                    <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
+                        <div class="order-1">
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
                             <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan secara langsung</p>
                         </div>
-                        <div>
+                        <div class="order-2 ml-auto">
                             <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen / Normal">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
                                 <span id="petugas-fullscreen-text">Fullscreen</span>
@@ -311,9 +338,8 @@
                         </div>
                     </div>
 
-                    <!-- TIME SEGMENTATION & SEARCH FILTERS (Hidden in Fullscreen) -->
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
-                        <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
+                        <div class="flex items-center space-x-1 w-full flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
                                 <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi berdasarkan nama, resi, tujuan..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500 bg-slate-50">
@@ -322,25 +348,10 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-1 text-[9px]">
-                            <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700">
-                                <option value="today">📅 Hari Ini</option>
-                                <option value="yesterday">⏪ Kemarin</option>
-                                <option value="week">📊 Minggu Ini</option>
-                                <option value="month">📈 Bulan Ini</option>
-                                <option value="all">🌐 Semua Waktu</option>
-                            </select>
-                            <select id="filter-petugas-sla" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white text-[9px]">
-                                <option value="all">Semua SLA</option>
-                                <option value="30 menit">30 Menit</option>
-                                <option value="2 jam">2 Jam</option>
-                                <option value="24 jam">24 Jam</option>
-                            </select>
-                        </div>
                     </div>
 
                     <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized 100% Space -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen flex-1">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
                             <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
@@ -379,12 +390,6 @@
                     <button onclick="window.switchCourierSubTab('completed')" id="courier-subtab-completed" class="py-0.5 px-0.5 rounded text-[8.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5">
                         <i class="fa-solid fa-circle-check text-emerald-400"></i>
                         <span>Selesai (<span id="count-completed-badge">0</span>)</span>
-                    </button>
-                </div>
-                <div>
-                    <button onclick="window.exportCourierReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 whitespace-nowrap btn-glow" title="Export Laporan Kurir">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <span>Export CSV</span>
                     </button>
                 </div>
             </div>
@@ -476,6 +481,7 @@
                     <button onclick="window.switchAdminTab('packages')" id="adm-tab-packages" class="px-2.5 py-1 rounded-lg text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center space-x-1"><i class="fa-solid fa-box-open mr-1 text-purple-500"></i><span>Paket</span></button>
                     <button onclick="window.switchAdminTab('reports')" id="adm-tab-reports" class="px-2.5 py-1 rounded-lg text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center space-x-1"><i class="fa-solid fa-file-lines mr-1 text-sky-500"></i><span>Laporan & Kinerja</span></button>
                     <button onclick="window.switchAdminTab('members')" id="adm-tab-members" class="px-2.5 py-1 rounded-lg text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center space-x-1"><i class="fa-solid fa-users-gear mr-1 text-emerald-500"></i><span>Anggota</span></button>
+                    <button onclick="window.switchAdminTab('resets')" id="adm-tab-resets" class="px-2.5 py-1 rounded-lg text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center space-x-1"><i class="fa-solid fa-key mr-1 text-amber-500"></i><span>Reset Sandi (<span id="reset-requests-count">0</span>)</span></button>
                     <button onclick="window.switchAdminTab('audit')" id="adm-tab-audit" class="px-2.5 py-1 rounded-lg text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center space-x-1"><i class="fa-solid fa-shield-cat mr-1 text-amber-500"></i><span>Audit Log</span></button>
                 </div>
                 <div class="flex items-center space-x-1 px-1">
@@ -603,22 +609,12 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1 bg-slate-50 p-1.5 rounded-lg border border-slate-200 text-[9px]">
                         <div>
-                            <label class="block font-semibold text-slate-600 mb-0.5">Periode Laporan</label>
-                            <select id="report-period-preset" onchange="window.handleReportPresetChange()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white font-semibold text-indigo-700">
-                                <option value="today">📅 Hari Ini</option>
-                                <option value="yesterday">⏪ Kemarin</option>
-                                <option value="week">📊 Minggu Ini</option>
-                                <option value="month">📈 Bulan Ini</option>
-                                <option value="custom">⚙️ Kustom Tanggal</option>
-                            </select>
-                        </div>
-                        <div id="custom-date-from-wrap" class="hidden">
                             <label class="block font-semibold text-slate-600 mb-0.5">Dari Tanggal</label>
                             <input type="date" id="report-date-from" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
-                        <div id="custom-date-to-wrap" class="hidden">
+                        <div>
                             <label class="block font-semibold text-slate-600 mb-0.5">Sampai Tanggal</label>
                             <input type="date" id="report-date-to" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
@@ -663,6 +659,30 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-members-table-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="admin-content-resets" class="admin-tab-content space-y-1.5 hidden">
+                <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-100 space-y-2">
+                    <div class="flex justify-between items-center border-b pb-1">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-key text-amber-500 mr-1"></i> Permintaan Reset Kata Sandi (Approval Admin)</h3>
+                            <p class="text-[7.5px] text-slate-500">Setujui atau tolak permintaan reset sandi dari anggota yang lupa sandi</p>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-[9px]">
+                            <thead class="bg-slate-100 text-slate-700 uppercase font-semibold text-[8px]">
+                                <tr>
+                                    <th class="p-1.5">Waktu Request</th>
+                                    <th class="p-1.5">Email Pengguna</th>
+                                    <th class="p-1.5">Status</th>
+                                    <th class="p-1.5 text-right">Aksi Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-resets-table-body" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
@@ -726,6 +746,31 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
+    <!-- Profile & Password Change Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
+            <div class="flex justify-between items-center border-b pb-1">
+                <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-user-gear text-indigo-600 mr-1"></i> Profil & Ganti Kata Sandi</h3>
+                <button onclick="window.closeProfileModal()" class="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="window.handleUpdateOwnPassword(event)" class="space-y-1.5 text-[9px]">
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-0.5">Nama Anda</label>
+                    <input type="text" id="profile-display-name" readonly class="w-full px-2 py-0.5 rounded border border-slate-200 bg-slate-100 font-semibold text-indigo-700">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-0.5">Email Resmi</label>
+                    <input type="text" id="profile-display-email" readonly class="w-full px-2 py-0.5 rounded border border-slate-200 bg-slate-100 font-mono text-slate-600">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-600 mb-0.5">Kata Sandi Baru</label>
+                    <input type="password" id="profile-new-password" required placeholder="Masukkan kata sandi baru" class="w-full px-2 py-0.5 rounded border border-slate-200">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1 rounded text-[9.5px] shadow btn-glow">Simpan Sandi Baru</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Physical Camera Modal -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
@@ -743,7 +788,7 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Modal with Debounce Lock & Target Box -->
+    <!-- Barcode Scanner Modal -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -753,10 +798,10 @@
             <p class="text-[9px] text-slate-500 text-center">Arahkan kamera ke barcode atau QR resi pengiriman.</p>
             
             <div class="space-y-2">
-                <div class="relative w-full h-44 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
+                <div class="relative w-full h-40 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
                     <video id="interactive-barcode-video" class="w-full h-full object-cover" muted playsinline></video>
-                    <div class="absolute inset-x-6 border-2 border-dashed border-emerald-400 h-12 rounded-lg pointer-events-none flex items-center justify-center bg-emerald-500/10">
-                        <span class="text-[8px] bg-emerald-600 text-white px-2 py-0.5 rounded shadow font-bold">Posisikan Barcode di Sini</span>
+                    <div class="absolute inset-x-4 border-2 border-dashed border-emerald-400 h-10 rounded pointer-events-none flex items-center justify-center">
+                        <span class="text-[8px] bg-emerald-600 text-white px-1.5 py-0.5 rounded shadow">Posisikan Barcode di Sini</span>
                     </div>
                 </div>
 
@@ -1000,7 +1045,7 @@
         let db, auth, analytics;
         const SECRET_API_KEY = "AIzaSyDCRDC1ykV6UTeBYFAoNEBtlIKeyDphstU";
 
-        let loggedUser = { role: 'petugas', name: 'Gari' };
+        let loggedUser = { role: 'petugas', name: 'Gari', email: 'gari@sch.edu' };
         let currentRole = 'petugas';
         let sourceType = 'external';
         let physicalPhotoDataUrl = null;
@@ -1022,6 +1067,7 @@
             { id: 'usr-3', name: 'Siti Rahma', email: 'siti@sch.edu', password: '123456', role: 'penerima', status: 'Aktif' },
             { id: 'usr-4', name: 'Aufah', email: 'aufah@sch.edu', password: '123456', role: 'admin', status: 'Aktif' }
         ];
+        let passwordResetRequests = [];
         let auditLogs = [];
         let charts = {};
         let lastPackageCount = 0;
@@ -1049,6 +1095,91 @@
             window.speechSynthesis.speak(utterance);
         }
         window.speakText = speakText;
+
+        function openProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            const nameEl = document.getElementById('profile-display-name');
+            const emailEl = document.getElementById('profile-display-email');
+            const pwdEl = document.getElementById('profile-new-password');
+
+            if(nameEl) nameEl.value = loggedUser.name || '-';
+            if(emailEl) emailEl.value = loggedUser.email || '-';
+            if(pwdEl) pwdEl.value = '';
+            if(modal) modal.classList.remove('hidden');
+        }
+        window.openProfileModal = openProfileModal;
+
+        function closeProfileModal() {
+            const modal = document.getElementById('profile-modal');
+            if(modal) modal.classList.add('hidden');
+        }
+        window.closeProfileModal = closeProfileModal;
+
+        async function handleUpdateOwnPassword(e) {
+            e.preventDefault();
+            const newPwd = document.getElementById('profile-new-password').value;
+            if (!newPwd || newPwd.length < 4) {
+                showToast('Kata sandi minimal 4 karakter!', 'error');
+                return;
+            }
+
+            const foundMember = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
+            if (foundMember) {
+                foundMember.password = newPwd;
+                await syncMemberToFirebase(foundMember);
+            }
+
+            addAuditLog(`Pengguna ${loggedUser.name} (${loggedUser.email}) memperbarui kata sandi mandiri`, loggedUser.name, loggedUser.role.toUpperCase());
+            showToast('Kata sandi berhasil diperbarui!');
+            closeProfileModal();
+            speakText('Kata sandi berhasil diperbarui');
+        }
+        window.handleUpdateOwnPassword = handleUpdateOwnPassword;
+
+        function openForgotPasswordModal() {
+            const modal = document.getElementById('forgot-password-modal');
+            const emailInput = document.getElementById('forgot-email-input');
+            if(emailInput) emailInput.value = '';
+            if(modal) modal.classList.remove('hidden');
+        }
+        window.openForgotPasswordModal = openForgotPasswordModal;
+
+        function closeForgotPasswordModal() {
+            const modal = document.getElementById('forgot-password-modal');
+            if(modal) modal.classList.add('hidden');
+        }
+        window.closeForgotPasswordModal = closeForgotPasswordModal;
+
+        async function handleSendPasswordResetRequest(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email-input').value.trim();
+            const found = members.find(m => m.email.toLowerCase() === email.toLowerCase());
+            if (!found) {
+                showToast('Email tidak terdaftar dalam sistem!', 'error');
+                return;
+            }
+
+            const reqObj = {
+                id: 'req-' + Date.now(),
+                email: found.email,
+                name: found.name,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+                status: 'Pending'
+            };
+
+            passwordResetRequests.unshift(reqObj);
+            if (db) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'password_resets_col', String(reqObj.id)), reqObj);
+                } catch(e) {}
+            }
+
+            addAuditLog(`Pengguna ${found.name} (${email}) mengajukan permintaan reset sandi ke Admin`, found.name, 'SYSTEM');
+            closeForgotPasswordModal();
+            showToast('Permintaan reset sandi berhasil dikirim ke Admin untuk approval!');
+            speakText('Permintaan reset sandi terkirim ke administrator');
+        }
+        window.handleSendPasswordResetRequest = handleSendPasswordResetRequest;
 
         function initFirebase() {
             const firebaseConfig = {
@@ -1117,6 +1248,20 @@
                             members.unshift({ id: 'usr-superadm', name: 'Administrator', email: 'adm@sch.edu', password: '123456', role: 'admin', status: 'Aktif' });
                         }
                         if (currentRole === 'admin') renderAdminMembers();
+                    }
+                }, (err) => {});
+
+                const refResets = collection(db, 'artifacts', appId, 'public', 'data', 'password_resets_col');
+                onSnapshot(refResets, (snapshot) => {
+                    const cloudResets = [];
+                    snapshot.forEach(docSnap => {
+                        cloudResets.push(docSnap.data());
+                    });
+                    if (cloudResets.length >= 0) {
+                        passwordResetRequests = cloudResets.sort((a,b) => b.id.localeCompare(a.id));
+                        const countBadge = document.getElementById('reset-requests-count');
+                        if(countBadge) countBadge.innerText = passwordResetRequests.filter(r => r.status === 'Pending').length;
+                        if (currentRole === 'admin') renderAdminPasswordResets();
                     }
                 }, (err) => {});
 
@@ -1374,70 +1519,112 @@
             if (e) e.preventDefault();
             const username = document.getElementById('login-username').value.trim();
             const role = loggedUser.role;
+            const errorAlert = document.getElementById('login-error-alert');
+            const errorText = document.getElementById('login-error-text');
+            const submitBtn = document.getElementById('login-submit-btn');
+
+            if(errorAlert) errorAlert.classList.add('hidden');
 
             if (role === 'penerima') {
                 if (!username) {
-                    showToast('Masukkan nama penerima atau ruangan!', 'error');
+                    if(errorText) errorText.innerText = 'Masukkan nama penerima atau ruangan terlebih dahulu!';
+                    if(errorAlert) errorAlert.classList.remove('hidden');
+                    showToast('Masukkan nama penerima!', 'error');
                     return;
                 }
-                loggedUser.name = username;
-                loggedUser.email = username + '@receiver.sch.edu';
-                loggedUser.isSuperAdmin = false;
-
-                localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: username, role: 'penerima', email: loggedUser.email, isSuperAdmin: false }));
-
-                const authScreen = document.getElementById('auth-screen');
-                if(authScreen) authScreen.classList.add('hidden');
-                const headerBadge = document.getElementById('header-user-badge');
-                if(headerBadge) headerBadge.innerText = `Masuk: ${username} (PENERIMA)`;
-
-                showToast('Berhasil masuk sebagai PENERIMA');
-                addAuditLog(`Penerima ${username} masuk ke portal penerima`, username, 'PENERIMA');
-                switchRole('penerima');
-
-                const sessionNameInput = document.getElementById('receiver-session-name');
-                if(sessionNameInput) {
-                    sessionNameInput.value = username;
-                    renderReceiverView();
+                
+                if(submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[10px] mr-1"></i><span>Memuat data dari server...</span>`;
                 }
-                speakText(`Selamat datang ${username}`);
+
+                setTimeout(() => {
+                    if(submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = `<i class="fa-solid fa-rocket text-amber-200 text-[9px]"></i><span>Masuk Aplikasi</span>`;
+                    }
+
+                    loggedUser.name = username;
+                    loggedUser.email = username + '@receiver.sch.edu';
+                    loggedUser.isSuperAdmin = false;
+
+                    localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: username, role: 'penerima', email: loggedUser.email, isSuperAdmin: false }));
+
+                    const authScreen = document.getElementById('auth-screen');
+                    if(authScreen) authScreen.classList.add('hidden');
+                    const headerBadge = document.getElementById('header-user-badge');
+                    if(headerBadge) headerBadge.innerText = `Masuk: ${username} (PENERIMA)`;
+
+                    showToast('Berhasil masuk sebagai PENERIMA');
+                    addAuditLog(`Penerima ${username} masuk ke portal penerima`, username, 'PENERIMA');
+                    switchRole('penerima');
+
+                    const sessionNameInput = document.getElementById('receiver-session-name');
+                    if(sessionNameInput) {
+                        sessionNameInput.value = username;
+                        renderReceiverView();
+                    }
+                    speakText(`Selamat datang ${username}`);
+                }, 3000);
                 return;
             }
 
             const password = document.getElementById('login-password').value;
             const foundUser = members.find(m => m.email.toLowerCase() === username.toLowerCase());
+            
             if (!foundUser) {
-                showToast('Email atau username tidak terdaftar!', 'error');
+                if(errorText) errorText.innerText = `Email "${username}" tidak terdaftar dalam sistem. Periksa kembali penulisan email Anda.`;
+                if(errorAlert) errorAlert.classList.remove('hidden');
+                showToast('Email tidak terdaftar!', 'error');
+                speakText('Email tidak terdaftar');
                 return;
             }
+
             if (foundUser.password !== password) {
+                if(errorText) errorText.innerText = `Kata sandi yang Anda masukkan untuk akun ${foundUser.name} salah. Silakan coba lagi.`;
+                if(errorAlert) errorAlert.classList.remove('hidden');
                 showToast('Kata sandi salah!', 'error');
+                speakText('Kata sandi salah');
                 return;
             }
 
             const isSuperAdmin = foundUser.email.toLowerCase() === 'adm@sch.edu';
             if (!isSuperAdmin && foundUser.role !== role) {
-                showToast(`Akun ini terdaftar sebagai ${foundUser.role.toUpperCase()}, bukan ${role.toUpperCase()}!`, 'error');
+                if(errorText) errorText.innerText = `Akun ini terdaftar sebagai ${foundUser.role.toUpperCase()}, bukan ${role.toUpperCase()}! Pilih role yang sesuai.`;
+                if(errorAlert) errorAlert.classList.remove('hidden');
+                showToast('Peran akun tidak sesuai!', 'error');
                 return;
             }
 
-            loggedUser.name = foundUser.name;
-            loggedUser.email = foundUser.email;
-            loggedUser.isSuperAdmin = isSuperAdmin;
-            
-            const activeLoginRole = isSuperAdmin ? role : foundUser.role;
+            if(submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[10px] mr-1"></i><span>Memuat data dari server...</span>`;
+            }
 
-            localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: foundUser.name, role: activeLoginRole, email: foundUser.email, isSuperAdmin }));
+            setTimeout(() => {
+                if(submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-rocket text-amber-200 text-[9px]"></i><span>Masuk Aplikasi</span>`;
+                }
 
-            const authScreen = document.getElementById('auth-screen');
-            if(authScreen) authScreen.classList.add('hidden');
-            const headerBadge = document.getElementById('header-user-badge');
-            if(headerBadge) headerBadge.innerText = `Masuk: ${foundUser.name} (${activeLoginRole.toUpperCase()})`;
+                loggedUser.name = foundUser.name;
+                loggedUser.email = foundUser.email;
+                loggedUser.isSuperAdmin = isSuperAdmin;
+                
+                const activeLoginRole = isSuperAdmin ? role : foundUser.role;
 
-            showToast(`Berhasil login sebagai ${activeLoginRole.toUpperCase()}`);
-            addAuditLog(`Pengguna ${foundUser.name} login ke sistem sebagai ${activeLoginRole.toUpperCase()}`, foundUser.name, activeLoginRole.toUpperCase());
-            switchRole(activeLoginRole);
-            speakText(`Selamat datang kembali ${foundUser.name}`);
+                localStorage.setItem('kurir_bns_logged_user', JSON.stringify({ name: foundUser.name, role: activeLoginRole, email: foundUser.email, isSuperAdmin }));
+
+                const authScreen = document.getElementById('auth-screen');
+                if(authScreen) authScreen.classList.add('hidden');
+                const headerBadge = document.getElementById('header-user-badge');
+                if(headerBadge) headerBadge.innerText = `Masuk: ${foundUser.name} (${activeLoginRole.toUpperCase()})`;
+
+                showToast(`Berhasil login sebagai ${activeLoginRole.toUpperCase()}`);
+                addAuditLog(`Pengguna ${foundUser.name} login ke sistem sebagai ${activeLoginRole.toUpperCase()}`, foundUser.name, activeLoginRole.toUpperCase());
+                switchRole(activeLoginRole);
+                speakText(`Selamat datang kembali ${foundUser.name}`);
+            }, 3000);
         }
         window.handleLogin = handleLogin;
 
@@ -2026,24 +2213,6 @@
         }
         window.switchCourierSubTab = switchCourierSubTab;
 
-        function exportCourierReport() {
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
-            packages.forEach(p => {
-                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_kurir_" + (loggedUser.name || 'kurir') + "_" + new Date().toISOString().slice(0,10) + ".csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast('Laporan kurir berhasil diexport ke CSV / Excel');
-            addAuditLog(`Kurir (${loggedUser.name}) mengexport laporan kinerjanya`, loggedUser.name, 'KURIR');
-            speakText('Laporan kurir berhasil diexport');
-        }
-        window.exportCourierReport = exportCourierReport;
-
         function renderCourierView() {
             const searchElem = document.getElementById('filter-kurir-search');
             const limitElem = document.getElementById('courier-row-limit');
@@ -2069,18 +2238,12 @@
             const listDelivering = document.getElementById('list-courier-delivering');
             const listCompleted = document.getElementById('list-courier-completed');
 
-            const slaBadgeHtml = (sla) => {
-                const color = sla && sla.includes('30') ? 'bg-rose-100 text-rose-700' : (sla && sla.includes('2 jam') ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700');
-                return `<span class="px-1 py-0.2 rounded text-[7px] font-bold ${color}">${sla || 'Reguler'}</span>`;
-            };
-
             if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[9px] text-slate-400 text-center py-2">Tidak ada antrian paket</p>' : pending.slice(0, limit).map(p => `
                 <div class="p-1.5 rounded-lg border border-slate-100 bg-slate-50/70 space-y-1 text-[9px]">
                     <div class="flex justify-between items-start">
                         <div class="space-x-1">
                             <span class="font-mono font-bold text-indigo-600 bg-indigo-50 px-1 py-0.2 rounded text-[8.5px]">${p.id}</span>
                             <span class="font-mono text-[7.5px] text-slate-500">Resi: ${p.resi || '-'}</span>
-                            ${slaBadgeHtml(p.sla)}
                         </div>
                         <span class="text-[7.5px] text-slate-400">${p.timestamp}</span>
                     </div>
@@ -2089,6 +2252,7 @@
                             <h4 class="font-bold text-slate-800">${p.recipient} <span class="text-indigo-600 font-normal">(${p.role})</span></h4>
                             <p class="text-slate-500"><i class="fa-solid fa-location-dot text-rose-500 mr-0.5"></i> ${p.destination}</p>
                             <p class="text-[7.5px] text-indigo-600"><span class="font-semibold">Petugas:</span> ${p.petugas}</p>
+                            <p class="text-[7.5px] text-sky-600"><span class="font-semibold">Kurir:</span> ${p.courier || 'Belum Ditugaskan'}</p>
                         </div>
                         <div class="text-right">
                             ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" class="w-8 h-8 object-cover rounded border shadow-sm ml-auto zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
@@ -2107,7 +2271,6 @@
                         <div class="space-x-1">
                             <span class="font-mono font-bold text-sky-600 bg-sky-50 px-1 py-0.2 rounded text-[8.5px]">${p.id}</span>
                             <span class="font-mono text-[7.5px] text-slate-500">Resi: ${p.resi || '-'}</span>
-                            ${slaBadgeHtml(p.sla)}
                         </div>
                         <span class="text-[7.5px] text-sky-700 bg-sky-100 px-1.5 py-0.2 rounded-full font-semibold">Dikirim</span>
                     </div>
@@ -2205,7 +2368,7 @@
             if (pkg) {
                 pkg.status = 'completed';
                 pkg.courier = loggedUser.name;
-                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                pkg.completedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ' WIB, ' + new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                 pkg.proofPhotoUrl = proofPhotoDataUrl ? proofPhotoDataUrl : 'https://placehold.co/300x200/emerald/white?text=Bukti+' + encodeURIComponent(receiverName);
                 pkg.completionOption = completionOption + ' (' + receiverName + ')';
                 
@@ -2221,37 +2384,9 @@
 
         function renderPetugasStatusView() {
             const searchElem = document.getElementById('filter-petugas-search');
-            const periodElem = document.getElementById('filter-petugas-period');
-            const slaElem = document.getElementById('filter-petugas-sla');
-
             const search = searchElem ? searchElem.value.toLowerCase() : '';
-            const period = periodElem ? periodElem.value : 'today';
-            const slaFilter = slaElem ? slaElem.value : 'all';
-
-            const now = new Date();
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const yesterdayStart = todayStart - 86400000;
-            const weekStart = todayStart - (7 * 86400000);
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
             
-            const filtered = packages.filter(p => {
-                const matchSearch = p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search) || (p.petugas && p.petugas.toLowerCase().includes(search)) || (p.courier && p.courier.toLowerCase().includes(search));
-                const matchSla = slaFilter === 'all' || (p.sla && p.sla.toLowerCase().includes(slaFilter));
-                
-                let matchPeriod = true;
-                const pTime = p.timestampRaw || now.getTime();
-                if (period === 'today') {
-                    matchPeriod = pTime >= todayStart;
-                } else if (period === 'yesterday') {
-                    matchPeriod = pTime >= yesterdayStart && pTime < todayStart;
-                } else if (period === 'week') {
-                    matchPeriod = pTime >= weekStart;
-                } else if (period === 'month') {
-                    matchPeriod = pTime >= monthStart;
-                }
-
-                return matchSearch && matchSla && matchPeriod;
-            });
+            const filtered = packages.filter(p => p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search));
 
             const pending = filtered.filter(p => p.status === 'pending');
             const delivering = filtered.filter(p => p.status === 'delivering');
@@ -2383,7 +2518,7 @@
         window.closeZoomModal = closeZoomModal;
 
         function switchAdminTab(tab) {
-            ['overview', 'packages', 'reports', 'members', 'audit'].forEach(t => {
+            ['overview', 'packages', 'reports', 'members', 'resets', 'audit'].forEach(t => {
                 const btn = document.getElementById(`adm-tab-${t}`);
                 const content = document.getElementById(`admin-content-${t}`);
                 if (btn && content) {
@@ -2401,6 +2536,7 @@
             if (tab === 'packages') renderAdminPackages();
             if (tab === 'reports') renderAdminReports();
             if (tab === 'members') renderAdminMembers();
+            if (tab === 'resets') renderAdminPasswordResets();
             if (tab === 'audit') renderAuditLogs();
         }
         window.switchAdminTab = switchAdminTab;
@@ -2429,65 +2565,29 @@
         }
         window.printAdminReport = printAdminReport;
 
-        function handleReportPresetChange() {
-            const preset = document.getElementById('report-period-preset')?.value;
-            const fromWrap = document.getElementById('custom-date-from-wrap');
-            const toWrap = document.getElementById('custom-date-to-wrap');
+        function resetReportFilter() {
             const dateFrom = document.getElementById('report-date-from');
             const dateTo = document.getElementById('report-date-to');
-
-            const now = new Date();
-
-            if (preset === 'custom') {
-                if(fromWrap) fromWrap.classList.remove('hidden');
-                if(toWrap) toWrap.classList.remove('hidden');
-            } else {
-                if(fromWrap) fromWrap.classList.add('hidden');
-                if(toWrap) toWrap.classList.add('hidden');
-                if(dateFrom) dateFrom.value = '';
-                if(dateTo) dateTo.value = '';
-            }
+            if(dateFrom) dateFrom.value = '';
+            if(dateTo) dateTo.value = '';
             renderAdminReports();
-        }
-        window.handleReportPresetChange = handleReportPresetChange;
-
-        function resetReportFilter() {
-            const preset = document.getElementById('report-period-preset');
-            if(preset) preset.value = 'today';
-            handleReportPresetChange();
-            showToast('Filter laporan direset ke Hari Ini');
+            showToast('Filter laporan direset');
         }
         window.resetReportFilter = resetReportFilter;
 
         function renderAdminReports() {
-            const preset = document.getElementById('report-period-preset')?.value || 'today';
             const dateFrom = document.getElementById('report-date-from')?.value;
             const dateTo = document.getElementById('report-date-to')?.value;
 
-            const now = new Date();
-            let start = 0;
-            let end = now.getTime();
-
-            if (preset === 'custom') {
-                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
-                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
-            } else if (preset === 'today') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            } else if (preset === 'yesterday') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
-                end = start + 86399999;
-            } else if (preset === 'week') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
-            } else if (preset === 'month') {
-                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            } else if (preset === 'all') {
-                start = 0;
+            let filtered = packages;
+            if (dateFrom && dateTo) {
+                const start = new Date(dateFrom).setHours(0,0,0,0);
+                const end = new Date(dateTo).setHours(23,59,59,999);
+                filtered = packages.filter(p => {
+                    const pTime = p.timestampRaw || new Date().getTime();
+                    return pTime >= start && pTime <= end;
+                });
             }
-
-            let filtered = packages.filter(p => {
-                const pTime = p.timestampRaw || now.getTime();
-                return pTime >= start && pTime <= end;
-            });
 
             const officerStats = {};
             filtered.forEach(p => {
@@ -2507,7 +2607,7 @@
             const officerContainer = document.getElementById('report-officer-stats');
             if (officerContainer) {
                 const keys = Object.keys(officerStats);
-                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(o => `
+                officerContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(o => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-user text-indigo-500 mr-1"></i> ${o}</span>
                         <span class="font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded">${officerStats[o].total} Paket Diterima</span>
@@ -2518,7 +2618,7 @@
             const courierContainer = document.getElementById('report-courier-stats');
             if (courierContainer) {
                 const keys = Object.keys(courierStats);
-                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data pada periode ini</p>' : keys.map(c => `
+                courierContainer.innerHTML = keys.length === 0 ? '<p class="text-[8.5px] text-slate-400">Tidak ada data</p>' : keys.map(c => `
                     <div class="flex justify-between items-center bg-white p-1 rounded border border-slate-200 text-[9px]">
                         <span class="font-semibold text-slate-800"><i class="fa-solid fa-paper-plane text-sky-500 mr-1"></i> ${c}</span>
                         <span class="font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">${courierStats[c].completed} Selesai / ${courierStats[c].total} Total</span>
@@ -2718,6 +2818,64 @@
         }
         window.renderAdminMembers = renderAdminMembers;
 
+        function renderAdminPasswordResets() {
+            const tbody = document.getElementById('admin-resets-table-body');
+            if (!tbody) return;
+
+            if (passwordResetRequests.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-2 text-slate-400">Tidak ada permintaan reset sandi.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = passwordResetRequests.map(req => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-1.5 font-mono text-[8px] text-slate-500">${req.time}</td>
+                    <td class="p-1.5 font-semibold text-slate-800">${req.name} <span class="font-mono text-[7.5px] text-indigo-600 block">${req.email}</span></td>
+                    <td class="p-1.5"><span class="px-1.5 py-0.5 rounded-full text-[7.5px] font-bold ${req.status==='Pending'?'bg-amber-100 text-amber-700':(req.status==='Disetujui'?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700')}">${req.status}</span></td>
+                    <td class="p-1.5 text-right space-x-1">
+                        ${req.status === 'Pending' ? `
+                            <button onclick="window.approvePasswordReset('${req.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-0.5 rounded text-[8px] font-bold shadow">Setujui (Reset ke 123456)</button>
+                            <button onclick="window.rejectPasswordReset('${req.id}')" class="bg-rose-600 hover:bg-rose-700 text-white px-2 py-0.5 rounded text-[8px] font-bold shadow">Tolak</button>
+                        ` : `<span class="text-[8px] text-slate-400">Selesai</span>`}
+                    </td>
+                </tr>
+            `).join('');
+        }
+        window.renderAdminPasswordResets = renderAdminPasswordResets;
+
+        async function approvePasswordReset(id) {
+            const req = passwordResetRequests.find(r => r.id === id);
+            if (req) {
+                req.status = 'Disetujui';
+                const m = members.find(item => item.email.toLowerCase() === req.email.toLowerCase());
+                if (m) {
+                    m.password = '123456';
+                    await syncMemberToFirebase(m);
+                }
+                if (db) {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'password_resets_col', String(req.id)), req, { merge: true });
+                }
+                addAuditLog(`Admin (${loggedUser.name}) menyetujui reset sandi untuk ${req.email} (Sandi direset ke 123456)`, loggedUser.name, 'ADMIN');
+                showToast(`Permintaan ${req.email} disetujui. Sandi direset ke: 123456`);
+                renderAdminPasswordResets();
+            }
+        }
+        window.approvePasswordReset = approvePasswordReset;
+
+        async function rejectPasswordReset(id) {
+            const req = passwordResetRequests.find(r => r.id === id);
+            if (req) {
+                req.status = 'Ditolak';
+                if (db) {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'password_resets_col', String(req.id)), req, { merge: true });
+                }
+                addAuditLog(`Admin (${loggedUser.name}) menolak permintaan reset sandi untuk ${req.email}`, loggedUser.name, 'ADMIN');
+                showToast(`Permintaan ${req.email} ditolak`, 'info');
+                renderAdminPasswordResets();
+            }
+        }
+        window.rejectPasswordReset = rejectPasswordReset;
+
         function openMemberModal(id = null) {
             const modal = document.getElementById('member-modal');
             const title = document.getElementById('member-modal-title');
@@ -2907,6 +3065,7 @@
                 renderAdminOverview();
                 renderAdminReports();
                 renderAdminMembers();
+                renderAdminPasswordResets();
                 renderAuditLogs();
             }
         }
