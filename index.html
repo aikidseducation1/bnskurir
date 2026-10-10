@@ -73,7 +73,7 @@
             inset: 0 !important;
             z-index: 9999 !important;
             background: #f8fafc !important;
-            padding: 1rem !important;
+            padding: 0.5rem !important;
             overflow-y: auto !important;
         }
         @media print {
@@ -146,7 +146,7 @@
     </div>
 
     <header class="bg-indigo-700 text-white shadow-sm sticky top-0 z-45">
-        <div class="max-w-6xl mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
+        <div class="max-w-7xl mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
             <div class="flex items-center space-x-1.5">
                 <div class="bg-gradient-to-tr from-amber-400 to-orange-500 text-white p-1 rounded-xl font-bold shadow">
                     <i class="fa-solid fa-dove text-[10px]"></i>
@@ -186,15 +186,16 @@
         <div id="mobile-role-nav" class="md:hidden flex justify-around bg-indigo-800/95 py-0.5 border-t border-indigo-600 text-[9px]"></div>
     </header>
 
-    <main class="flex-1 max-w-6xl w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
+    <main class="flex-1 max-w-7xl w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
+        <!-- PETUGAS VIEW -->
         <div id="view-petugas" class="tab-view space-y-1">
             <div class="flex space-x-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100 sticky top-10 z-40">
                 <button onclick="window.switchPetugasTab('input')" id="petugas-tab-input" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
                     <i class="fa-solid fa-box-open mr-0.5"></i><span>Input Paket</span>
                 </button>
                 <button onclick="window.switchPetugasTab('status')" id="petugas-tab-status" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition text-slate-600 hover:bg-slate-100 flex items-center justify-center space-x-0.5">
-                    <i class="fa-solid fa-clipboard-list mr-0.5"></i><span>Status Transaksi</span>
+                    <i class="fa-solid fa-clipboard-list mr-0.5"></i><span>Status Transaksi Realtime</span>
                 </button>
             </div>
 
@@ -287,16 +288,16 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi (Horizontal 3 Columns Side-by-Side) -->
-            <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5 hidden">
-                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-2">
+            <!-- Petugas Tab: Status Transaksi Realtime (Side-by-Side Horizontal 3 Columns Maximized Space) -->
+            <div id="petugas-content-status" class="petugas-tab-panel space-y-1 hidden">
+                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
                         <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
                             <p class="text-[7.5px] text-slate-500">Memantau seluruh alur paket secara berdampingan secara langsung</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-[8.5px] font-bold transition flex items-center space-x-1 border border-indigo-200" title="Mode Fullscreen / Normal">
+                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[8.5px] font-bold transition flex items-center space-x-1 border border-indigo-200" title="Mode Fullscreen / Normal">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
                                 <span id="petugas-fullscreen-text">Fullscreen</span>
                             </button>
@@ -304,10 +305,10 @@
                     </div>
 
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between">
-                        <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
+                        <div class="flex items-center space-x-1 w-full flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
-                                <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500">
+                                <input type="text" id="filter-petugas-search" oninput="window.renderPetugasStatusView()" placeholder="Cari transaksi berdasarkan nama, resi, tujuan..." class="px-1.5 py-0.5 pr-6 rounded border border-slate-200 text-[9px] w-full focus:outline-none focus:border-indigo-500 bg-slate-50">
                                 <button type="button" onclick="window.startVoiceSearch('filter-petugas-search', window.renderPetugasStatusView)" class="absolute inset-y-0 right-0 px-1.5 flex items-center text-slate-400 hover:text-indigo-600 text-[10px]" title="Cari dengan Suara">
                                     <i id="mic-filter-petugas-search" class="fa-solid fa-microphone"></i>
                                 </button>
@@ -315,31 +316,32 @@
                         </div>
                     </div>
 
-                    <!-- Horizontal Grid Side-by-Side (Kesamping) -->
+                    <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized Space -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5">
+                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1 py-0.5 rounded">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-pending" class="space-y-1 max-h-[350px] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-pending" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5">
+                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-sky-50 px-1 py-0.5 rounded">
                                 <span><i class="fa-solid fa-paper-plane mr-1"></i> Dikirim (<span id="count-petugas-delivering-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-delivering" class="space-y-1 max-h-[350px] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-delivering" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
                         </div>
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5">
+                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-emerald-50 px-1 py-0.5 rounded">
                                 <span><i class="fa-solid fa-circle-check mr-1"></i> Selesai (<span id="count-petugas-completed-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-completed" class="space-y-1 max-h-[350px] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-completed" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- KURIR VIEW -->
         <div id="view-kurir" class="tab-view space-y-1">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-10 z-40">
                 <div class="grid grid-cols-3 gap-0.5 flex-1 mr-2">
@@ -412,6 +414,7 @@
             </div>
         </div>
 
+        <!-- PENERIMA VIEW -->
         <div id="view-penerima" class="tab-view space-y-1">
             <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-xl p-2 shadow-sm flex flex-wrap justify-between items-center gap-1">
                 <div>
@@ -442,6 +445,7 @@
             </div>
         </div>
 
+        <!-- ADMIN VIEW -->
         <div id="view-admin" class="tab-view space-y-2">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 overflow-x-auto sticky top-10 z-40">
                 <div class="flex space-x-1">
@@ -738,7 +742,7 @@
                 <h3 class="font-bold text-slate-800 text-xs flex items-center"><i class="fa-solid fa-database text-purple-600 mr-1.5"></i> Backup & Restore Database</h3>
                 <button onclick="window.closeBackupModal()" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200 text-xs"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-[8.5px] text-slate-500">Unduh seluruh database aplikasi (Paket, Anggota, Audit Log) sebagai file cadangan JSON, atau pulihkan dari file cadangan sebelumnya.</p>
+            <p class="text-[8.5px] text-slate-500">Unduh seluruh database aplikasi sebagai file cadangan JSON, atau pulihkan dari file cadangan sebelumnya.</p>
             
             <div class="space-y-2 pt-1">
                 <button type="button" onclick="window.downloadDatabaseBackup()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-1.5 rounded-lg text-[9.5px] shadow transition flex items-center justify-center space-x-1">
@@ -1512,7 +1516,7 @@
                 if (isPetugasFullscreen) {
                     contentStatus.classList.add('fullscreen-mode');
                     if(icon) icon.className = "fa-solid fa-compress";
-                    if(text) text.innerText = "Keluar Fullscreen";
+                    if(text) text.innerText = "Normal";
                     showToast('Mode Fullscreen Monitoring Aktif');
                 } else {
                     contentStatus.classList.remove('fullscreen-mode');
@@ -2193,28 +2197,31 @@
             const listDelivering = document.getElementById('list-petugas-status-delivering');
             const listCompleted = document.getElementById('list-petugas-status-completed');
 
-            const renderCard = (p) => `
-                <div class="p-1.5 rounded-lg border border-slate-200/80 bg-white shadow-sm space-y-1 text-[9px] hover:border-indigo-300 transition">
+            const renderMaxCard = (p) => `
+                <div class="p-1.5 rounded-lg border border-slate-200/90 bg-white shadow-sm space-y-1 text-[9px] hover:border-indigo-400 transition">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-0.5">
                         <span class="font-mono font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded text-[8px]"><i class="fa-solid fa-fingerprint mr-0.5"></i>${p.id}</span>
-                        <span class="font-mono text-[7px] text-slate-500">Resi: ${p.resi || '-'}</span>
+                        <span class="font-mono text-[7.5px] text-slate-500 font-semibold">Resi: ${p.resi || '-'}</span>
                     </div>
                     <div>
-                        <h4 class="font-bold text-slate-800">${p.recipient} <span class="text-indigo-600 font-normal">(${p.role})</span></h4>
-                        <p class="text-slate-600"><i class="fa-solid fa-location-dot text-rose-500 mr-0.5"></i> ${p.destination}</p>
-                        <p class="text-[7.5px] text-indigo-600 font-medium">Petugas: ${p.petugas} | Kurir: ${p.courier || '-'}</p>
-                        ${p.completionOption ? `<p class="text-[7.5px] text-emerald-600 font-semibold mt-0.5"><i class="fa-solid fa-circle-check"></i> ${p.completionOption}</p>` : ''}
+                        <h4 class="font-bold text-slate-800 text-[10px]">${p.recipient} <span class="text-indigo-600 font-normal">(${p.role})</span></h4>
+                        <p class="text-slate-600 font-medium"><i class="fa-solid fa-location-dot text-rose-500 mr-0.5"></i> ${p.destination}</p>
+                        <p class="text-[8px] text-indigo-600 font-medium">Petugas: ${p.petugas} | Kurir: ${p.courier || '-'}</p>
+                        ${p.completionOption ? `<p class="text-[8px] text-emerald-600 font-semibold mt-0.5 bg-emerald-50 p-0.5 rounded border border-emerald-100"><i class="fa-solid fa-circle-check"></i> ${p.completionOption}</p>` : ''}
                     </div>
                     <div class="flex justify-between items-center pt-0.5 border-t border-slate-100 text-[7.5px] text-slate-400">
                         <span>Masuk: ${p.timestamp}</span>
-                        ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" class="w-6 h-6 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
+                        <div class="flex space-x-1">
+                            ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" title="Fisik" class="w-6 h-6 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
+                            ${p.proofPhotoUrl ? `<img src="${p.proofPhotoUrl}" title="Bukti" class="w-6 h-6 object-cover rounded border border-emerald-400 zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
+                        </div>
                     </div>
                 </div>
             `;
 
-            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8px] text-slate-400 text-center py-2">Tidak ada</p>' : pending.map(renderCard).join('');
-            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8px] text-slate-400 text-center py-2">Tidak ada</p>' : delivering.map(renderCard).join('');
-            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8px] text-slate-400 text-center py-2">Tidak ada</p>' : completed.map(renderCard).join('');
+            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada antrian</p>' : pending.map(renderMaxCard).join('');
+            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada paket dikirim</p>' : delivering.map(renderMaxCard).join('');
+            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Belum ada selesai</p>' : completed.map(renderMaxCard).join('');
         }
         window.renderPetugasStatusView = renderPetugasStatusView;
 
@@ -2834,7 +2841,7 @@
                             switchAdminTab('members');
                             switchAdminTab('audit');
 
-                            showToast('🎉 Uji otomatis semua menu berhasil 100%!', 'success');
+                    showToast('🎉 Uji otomatis semua menu berhasil 100%!', 'success');
                             speakText('Uji otomatis semua menu berhasil');
                         }, 800);
                     }, 800);
