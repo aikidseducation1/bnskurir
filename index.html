@@ -237,7 +237,6 @@
                 </button>
             </div>
 
-            <!-- Petugas Tab: Input Paket -->
             <div id="petugas-content-input" class="petugas-tab-panel space-y-1">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1">
                     <div class="flex flex-wrap justify-between items-center gap-0.5 border-b pb-0.5">
@@ -326,10 +325,8 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Locked Grid Layout) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col">
-                    
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
                         <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
@@ -347,7 +344,6 @@
                         </div>
                     </div>
 
-                    <!-- TIME SEGMENTATION FILTERS -->
                     <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
                         <div class="flex items-center space-x-1 w-full md:w-auto flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
@@ -375,7 +371,6 @@
                         </div>
                     </div>
 
-                    <!-- LOCKED SIDE-BY-SIDE NON-OVERLAPPING GRID -->
                     <div class="petugas-status-grid-wrap">
                         <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full overflow-hidden">
                             <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded shrink-0">
@@ -788,7 +783,6 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
-    <!-- Profile & Avatar Update Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -825,7 +819,6 @@
         </div>
     </div>
 
-    <!-- Forgot Password Request Modal -->
     <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -843,7 +836,6 @@
         </div>
     </div>
 
-    <!-- Physical Camera Modal -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-indigo-400 mr-1"></i> Ambil Foto Paket Fisik</h3>
@@ -860,7 +852,6 @@
         </div>
     </div>
 
-    <!-- Barcode Scanner Modal with Strict Scan Lock & Multi-Format EAN-13 Support -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -885,7 +876,6 @@
         </div>
     </div>
 
-    <!-- Backup & Restore Modal -->
     <div id="backup-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -908,9 +898,8 @@
         </div>
     </div>
 
-    <!-- Summary Confirmation Modal -->
     <div id="summary-confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100 animate-in fade-in zoom-in duration-200">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100">
             <div class="text-center space-y-1">
                 <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-sm shadow-inner">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -943,7 +932,6 @@
         </div>
     </div>
 
-    <!-- Complete Delivery Modal -->
     <div id="complete-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -986,7 +974,6 @@
         </div>
     </div>
 
-    <!-- Proof Camera Modal -->
     <div id="proof-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-emerald-400 mr-1"></i> Kamera Bukti Tanda Terima</h3>
@@ -1003,7 +990,6 @@
         </div>
     </div>
 
-    <!-- Member Modal -->
     <div id="member-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -1047,7 +1033,6 @@
         </div>
     </div>
 
-    <!-- Zoom Image Modal -->
     <div id="zoom-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden" onclick="window.closeZoomModal()">
         <div class="relative max-w-lg w-full text-center">
             <button onclick="window.closeZoomModal()" class="absolute -top-6 right-0 text-white text-base hover:text-slate-300"><i class="fa-solid fa-xmark"></i></button>
@@ -1111,17 +1096,6 @@
         const manifestURL = URL.createObjectURL(blob);
         document.getElementById('pwa-manifest-link').setAttribute('href', manifestURL);
 
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                self.addEventListener('install', (e) => { e.waitUntil(self.skipWaiting()); });
-                self.addEventListener('activate', (e) => { e.waitUntil(self.clients.claim()); });
-                self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });
-            `;
-            const swBlob = new Blob([swCode], {type: 'text/javascript'});
-            const swUrl = URL.createObjectURL(swBlob);
-            navigator.serviceWorker.register(swUrl).catch(err => {});
-        }
-
         let appId = typeof __app_id !== 'undefined' ? __app_id : 'bns-kurir-realtime';
         let db, auth, analytics;
         const SECRET_API_KEY = "AIzaSyDCRDC1ykV6UTeBYFAoNEBtlIKeyDphstU";
@@ -1180,7 +1154,6 @@
         function updateHeaderAvatarDisplay() {
             const avatarImg = document.getElementById('header-avatar-img');
             if (!avatarImg) return;
-            
             const found = members.find(m => m.email.toLowerCase() === loggedUser.email.toLowerCase());
             if (found && found.avatarUrl) {
                 avatarImg.src = found.avatarUrl;
@@ -1941,7 +1914,7 @@
             
             const todayCount = packages.filter(p => p.id && p.id.includes(dateCode)).length + 1001;
             const generatedTrxId = `TRX-${dateCode}-${todayCount}`;
-            const randomResi = '899' + Math.floor(1000000000 + Math.random() * 9000000000); // EAN-13 format simulation
+            const randomResi = '899' + Math.floor(1000000000 + Math.random() * 9000000000);
 
             if (sourceType === 'external') {
                 container.innerHTML = `
@@ -2185,7 +2158,6 @@
                 const modalEl = document.getElementById('barcode-modal');
                 if(modalEl) modalEl.classList.remove('hidden');
 
-                // Multi-format hints for robust EAN-13, Code 128 & QR scanning
                 const hints = new Map();
                 const formats = [
                     ZXing.BarcodeFormat.EAN_13,
@@ -3433,7 +3405,7 @@
             } catch(e) {
                 selectLoginRole('petugas');
                 const authScreen = document.getElementById('auth-screen');
-                if(authScreen) authScreen.classList.add('hidden');
+                if(authScreen) authScreen.classList.remove('hidden');
             }
         };
     </script>
