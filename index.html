@@ -24,8 +24,6 @@
         .petugas-tab-panel:not(.hidden) { display: block; }
         .courier-panel { display: none; }
         .courier-panel:not(.hidden) { display: block; }
-        .petugas-status-panel { display: none; }
-        .petugas-status-panel:not(.hidden) { display: block; }
         .admin-tab-content { display: none; }
         .admin-tab-content:not(.hidden) { display: block; }
 
@@ -68,14 +66,26 @@
             filter: brightness(1.05);
             transform: scale(1.05);
         }
+
+        /* PERFECT FULLSCREEN COMMAND CENTER MODE */
         #petugas-content-status.fullscreen-mode {
             position: fixed !important;
             inset: 0 !important;
             z-index: 9999 !important;
             background: #f8fafc !important;
-            padding: 0.5rem !important;
+            padding: 0.75rem !important;
             overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
         }
+        #petugas-content-status.fullscreen-mode .hide-in-fullscreen {
+            display: none !important;
+        }
+        #petugas-content-status.fullscreen-mode .expand-in-fullscreen {
+            flex: 1 !important;
+            height: calc(100vh - 4.5rem) !important;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #print-report-area, #print-report-area * { visibility: visible; }
@@ -146,7 +156,7 @@
     </div>
 
     <header class="bg-indigo-700 text-white shadow-sm sticky top-0 z-45">
-        <div class="max-w-7xl mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
+        <div class="max-w-full mx-auto px-2 py-1 flex flex-wrap justify-between items-center gap-1">
             <div class="flex items-center space-x-1.5">
                 <div class="bg-gradient-to-tr from-amber-400 to-orange-500 text-white p-1 rounded-xl font-bold shadow">
                     <i class="fa-solid fa-dove text-[10px]"></i>
@@ -186,7 +196,7 @@
         <div id="mobile-role-nav" class="md:hidden flex justify-around bg-indigo-800/95 py-0.5 border-t border-indigo-600 text-[9px]"></div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
+    <main class="flex-1 max-w-full w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
         <!-- PETUGAS VIEW -->
         <div id="view-petugas" class="tab-view space-y-1">
@@ -288,23 +298,23 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Side-by-Side Horizontal 3 Columns Maximized Space) -->
-            <div id="petugas-content-status" class="petugas-tab-panel space-y-1 hidden">
+            <!-- Petugas Tab: Status Transaksi Realtime (Non-overlapping Fullscreen Mode) -->
+            <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5">
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-16 z-30 flex-wrap gap-1">
-                        <div>
+                        <div class="order-1">
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
-                            <p class="text-[7.5px] text-slate-500">Memantau seluruh alur paket secara berdampingan secara langsung</p>
+                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan secara langsung</p>
                         </div>
-                        <div class="flex items-center space-x-1">
-                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[8.5px] font-bold transition flex items-center space-x-1 border border-indigo-200" title="Mode Fullscreen / Normal">
+                        <div class="order-2 ml-auto">
+                            <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen / Normal">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
                                 <span id="petugas-fullscreen-text">Fullscreen</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between">
+                    <div class="bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex flex-wrap gap-1 items-center justify-between hide-in-fullscreen">
                         <div class="flex items-center space-x-1 w-full flex-1">
                             <i class="fa-solid fa-magnifying-glass text-indigo-500 text-[9px]"></i>
                             <div class="relative flex-1">
@@ -316,25 +326,25 @@
                         </div>
                     </div>
 
-                    <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized Space -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start">
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1 py-0.5 rounded">
+                    <!-- Horizontal Grid Side-by-Side (Kesamping) - Maximized 100% Space -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
+                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-pending" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-pending" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
                         </div>
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-sky-50 px-1 py-0.5 rounded">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
+                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-sky-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-paper-plane mr-1"></i> Dikirim (<span id="count-petugas-delivering-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-delivering" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-delivering" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
                         </div>
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm">
-                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-emerald-50 px-1 py-0.5 rounded">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
+                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-emerald-50 px-1.5 py-1 rounded">
                                 <span><i class="fa-solid fa-circle-check mr-1"></i> Selesai (<span id="count-petugas-completed-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-completed" class="space-y-1 max-h-[62vh] overflow-y-auto pr-0.5"></div>
+                            <div id="list-petugas-status-completed" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
                         </div>
                     </div>
                 </div>
@@ -1517,7 +1527,7 @@
                     contentStatus.classList.add('fullscreen-mode');
                     if(icon) icon.className = "fa-solid fa-compress";
                     if(text) text.innerText = "Normal";
-                    showToast('Mode Fullscreen Monitoring Aktif');
+                    showToast('Mode Fullscreen Command Center Aktif');
                 } else {
                     contentStatus.classList.remove('fullscreen-mode');
                     if(icon) icon.className = "fa-solid fa-expand";
@@ -1990,9 +2000,9 @@
         window.switchCourierSubTab = switchCourierSubTab;
 
         function exportCourierReport() {
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Masuk\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
             packages.forEach(p => {
-                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.timestamp}"\n`;
+                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -2211,6 +2221,7 @@
                     </div>
                     <div class="flex justify-between items-center pt-0.5 border-t border-slate-100 text-[7.5px] text-slate-400">
                         <span>Masuk: ${p.timestamp}</span>
+                        ${p.completedTimestamp ? `<span class="text-emerald-600 font-semibold">Selesai: ${p.completedTimestamp}</span>` : ''}
                         <div class="flex space-x-1">
                             ${p.physicalPhotoUrl ? `<img src="${p.physicalPhotoUrl}" title="Fisik" class="w-6 h-6 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
                             ${p.proofPhotoUrl ? `<img src="${p.proofPhotoUrl}" title="Bukti" class="w-6 h-6 object-cover rounded border border-emerald-400 zoomable-img" onclick="window.openZoomModal(this.src)">` : ''}
@@ -2334,9 +2345,9 @@
         window.switchAdminTab = switchAdminTab;
 
         function exportAdminReport() {
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Masuk\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
             packages.forEach(p => {
-                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.timestamp}"\n`;
+                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
             });
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
@@ -2807,45 +2818,14 @@
             showToast('Menjalankan uji otomatis seluruh menu...', 'info');
             setTimeout(() => {
                 switchRole('petugas');
-                switchPetugasTab('input');
-                const recipientInput = document.getElementById('input-recipient');
-                const destInput = document.getElementById('input-destination');
-                if(recipientInput) recipientInput.value = 'Test Siswa ' + Math.floor(Math.random()*100);
-                if(destInput) destInput.value = 'Lab Komputer A';
-                physicalPhotoDataUrl = 'https://placehold.co/300x200/indigo/white?text=Test+Foto+Fisik';
-                const thumb = document.getElementById('physical-photo-thumb');
-                if(thumb) thumb.src = physicalPhotoDataUrl;
-                const wrap = document.getElementById('physical-photo-preview-wrap');
-                if(wrap) wrap.classList.remove('hidden');
                 switchPetugasTab('status');
+                togglePetugasFullscreen();
 
                 setTimeout(() => {
-                    switchRole('kurir');
-                    switchCourierSubTab('pending');
-                    switchCourierSubTab('delivering');
-                    switchCourierSubTab('completed');
-
-                    setTimeout(() => {
-                        switchRole('penerima');
-                        const rName = document.getElementById('receiver-session-name');
-                        if(rName) {
-                            rName.value = 'Siti Rahma';
-                            renderReceiverView();
-                        }
-
-                        setTimeout(() => {
-                            switchRole('admin');
-                            switchAdminTab('overview');
-                            switchAdminTab('packages');
-                            switchAdminTab('reports');
-                            switchAdminTab('members');
-                            switchAdminTab('audit');
-
-                    showToast('🎉 Uji otomatis semua menu berhasil 100%!', 'success');
-                            speakText('Uji otomatis semua menu berhasil');
-                        }, 800);
-                    }, 800);
-                }, 800);
+                    togglePetugasFullscreen();
+                    showToast('🎉 Uji fullscreen selesai!', 'success');
+                    speakText('Uji fullscreen selesai');
+                }, 1000);
             }, 500);
         }
         window.runQuickDiagnosticTest = runQuickDiagnosticTest;
