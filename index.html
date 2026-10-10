@@ -67,7 +67,23 @@
             transform: scale(1.05);
         }
 
-        /* PERFECT NON-OVERLAPPING FULLSCREEN COMMAND CENTER MODE */
+        /* PERFECT NON-OVERLAPPING FIXED GRID LAYOUT FOR PETUGAS STATUS */
+        .petugas-status-grid-wrap {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+            align-items: start;
+            height: calc(100vh - 12rem);
+            min-height: 450px;
+        }
+        @media (max-width: 768px) {
+            .petugas-status-grid-wrap {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        /* COMMAND CENTER FULLSCREEN MODE */
         #petugas-content-status.fullscreen-mode {
             position: fixed !important;
             inset: 0 !important;
@@ -81,9 +97,9 @@
         #petugas-content-status.fullscreen-mode .hide-in-fullscreen {
             display: none !important;
         }
-        #petugas-content-status.fullscreen-mode .expand-in-fullscreen {
+        #petugas-content-status.fullscreen-mode .petugas-status-grid-wrap {
             flex: 1 !important;
-            height: calc(100vh - 4.5rem) !important;
+            height: calc(100vh - 4rem) !important;
         }
 
         @media print {
@@ -305,14 +321,14 @@
                 </div>
             </div>
 
-            <!-- Petugas Tab: Status Transaksi Realtime (Zero-Overlap Fullscreen & Time Filters) -->
+            <!-- Petugas Tab: Status Transaksi Realtime (Locked Non-Overlapping Grid) -->
             <div id="petugas-content-status" class="petugas-tab-panel space-y-1.5">
-                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col h-full">
+                <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col">
                     
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
                         <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
-                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket berdasarkan waktu secara terpisah</p>
+                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan tanpa tumpang tindih</p>
                         </div>
                         <div class="flex items-center space-x-1">
                             <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Berdasarkan Filter Waktu">
@@ -354,25 +370,25 @@
                         </div>
                     </div>
 
-                    <!-- Horizontal Grid Side-by-Side - 100% Maximized Space -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-1.5 items-start expand-in-fullscreen flex-1">
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
-                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded">
+                    <!-- LOCKED SIDE-BY-SIDE NON-OVERLAPPING GRID -->
+                    <div class="petugas-status-grid-wrap">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full overflow-hidden">
+                            <h4 class="font-bold text-amber-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-amber-50 px-1.5 py-1 rounded shrink-0">
                                 <span><i class="fa-solid fa-list-check mr-1"></i> Antrian (<span id="count-petugas-pending-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-pending" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
+                            <div id="list-petugas-status-pending" class="space-y-1 overflow-y-auto pr-0.5 flex-1"></div>
                         </div>
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
-                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-sky-50 px-1.5 py-1 rounded">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full overflow-hidden">
+                            <h4 class="font-bold text-sky-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-sky-50 px-1.5 py-1 rounded shrink-0">
                                 <span><i class="fa-solid fa-paper-plane mr-1"></i> Dikirim (<span id="count-petugas-delivering-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-delivering" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
+                            <div id="list-petugas-status-delivering" class="space-y-1 overflow-y-auto pr-0.5 flex-1"></div>
                         </div>
-                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full">
-                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-emerald-50 px-1.5 py-1 rounded">
+                        <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-200 space-y-1 shadow-sm flex flex-col h-full overflow-hidden">
+                            <h4 class="font-bold text-emerald-700 text-[9px] flex items-center justify-between border-b pb-0.5 bg-emerald-50 px-1.5 py-1 rounded shrink-0">
                                 <span><i class="fa-solid fa-circle-check mr-1"></i> Selesai (<span id="count-petugas-completed-badge">0</span>)</span>
                             </h4>
-                            <div id="list-petugas-status-completed" class="space-y-1 overflow-y-auto pr-0.5 flex-1 max-h-[70vh] md:max-h-[calc(100vh-8.5rem)]"></div>
+                            <div id="list-petugas-status-completed" class="space-y-1 overflow-y-auto pr-0.5 flex-1"></div>
                         </div>
                     </div>
                 </div>
@@ -1095,7 +1111,7 @@
         let codeReader = null;
         let codeReaderControls = null;
         let isPetugasFullscreen = false;
-        let isScanningLocked = false;
+        let isScanningLocked = false; // Strict scan debounce lock
 
         let packages = [];
         let members = [
@@ -2048,7 +2064,7 @@
             const modal = document.getElementById('barcode-modal');
             if(modal) modal.classList.add('hidden');
 
-            isScanningLocked = false;
+            isScanningLocked = false; // Reset lock
             try {
                 if (!codeReader) {
                     codeReader = new ZXing.BrowserMultiFormatReader();
@@ -2058,7 +2074,7 @@
 
                 codeReader.decodeFromVideoDevice(null, 'interactive-barcode-video', (result, err) => {
                     if (result && !isScanningLocked) {
-                        isScanningLocked = true;
+                        isScanningLocked = true; // Lock immediately to prevent multi-trigger
                         const scannedText = result.getText();
                         const inputResi = document.getElementById('input-resi');
                         if(inputResi) inputResi.value = scannedText;
