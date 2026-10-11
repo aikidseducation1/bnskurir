@@ -9,27 +9,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        @keyframes highlightPulse {
-            0% { background-color: rgba(16, 185, 129, 0.35); transform: scale(1.01); }
-            50% { background-color: rgba(16, 185, 129, 0.15); transform: scale(1); }
-            100% { background-color: transparent; transform: scale(1); }
-        }
-        .highlight-row { animation: highlightPulse 2.5s ease-in-out; }
-
         @keyframes neonGlow {
             0% { border-color: rgba(245, 158, 11, 0.6); box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(245, 158, 11, 0.2); }
             50% { border-color: rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.7), inset 0 0 20px rgba(16, 185, 129, 0.3); }
             100% { border-color: rgba(59, 130, 246, 0.8); box-shadow: 0 0 15px rgba(59, 130, 246, 0.5), inset 0 0 15px rgba(59, 130, 246, 0.2); }
         }
         .neon-announcement { animation: neonGlow 6s infinite alternate ease-in-out; }
-
         @keyframes glowButton {
             0% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
             50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.9), 0 0 30px rgba(59, 130, 246, 0.5); }
             100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); }
         }
         .glowing-btn { animation: glowButton 3s infinite ease-in-out; }
-
         @media print {
             body { background: white !important; color: black !important; }
             header, aside, button, .no-print { display: none !important; }
@@ -64,10 +55,6 @@
                         <input type="password" id="loginPin" required placeholder="••••" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-center text-lg sm:text-xl tracking-widest rounded-xl p-2.5 pr-10 outline-none focus:ring-2 focus:ring-emerald-500 font-bold">
                         <button type="button" onclick="window.togglePasswordVisibility('loginPin', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm">👁️</button>
                     </div>
-                    <div class="flex justify-between items-center mt-1.5">
-                        <button type="button" onclick="window.bukaModalRegister()" class="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold">Daftar Akun Baru</button>
-                        <button type="button" onclick="document.getElementById('modalLupaPin').classList.remove('hidden')" class="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline font-semibold">Lupa PIN?</button>
-                    </div>
                 </div>
 
                 <div class="pt-1">
@@ -93,10 +80,7 @@
                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
                 <div>
-                    <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                        <h1 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm md:text-base leading-tight">Koperasi Keluarga</h1>
-                    </div>
-                    <!-- Cloud Sync Badge moved right below Koperasi Keluarga title -->
+                    <h1 class="font-bold text-slate-800 dark:text-white text-xs sm:text-sm md:text-base leading-tight">Koperasi Keluarga</h1>
                     <div class="mt-0.5">
                         <span id="firebaseStatusBadge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 transition-colors shadow-sm">
                             <span id="firebaseStatusDot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
@@ -108,11 +92,6 @@
         </div>
 
         <div class="flex items-center gap-1.5 sm:gap-2 relative">
-            <button onclick="window.toggleDarkMode()" class="p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition" title="Ganti Mode">
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <svg class="w-4 h-4 sm:w-5 sm:h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-            </button>
-
             <div id="modeSwitcherContainer" class="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center gap-1 text-xs font-semibold hidden">
                 <button onclick="window.switchMode('admin')" id="modeAdminBtn" class="px-2 sm:px-3 py-1.5 rounded-lg transition bg-white dark:bg-slate-700 text-slate-800 dark:text-white shadow-sm text-xs">Pengurus</button>
                 <button onclick="window.switchMode('member')" id="modeMemberBtn" class="px-2 sm:px-3 py-1.5 rounded-lg transition text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs">Anggota</button>
@@ -153,12 +132,11 @@
         <main class="flex-1 overflow-y-auto p-3 sm:p-5 lg:p-6 z-10 space-y-4 sm:space-y-5 w-full max-w-full flex flex-col justify-between">
             <div class="space-y-4 sm:space-y-5 w-full max-w-7xl mx-auto">
                 
-                <!-- Dashboard Tab -->
                 <div id="tab-dashboard" class="space-y-4 sm:space-y-5 w-full">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                         <div>
-                            <h2 class="text-base sm:text-xl font-bold text-slate-800 dark:text-white">Dashboard Utama</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Ringkasan keuangan keluarga, arus kas, tabungan pribadi, dan voting.</p>
+                            <h2 class="text-base sm:text-xl font-bold text-slate-800 dark:text-white">Dashboard Utama Koperasi</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Ringkasan keuangan keluarga, arus kas, tabungan, voting, dan aktivitas.</p>
                         </div>
                         <button onclick="window.bukaModalTransaksi()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
@@ -180,13 +158,13 @@
                                 <p id="teksPengumuman" class="text-xs sm:text-sm font-black leading-relaxed text-amber-200 tracking-wide">Selamat datang di Koperasi Keluarga v25.0 Pro! Silakan tambahkan anggota keluarga untuk memulai.</p>
                             </div>
                         </div>
-                        <button onclick="window.bukaModalEditPengumuman()" class="bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-2 rounded-xl transition shadow-md shrink-0 flex items-center gap-1.5 relative z-10 border border-amber-300">
+                        <button id="btnEditPengumuman" onclick="window.bukaModalEditPengumuman()" class="hidden bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold px-3 py-2 rounded-xl transition shadow-md shrink-0 flex items-center gap-1.5 relative z-10 border border-amber-300">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             Edit
                         </button>
                     </div>
 
-                    <!-- Voting Section Placed Right Below Announcement -->
+                    <!-- Family Voting Section Directly on Dashboard -->
                     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-4 sm:p-5 space-y-3">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                             <div>
@@ -278,7 +256,6 @@
                     </div>
                 </div>
 
-                <!-- Persetujuan Tab -->
                 <div id="tab-persetujuan" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
@@ -312,7 +289,6 @@
                     </div>
                 </div>
 
-                <!-- Simpanan & Arus Kas Tab -->
                 <div id="tab-simpanan" class="space-y-4 sm:space-y-5 w-full hidden print-container">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
@@ -326,7 +302,6 @@
                         </div>
                     </div>
 
-                    <!-- Member Summary Cards if viewing as member -->
                     <div id="memberSimpananSummaryCards" class="grid grid-cols-1 sm:grid-cols-3 gap-3 hidden">
                         <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border shadow-sm">
                             <span class="text-[10px] text-slate-400 block mb-1 font-semibold uppercase">Total Tabungan Anda</span>
@@ -364,7 +339,6 @@
                     </div>
                 </div>
 
-                <!-- Simpan Pinjam Tab -->
                 <div id="tab-pinjaman" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
@@ -398,7 +372,6 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="gridPinjaman"></div>
                 </div>
 
-                <!-- ZIS Tab -->
                 <div id="tab-zis" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
@@ -427,7 +400,6 @@
                     </div>
                 </div>
 
-                <!-- Penghargaan Tab (Renamed from Gamifikasi) -->
                 <div id="tab-gamifikasi" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                         <h2 class="text-base sm:text-xl font-bold text-slate-800 dark:text-white mb-1">Penghargaan & Lencana Keluarga</h2>
@@ -436,7 +408,6 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="gridBadges"></div>
                 </div>
 
-                <!-- Anggota Tab -->
                 <div id="tab-anggota" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
                         <div>
@@ -451,7 +422,6 @@
                     <div id="gridAnggota" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </div>
 
-                <!-- SHU Tab -->
                 <div id="tab-shu" class="space-y-4 sm:space-y-5 w-full hidden">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                         <div>
@@ -522,21 +492,9 @@
                     </div>
                 </div>
 
-                <!-- Portal Anggota Tab -->
                 <div id="tab-portal" class="space-y-4 sm:space-y-5 w-full hidden">
-                    <!-- Announcement ticker -->
-                    <div class="neon-announcement bg-slate-900 rounded-3xl p-4 sm:p-5 text-white shadow-xl relative overflow-hidden flex items-center gap-3 sm:gap-4 border-2 border-amber-400">
-                        <div class="p-2.5 bg-amber-400 text-slate-950 rounded-xl shadow-sm shrink-0 animate-bounce">
-                            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
-                        </div>
-                        <div class="overflow-hidden flex-1">
-                            <span class="bg-amber-400 text-slate-950 text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">📢 PENGUMUMAN</span>
-                            <p id="portalTeksPengumuman" class="text-xs sm:text-base font-black text-amber-200 truncate mt-1">Selamat datang di portal anggota!</p>
-                        </div>
-                    </div>
-
                     <!-- Member Quick Action Toolbar -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                         <button onclick="window.bukaModalTransaksi()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3 rounded-2xl shadow-md transition flex flex-col items-center justify-center gap-1.5 text-xs">
                             <span class="text-lg">💵</span> Setor Simpanan
                         </button>
@@ -545,9 +503,6 @@
                         </button>
                         <button onclick="window.bukaModalZis()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-2xl shadow-md transition flex flex-col items-center justify-center gap-1.5 text-xs">
                             <span class="text-lg">🤲</span> Donasi ZIS
-                        </button>
-                        <button onclick="window.bukaModalPinVerifikasi()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold p-3 rounded-2xl shadow-md transition flex flex-col items-center justify-center gap-1.5 text-xs">
-                            <span class="text-lg">⚙️</span> Profil & PIN
                         </button>
                     </div>
 
@@ -595,10 +550,21 @@
                     </div>
                 </div>
 
-                <!-- Profil Saya Tab -->
                 <div id="tab-profil-saya" class="space-y-4 max-w-2xl mx-auto hidden w-full">
                     <div class="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800">
-                        <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3">Pengaturan Profil & Rekening</h2>
+                        <h2 class="text-base sm:text-lg font-bold text-slate-800 dark:text-white mb-3">Pengaturan Profil & Tampilan</h2>
+                        
+                        <!-- Theme Toggle inside Profile -->
+                        <div class="mb-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-bold text-slate-800 dark:text-white">Mode Tampilan (Siang / Malam)</p>
+                                <p class="text-[10px] text-slate-400">Sesuaikan kenyamanan mata Anda.</p>
+                            </div>
+                            <button onclick="window.toggleDarkMode()" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow-sm flex items-center gap-1.5">
+                                <span>🌓</span> Ganti Mode
+                            </button>
+                        </div>
+
                         <form id="mandiriProfilForm" class="space-y-3" onsubmit="window.simpanProfilMandiri(event)">
                             <div>
                                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Nama Keluarga (KK)</label>
@@ -636,37 +602,6 @@
         </main>
     </div>
 
-    <div id="modalRegister" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border w-full max-w-sm sm:max-w-md p-5 space-y-3 max-h-[90vh] overflow-y-auto">
-            <h3 class="font-bold text-base text-slate-800 dark:text-white">Daftar Akun Anggota Keluarga Baru</h3>
-            <form id="registerForm" class="space-y-2.5" onsubmit="window.handleRegisterAccount(event)">
-                <input type="text" id="regNama" required placeholder="Nama Lengkap" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none">
-                <select id="regPeran" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none">
-                    <option value="Kepala Keluarga">Kepala Keluarga</option>
-                    <option value="Istri">Istri</option>
-                    <option value="Anak">Anak</option>
-                    <option value="Kerabat Lain">Kerabat / Lainnya</option>
-                </select>
-                <div>
-                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Nama Keluarga (KK)</label>
-                    <select id="regKeluargaSelect" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none" onchange="window.handleRegKeluargaChange(this)"></select>
-                    <input type="text" id="regKeluargaCustom" placeholder="Atau ketik nama keluarga baru..." class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none mt-2 hidden">
-                </div>
-                <input type="text" id="regKontak" required placeholder="No HP / WhatsApp" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none">
-                <input type="email" id="regEmail" required placeholder="Email" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none">
-                <div class="relative">
-                    <input type="password" id="regPin" required placeholder="PIN Keamanan" class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 pr-10 text-xs outline-none font-bold">
-                    <button type="button" onclick="window.togglePasswordVisibility('regPin', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm">👁️</button>
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="document.getElementById('modalRegister').classList.add('hidden')" class="px-3.5 py-2 rounded-xl border text-xs">Batal</button>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs">Daftar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Reset PIN Modal -->
     <div id="modalResetPin" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-sm p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Reset PIN Anggota</h3>
@@ -684,8 +619,7 @@
         </div>
     </div>
 
-    <!-- Beban Operasional Modal -->
-    <div id="modalBeban" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
+    <div id="modalBeban" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 id="modalBebanTitle" class="font-bold text-base text-slate-800 dark:text-white">Tambah Catatan Beban Operasional</h3>
             <form id="formBeban" class="space-y-3" onsubmit="window.simpanBebanOperasional(event)">
@@ -706,7 +640,6 @@
         </div>
     </div>
 
-    <!-- Simpan Pinjam Settings Modal -->
     <div id="modalSettingPinjam" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Atur Simulasi Simpan Pinjam</h3>
@@ -731,7 +664,6 @@
         </div>
     </div>
 
-    <!-- SHU Settings Modal -->
     <div id="modalSettingShu" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Atur Formula Alokasi SHU (Super Admin Only)</h3>
@@ -756,7 +688,6 @@
         </div>
     </div>
 
-    <!-- Voting Modal -->
     <div id="modalVoting" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Buat Topik Voting Keluarga</h3>
@@ -771,36 +702,6 @@
         </div>
     </div>
 
-    <!-- PIN Verification Modal -->
-    <div id="modalPinVerifikasi" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border w-full max-w-sm p-5 text-center space-y-3">
-            <h3 class="font-bold text-base text-slate-800 dark:text-white">Verifikasi PIN</h3>
-            <form id="verifPinForm" class="space-y-3" onsubmit="window.verifikasiPinProfil(event)">
-                <div class="relative">
-                    <input type="password" id="inputVerifPin" required placeholder="••••" class="w-full bg-slate-50 dark:bg-slate-800 border text-center text-lg tracking-widest rounded-xl p-2.5 pr-10 outline-none font-bold">
-                    <button type="button" onclick="window.togglePasswordVisibility('inputVerifPin', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm">👁️</button>
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="window.tutupModalPinVerifikasi()" class="flex-1 px-3.5 py-2 rounded-xl border text-xs font-semibold">Batal</button>
-                    <button type="submit" class="flex-1 px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold">Verifikasi</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Lupa PIN Modal -->
-    <div id="modalLupaPin" class="fixed inset-0 bg-slate-900/80 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border w-full max-w-sm p-5 text-center space-y-3">
-            <h3 class="font-bold text-base text-slate-800 dark:text-white">Bantuan Reset PIN</h3>
-            <input type="text" id="lupaPinKontak" placeholder="08..." class="w-full bg-slate-50 dark:bg-slate-800 border rounded-xl p-2.5 text-xs outline-none">
-            <div class="flex gap-2">
-                <button type="button" onclick="document.getElementById('modalLupaPin').classList.add('hidden')" class="flex-1 px-3.5 py-2 rounded-xl border text-xs">Batal</button>
-                <button type="button" onclick="window.kirimPermintaanResetPin()" class="flex-1 px-3.5 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs">Kirim</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Pengumuman Modal -->
     <div id="modalEditPengumuman" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border w-full max-w-md p-5">
             <h3 class="font-bold text-base text-slate-800 dark:text-white mb-2">Edit Papan Pengumuman</h3>
@@ -814,7 +715,6 @@
         </div>
     </div>
 
-    <!-- Transaksi Baru Modal -->
     <div id="modalTransaksi" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="px-4 py-3 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
@@ -858,7 +758,6 @@
         </div>
     </div>
 
-    <!-- Pinjaman Modal -->
     <div id="modalPinjaman" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Ajukan Pinjaman Dana</h3>
@@ -874,7 +773,6 @@
         </div>
     </div>
 
-    <!-- ZIS Modal -->
     <div id="modalZis" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md p-5 space-y-3">
             <h3 class="font-bold text-base text-slate-800 dark:text-white">Catat Donasi ZIS</h3>
@@ -894,7 +792,6 @@
         </div>
     </div>
 
-    <!-- Anggota Modal -->
     <div id="modalAnggota" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-md">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto">
             <div class="px-4 py-3 border-b flex justify-between items-center bg-slate-50 dark:bg-slate-800 sticky top-0 z-10">
@@ -938,7 +835,6 @@
         </div>
     </div>
 
-    <!-- Bukti Preview Modal -->
     <div id="modalBukti" class="fixed inset-0 bg-slate-900/70 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-4 max-w-md w-full relative">
             <div class="flex justify-between items-center mb-3">
@@ -949,7 +845,6 @@
         </div>
     </div>
 
-    <!-- Custom Modal Dialog -->
     <div id="customModal" class="fixed inset-0 bg-slate-900/50 z-50 hidden flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm">
         <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border w-full max-w-sm p-5 text-center">
             <h3 id="customModalTitle" class="font-bold text-base text-slate-800 dark:text-white mb-1.5">Konfirmasi</h3>
@@ -990,11 +885,11 @@
                 initCloudListeners();
             }).catch(err => {
                 console.warn("Firebase Auth Warning:", err);
-                updateCloudStatusUI(false, "Mode Lokal");
+                updateCloudStatusUI(false, "Mode Lokal (Offline)");
             });
         } catch(e) {
             console.warn("Firebase Init Warning:", e);
-            updateCloudStatusUI(false, "Mode Lokal");
+            updateCloudStatusUI(false, "Mode Lokal (Offline)");
         }
 
         function updateCloudStatusUI(isConnected, message) {
@@ -1012,7 +907,7 @@
                 if (sidebarText) sidebarText.innerText = "Firebase Cloud Terhubung Aktif.";
             } else {
                 badge.className = "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 transition-colors";
-                dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                dot.className = "w-2 h-2 rounded-full bg-amber-500";
                 text.innerText = message;
                 if (sidebarText) sidebarText.innerText = "Berjalan dalam Mode Lokal (Offline).";
             }
@@ -1047,7 +942,7 @@
                 await setDoc(docRef, appState);
             } catch (err) { 
                 console.warn("Cloud Save Warning:", err);
-                updateCloudStatusUI(false, "Mode Lokal");
+                updateCloudStatusUI(false, "Mode Lokal (Offline)");
             }
         }
 
@@ -1165,9 +1060,6 @@
         function postLoginSetup() {
             const pengumumanEl = document.getElementById('teksPengumuman');
             if (pengumumanEl) pengumumanEl.innerText = appState.pengumuman;
-            const portalTeksEl = document.getElementById('portalTeksPengumuman');
-            if(portalTeksEl) portalTeksEl.innerText = appState.pengumuman;
-
             const modeSwitcher = document.getElementById('modeSwitcherContainer');
 
             if (currentUser.kontak === '123456' || isUserAdmin(currentUser)) {
@@ -1234,7 +1126,7 @@
             
             nav.innerHTML = `
                 <button onclick="window.switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300" data-tab="dashboard">
-                    <span class="truncate">Beranda & Voting</span>
+                    <span class="truncate">Dashboard Utama</span>
                 </button>
                 <button onclick="window.switchTab('persetujuan')" class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" data-tab="persetujuan">
                     <span class="truncate">Persetujuan Transaksi</span>
@@ -1268,6 +1160,9 @@
                 <button onclick="window.switchTab('portal')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300" data-tab="portal">
                     <span class="truncate">Dashboard Pribadi</span>
                 </button>
+                <button onclick="window.switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" data-tab="dashboard">
+                    <span class="truncate">Dashboard Utama</span>
+                </button>
                 <button onclick="window.switchTab('simpanan')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" data-tab="simpanan">
                     <span class="truncate">Buku Tabungan Saya</span>
                 </button>
@@ -1283,8 +1178,8 @@
                 <button onclick="window.switchTab('shu')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" data-tab="shu">
                     <span class="truncate">Perolehan SHU</span>
                 </button>
-                <button onclick="window.bukaModalPinVerifikasi()" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-                    <span class="truncate">Profil & Rekening</span>
+                <button onclick="window.switchTab('profil-saya')" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800" data-tab="profil-saya">
+                    <span class="truncate">Profil & Tampilan</span>
                 </button>
             `;
         }
@@ -1324,7 +1219,7 @@
             else if(tabId === 'gamifikasi') renderGamifikasi();
             else if(tabId === 'anggota') renderAnggota();
             else if(tabId === 'shu') renderShu();
-            else if(tabId === 'portal') renderPortalAnggota();
+            else if(tabId === 'portal') { renderPortalAnggota(); }
             else if(tabId === 'profil-saya') populateMandiriProfilForm();
         };
 
@@ -1351,6 +1246,14 @@
             document.getElementById('statTotalAnggota').innerText = appState.anggota.length + " Orang";
             document.getElementById('statTotalKeluarga').innerText = new Set(appState.anggota.map(a => (a.keluarga || 'Lainnya').toLowerCase().trim())).size + " KK";
             document.getElementById('statTotalPending').innerText = appState.transaksi.filter(t => t.status === 'pending').length;
+
+            const pengumumanEl = document.getElementById('teksPengumuman');
+            if(pengumumanEl) pengumumanEl.innerText = appState.pengumuman;
+            const btnEditPengumuman = document.getElementById('btnEditPengumuman');
+            if(btnEditPengumuman) {
+                if(isSuperAdmin(currentUser) || isUserAdmin(currentUser)) btnEditPengumuman.classList.remove('hidden');
+                else btnEditPengumuman.classList.add('hidden');
+            }
 
             renderGrafikArusKas();
             renderKkChart();
@@ -1712,19 +1615,6 @@
             }
         }
 
-        window.handleRegKeluargaChange = function(selectEl) {
-            const customEl = document.getElementById('regKeluargaCustom');
-            if (selectEl.value === '__custom__') {
-                customEl.classList.remove('hidden');
-                customEl.required = true;
-                customEl.focus();
-            } else {
-                customEl.classList.add('hidden');
-                customEl.required = false;
-                customEl.value = '';
-            }
-        };
-
         window.handleAgtKeluargaChange = function(selectEl) {
             const customEl = document.getElementById('agtKeluargaCustom');
             if (selectEl.value === '__custom__') {
@@ -1749,12 +1639,6 @@
                 customEl.required = false;
                 customEl.value = '';
             }
-        };
-
-        window.bukaModalRegister = function() {
-            document.getElementById('registerForm').reset();
-            populateKeluargaDropdowns('regKeluargaSelect', 'regKeluargaCustom');
-            document.getElementById('modalRegister').classList.remove('hidden');
         };
 
         window.bukaModalAnggota = function() {
@@ -2070,10 +1954,10 @@
             const btnBuka = document.getElementById('btnBukaModalVoting');
             if (!grid) return;
 
-            if (isUserAdmin(currentUser) && currentMode === 'admin') {
-                btnBuka.classList.remove('hidden');
+            if (isUserAdmin(currentUser) || isSuperAdmin(currentUser)) {
+                if(btnBuka) btnBuka.classList.remove('hidden');
             } else {
-                btnBuka.classList.add('hidden');
+                if(btnBuka) btnBuka.classList.add('hidden');
             }
 
             const votings = appState.votings || [];
@@ -2106,11 +1990,11 @@
                     `;
                 }).join('');
 
-                const isAdmin = isUserAdmin(currentUser) && currentMode === 'admin';
+                const canDelete = isUserAdmin(currentUser) || isSuperAdmin(currentUser);
 
                 return `
                     <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-xl border space-y-2.5 relative">
-                        ${isAdmin ? `<button onclick="window.hapusVoting(${v.id})" class="absolute top-2.5 right-2.5 text-slate-400 hover:text-rose-600 text-xs">🗑️ Hapus</button>` : ''}
+                        ${canDelete ? `<button onclick="window.hapusVoting(${v.id})" class="absolute top-2.5 right-2.5 text-slate-400 hover:text-rose-600 text-xs">🗑️ Hapus</button>` : ''}
                         <div>
                             <span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full uppercase">Voting Aktif</span>
                             <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white mt-1">${v.judul}</h4>
@@ -2199,18 +2083,8 @@
 
         window.exportToPDF = function() { window.print(); };
 
-        window.bukaModalPinVerifikasi = function() { document.getElementById('inputVerifPin').value = ''; document.getElementById('modalPinVerifikasi').classList.remove('hidden'); };
-        window.tutupModalPinVerifikasi = function() { document.getElementById('modalPinVerifikasi').classList.add('hidden'); };
-
-        window.verifikasiPinProfil = function(e) {
-            e.preventDefault();
-            if(document.getElementById('inputVerifPin').value.trim() !== (currentUser.pin || '123456')) { window.bukaCustomModal('PIN Salah', 'PIN salah!', 'danger'); return; }
-            window.tutupModalPinVerifikasi(); window.switchTab('profil-saya');
-        };
-
-        window.kirimPermintaanResetPin = function() {
+        window.rukunResetPin = function() {
             window.bukaCustomModal('Terkirim', 'Permintaan reset PIN telah dikirim ke Super Admin.', 'success');
-            document.getElementById('modalLupaPin').classList.add('hidden');
         };
 
         window.bukaCustomModal = function(title, text, type, cb = null) {
@@ -2265,24 +2139,6 @@
             window.bukaCustomModal('Berhasil', 'Data anggota berhasil disimpan!', 'success');
         };
 
-        window.handleRegisterAccount = function(e) {
-            e.preventDefault();
-            const nama = document.getElementById('regNama').value.trim();
-            const peran = document.getElementById('regPeran').value;
-            
-            const selKeluarga = document.getElementById('regKeluargaSelect').value;
-            const keluarga = selKeluarga === '__custom__' ? document.getElementById('regKeluargaCustom').value.trim() : selKeluarga;
-
-            const kontak = document.getElementById('regKontak').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const pin = document.getElementById('regPin').value.trim();
-
-            appState.anggota.push({ id: Date.now(), nama, peran, role: 'Anggota', keluarga, kontak, email, pin, tglGabung: new Date().toISOString().slice(0,10), foto: "" });
-            saveCloudState();
-            document.getElementById('modalRegister').classList.add('hidden');
-            window.bukaCustomModal('Berhasil', 'Akun berhasil didaftarkan! Silakan masuk.', 'success');
-        };
-
         window.hapusTransaksi = function(id) {
             appState.transaksi = appState.transaksi.filter(t => Number(t.id) !== Number(id));
             saveCloudState();
@@ -2325,7 +2181,6 @@
                 appState.pengumuman = txt;
                 saveCloudState();
                 document.getElementById('teksPengumuman').innerText = txt;
-                document.getElementById('portalTeksPengumuman').innerText = txt;
                 document.getElementById('modalEditPengumuman').classList.add('hidden');
                 window.bukaCustomModal('Berhasil', 'Pengumuman diperbarui!', 'success');
             }
