@@ -226,7 +226,6 @@
 
     <main class="flex-1 max-w-full w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
-        <!-- PETUGAS VIEW -->
         <div id="view-petugas" class="tab-view space-y-1">
             <div class="flex space-x-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100 sticky top-10 z-40">
                 <button onclick="window.switchPetugasTab('input')" id="petugas-tab-input" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
@@ -329,13 +328,13 @@
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col">
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Antrian, Dikirim, Selesai)</h3>
-                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Memantau seluruh alur paket secara berdampingan tanpa tumpang tindih</p>
+                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Default Hari Ini)</h3>
+                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Menampilkan transaksi hari ini secara default untuk efisiensi pos</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Berdasarkan Filter Waktu">
+                            <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Sesuai Filter Tanggal">
                                 <i class="fa-solid fa-file-excel"></i>
-                                <span>Export CSV</span>
+                                <span>Export CSV (Hari Ini)</span>
                             </button>
                             <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
@@ -356,7 +355,7 @@
                         </div>
                         <div class="flex items-center space-x-1 text-[9px]">
                             <select id="filter-petugas-period" onchange="window.renderPetugasStatusView()" class="px-1.5 py-0.5 rounded border border-slate-200 bg-white font-medium text-indigo-700">
-                                <option value="today">📅 Hari Ini</option>
+                                <option value="today" selected>📅 Hari Ini (Default)</option>
                                 <option value="yesterday">⏪ Kemarin</option>
                                 <option value="week">📊 Minggu Ini</option>
                                 <option value="month">📈 Bulan Ini</option>
@@ -395,7 +394,6 @@
             </div>
         </div>
 
-        <!-- KURIR VIEW -->
         <div id="view-kurir" class="tab-view space-y-1">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-10 z-40">
                 <div class="grid grid-cols-3 gap-0.5 flex-1 mr-2">
@@ -468,7 +466,6 @@
             </div>
         </div>
 
-        <!-- PENERIMA VIEW -->
         <div id="view-penerima" class="tab-view space-y-1">
             <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-xl p-2 shadow-sm flex flex-wrap justify-between items-center gap-1">
                 <div>
@@ -499,7 +496,6 @@
             </div>
         </div>
 
-        <!-- ADMIN VIEW -->
         <div id="view-admin" class="tab-view space-y-2">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 overflow-x-auto sticky top-10 z-40">
                 <div class="flex space-x-1">
@@ -621,7 +617,7 @@
                     <div class="flex flex-wrap justify-between items-center gap-1 border-b pb-1.5">
                         <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-file-lines text-sky-500 mr-1"></i> Laporan & Analisis Kinerja Logistik Sekolah</h3>
-                            <p class="text-[7.5px] text-slate-500">Filter berdasarkan rentang tanggal dan evaluasi performa petugas & kurir</p>
+                            <p class="text-[7.5px] text-slate-500">Filter berdasarkan rentang tanggal (Default Hari Ini) dan evaluasi performa</p>
                         </div>
                         <div class="flex items-center space-x-1">
                             <button onclick="window.printAdminReport()" class="bg-slate-800 hover:bg-slate-900 text-white px-2 py-1 rounded text-[9px] font-semibold transition flex items-center space-x-1">
@@ -630,7 +626,7 @@
                             </button>
                             <button onclick="window.exportAdminReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[9px] font-semibold transition flex items-center space-x-1">
                                 <i class="fa-solid fa-file-excel"></i>
-                                <span>Export Excel (CSV)</span>
+                                <span>Export Excel (Sesuai Filter)</span>
                             </button>
                         </div>
                     </div>
@@ -639,7 +635,7 @@
                         <div>
                             <label class="block font-semibold text-slate-600 mb-0.5">Periode Laporan</label>
                             <select id="report-period-preset" onchange="window.handleReportPresetChange()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white font-semibold text-indigo-700">
-                                <option value="today">📅 Hari Ini</option>
+                                <option value="today" selected>📅 Hari Ini (Default)</option>
                                 <option value="yesterday">⏪ Kemarin</option>
                                 <option value="week">📊 Minggu Ini</option>
                                 <option value="month">📈 Bulan Ini</option>
@@ -655,7 +651,7 @@
                             <input type="date" id="report-date-to" onchange="window.renderAdminReports()" class="w-full px-2 py-0.5 rounded border border-slate-200 bg-white">
                         </div>
                         <div class="flex items-end">
-                            <button onclick="window.resetReportFilter()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-0.5 px-2 rounded transition">Reset Filter</button>
+                            <button onclick="window.resetReportFilter()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-0.5 px-2 rounded transition">Reset ke Hari Ini</button>
                         </div>
                     </div>
 
@@ -899,7 +895,7 @@
     </div>
 
     <div id="summary-confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
-        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100 animate-in fade-in zoom-in duration-200">
             <div class="text-center space-y-1">
                 <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-sm shadow-inner">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -1133,7 +1129,7 @@
                 return;
             }
             window.speechSynthesis.cancel();
-            const text = `Selamat datang di Kurir BNS Express. Anda masuk sebagai ${loggedUser.name} dengan peran ${currentRole.toUpperCase()}. Total paket aktif saat ini ${packages.filter(p => p.status !== 'completed').length} paket.`;
+            const text = `Selamat datang di Kurir BNS Express. Anda masuk sebagai ${loggedUser.name} dengan peran ${currentRole.toUpperCase()}. Total paket aktif hari ini ${packages.filter(p => p.status !== 'completed').length} paket.`;
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'id-ID';
             utterance.rate = 1.0;
@@ -2667,9 +2663,9 @@
                 </div>
             `;
 
-            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada antrian</p>' : pending.map(renderMaxCard).join('');
-            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada paket dikirim</p>' : delivering.map(renderMaxCard).join('');
-            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Belum ada selesai</p>' : completed.map(renderMaxCard).join('');
+            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada antrian hari ini</p>' : pending.map(renderMaxCard).join('');
+            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada paket dikirim hari ini</p>' : delivering.map(renderMaxCard).join('');
+            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Belum ada selesai hari ini</p>' : completed.map(renderMaxCard).join('');
         }
         window.renderPetugasStatusView = renderPetugasStatusView;
 
