@@ -783,6 +783,7 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
+    <!-- PROFILE MODAL -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -819,6 +820,7 @@
         </div>
     </div>
 
+    <!-- FORGOT PASSWORD MODAL -->
     <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -836,6 +838,7 @@
         </div>
     </div>
 
+    <!-- PHYSICAL CAMERA MODAL -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-indigo-400 mr-1"></i> Ambil Foto Paket Fisik</h3>
@@ -852,6 +855,7 @@
         </div>
     </div>
 
+    <!-- BARCODE MODAL -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -876,6 +880,7 @@
         </div>
     </div>
 
+    <!-- BACKUP MODAL -->
     <div id="backup-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -898,6 +903,7 @@
         </div>
     </div>
 
+    <!-- SUMMARY CONFIRMATION MODAL -->
     <div id="summary-confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100 animate-in fade-in zoom-in duration-200">
             <div class="text-center space-y-1">
@@ -932,6 +938,7 @@
         </div>
     </div>
 
+    <!-- COMPLETE DELIVERY MODAL -->
     <div id="complete-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -974,6 +981,7 @@
         </div>
     </div>
 
+    <!-- PROOF CAMERA MODAL -->
     <div id="proof-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-emerald-400 mr-1"></i> Kamera Bukti Tanda Terima</h3>
@@ -990,6 +998,7 @@
         </div>
     </div>
 
+    <!-- MEMBER MODAL -->
     <div id="member-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -1033,6 +1042,7 @@
         </div>
     </div>
 
+    <!-- ZOOM MODAL -->
     <div id="zoom-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden" onclick="window.closeZoomModal()">
         <div class="relative max-w-lg w-full text-center">
             <button onclick="window.closeZoomModal()" class="absolute -top-6 right-0 text-white text-base hover:text-slate-300"><i class="fa-solid fa-xmark"></i></button>
@@ -2372,6 +2382,28 @@
         }
         window.switchCourierSubTab = switchCourierSubTab;
 
+        function getFilteredPackagesByPeriod(period, customFrom = null, customTo = null) {
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            const yesterdayStart = todayStart - 86400000;
+            const weekStart = todayStart - (7 * 86400000);
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+            return packages.filter(p => {
+                const pTime = p.timestampRaw || now.getTime();
+                if (period === 'custom' && customFrom && customTo) {
+                    const start = new Date(customFrom).setHours(0,0,0,0);
+                    const end = new Date(customTo).setHours(23,59,59,999);
+                    return pTime >= start && pTime <= end;
+                }
+                if (period === 'today') return pTime >= todayStart;
+                if (period === 'yesterday') return pTime >= yesterdayStart && pTime < todayStart;
+                if (period === 'week') return pTime >= weekStart;
+                if (period === 'month') return pTime >= monthStart;
+                return true; // 'all'
+            });
+        }
+
         function exportCourierReport() {
             let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
             packages.forEach(p => {
@@ -2393,21 +2425,7 @@
         function exportPetugasReport() {
             const periodElem = document.getElementById('filter-petugas-period');
             const period = periodElem ? periodElem.value : 'today';
-
-            const now = new Date();
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const yesterdayStart = todayStart - 86400000;
-            const weekStart = todayStart - (7 * 86400000);
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-
-            let filtered = packages.filter(p => {
-                const pTime = p.timestampRaw || now.getTime();
-                if (period === 'today') return pTime >= todayStart;
-                if (period === 'yesterday') return pTime >= yesterdayStart && pTime < todayStart;
-                if (period === 'week') return pTime >= weekStart;
-                if (period === 'month') return pTime >= monthStart;
-                return true;
-            });
+            const filtered = getFilteredPackagesByPeriod(period);
 
             let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
             filtered.forEach(p => {
@@ -2420,11 +2438,35 @@
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            showToast('Laporan Petugas (' + period.toUpperCase() + ') berhasil diexport!');
-            addAuditLog(`Petugas (${loggedUser.name}) mengexport laporan periode ${period}`, loggedUser.name, 'PETUGAS');
+            showToast(`Laporan Petugas (${period.toUpperCase()}) berhasil diexport (${filtered.length} data)!`);
+            addAuditLog(`Petugas (${loggedUser.name}) mengexport laporan periode ${period} (${filtered.length} data)`, loggedUser.name, 'PETUGAS');
             speakText('Laporan petugas berhasil diexport');
         }
         window.exportPetugasReport = exportPetugasReport;
+
+        function exportAdminReport() {
+            const preset = document.getElementById('report-period-preset')?.value || 'today';
+            const dateFrom = document.getElementById('report-date-from')?.value;
+            const dateTo = document.getElementById('report-date-to')?.value;
+
+            const filtered = getFilteredPackagesByPeriod(preset, dateFrom, dateTo);
+
+            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
+            filtered.forEach(p => {
+                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "laporan_admin_" + preset + "_" + new Date().toISOString().slice(0,10) + ".csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast(`Laporan Admin (${preset.toUpperCase()}) berhasil diexport (${filtered.length} data)!`);
+            addAuditLog(`Admin (${loggedUser.name}) mengexport laporan CSV periode ${preset} (${filtered.length} data)`, loggedUser.name, 'ADMIN');
+            speakText('Laporan berhasil diexport');
+        }
+        window.exportAdminReport = exportAdminReport;
 
         function renderCourierView() {
             const searchElem = document.getElementById('filter-kurir-search');
@@ -2604,29 +2646,12 @@
             const period = periodElem ? periodElem.value : 'today';
             const slaFilter = slaElem ? slaElem.value : 'all';
 
-            const now = new Date();
-            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            const yesterdayStart = todayStart - 86400000;
-            const weekStart = todayStart - (7 * 86400000);
-            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            
-            const filtered = packages.filter(p => {
+            const basePeriodFiltered = getFilteredPackagesByPeriod(period);
+
+            const filtered = basePeriodFiltered.filter(p => {
                 const matchSearch = p.id.toLowerCase().includes(search) || (p.resi && p.resi.toLowerCase().includes(search)) || p.recipient.toLowerCase().includes(search) || p.destination.toLowerCase().includes(search) || (p.petugas && p.petugas.toLowerCase().includes(search)) || (p.courier && p.courier.toLowerCase().includes(search));
                 const matchSla = slaFilter === 'all' || (p.sla && p.sla.toLowerCase().includes(slaFilter));
-                
-                let matchPeriod = true;
-                const pTime = p.timestampRaw || now.getTime();
-                if (period === 'today') {
-                    matchPeriod = pTime >= todayStart;
-                } else if (period === 'yesterday') {
-                    matchPeriod = pTime >= yesterdayStart && pTime < todayStart;
-                } else if (period === 'week') {
-                    matchPeriod = pTime >= weekStart;
-                } else if (period === 'month') {
-                    matchPeriod = pTime >= monthStart;
-                }
-
-                return matchSearch && matchSla && matchPeriod;
+                return matchSearch && matchSla;
             });
 
             const pending = filtered.filter(p => p.status === 'pending');
@@ -2782,53 +2807,6 @@
         }
         window.switchAdminTab = switchAdminTab;
 
-        function exportAdminReport() {
-            const preset = document.getElementById('report-period-preset')?.value || 'today';
-            const dateFrom = document.getElementById('report-date-from')?.value;
-            const dateTo = document.getElementById('report-date-to')?.value;
-
-            const now = new Date();
-            let start = 0;
-            let end = now.getTime();
-
-            if (preset === 'custom') {
-                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
-                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
-            } else if (preset === 'today') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            } else if (preset === 'yesterday') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
-                end = start + 86399999;
-            } else if (preset === 'week') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
-            } else if (preset === 'month') {
-                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            } else if (preset === 'all') {
-                start = 0;
-            }
-
-            let filtered = packages.filter(p => {
-                const pTime = p.timestampRaw || now.getTime();
-                return pTime >= start && pTime <= end;
-            });
-
-            let csvContent = "data:text/csv;charset=utf-8,ID Transaksi,No Resi,Sumber,Petugas,Kurir,Penerima,Peran,Tujuan,Kategori,SLA,Status,Keterangan Selesai,Waktu Selesai,Waktu Masuk\n";
-            filtered.forEach(p => {
-                csvContent += `"${p.id}","${p.resi || ''}","${p.source}","${p.petugas || ''}","${p.courier || ''}","${p.recipient}","${p.role}","${p.destination}","${p.category}","${p.sla}","${p.status}","${p.completionOption || ''}","${p.completedTimestamp || ''}","${p.timestamp}"\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "laporan_kurir_bns_" + preset + "_" + new Date().toISOString().slice(0,10) + ".csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast('Laporan (' + preset.toUpperCase() + ') berhasil diexport ke CSV / Excel');
-            addAuditLog(`Admin (${loggedUser.name}) mengexport laporan CSV periode ${preset}`, loggedUser.name, 'ADMIN');
-            speakText('Laporan berhasil diexport');
-        }
-        window.exportAdminReport = exportAdminReport;
-
         function printAdminReport() {
             window.print();
             addAuditLog(`Admin (${loggedUser.name}) mencetak laporan sistem`, loggedUser.name, 'ADMIN');
@@ -2868,30 +2846,7 @@
             const dateFrom = document.getElementById('report-date-from')?.value;
             const dateTo = document.getElementById('report-date-to')?.value;
 
-            const now = new Date();
-            let start = 0;
-            let end = now.getTime();
-
-            if (preset === 'custom') {
-                if (dateFrom) start = new Date(dateFrom).setHours(0,0,0,0);
-                if (dateTo) end = new Date(dateTo).setHours(23,59,59,999);
-            } else if (preset === 'today') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            } else if (preset === 'yesterday') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1).getTime();
-                end = start + 86399999;
-            } else if (preset === 'week') {
-                start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7).getTime();
-            } else if (preset === 'month') {
-                start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-            } else if (preset === 'all') {
-                start = 0;
-            }
-
-            let filtered = packages.filter(p => {
-                const pTime = p.timestampRaw || now.getTime();
-                return pTime >= start && pTime <= end;
-            });
+            const filtered = getFilteredPackagesByPeriod(preset, dateFrom, dateTo);
 
             const officerStats = {};
             filtered.forEach(p => {
