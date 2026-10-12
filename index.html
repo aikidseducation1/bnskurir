@@ -226,6 +226,7 @@
 
     <main class="flex-1 max-w-full w-full mx-auto p-1 md:p-1.5 pb-12 space-y-1">
 
+        <!-- VIEW PETUGAS -->
         <div id="view-petugas" class="tab-view space-y-1">
             <div class="flex space-x-1 bg-white p-0.5 rounded-lg shadow-sm border border-slate-100 sticky top-10 z-40">
                 <button onclick="window.switchPetugasTab('input')" id="petugas-tab-input" class="flex-1 py-0.5 px-1.5 rounded-md text-[9.5px] font-bold transition bg-indigo-600 text-white shadow flex items-center justify-center space-x-0.5">
@@ -328,13 +329,13 @@
                 <div class="bg-white rounded-xl p-1.5 md:p-2 shadow-sm border border-slate-100 space-y-1.5 flex flex-col">
                     <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 flex-wrap gap-1">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime (Default Hari Ini)</h3>
-                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Menampilkan transaksi hari ini secara default untuk efisiensi pos</p>
+                            <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-clipboard-list text-indigo-500 mr-1"></i> Status Transaksi Realtime Sesuai Filter Waktu</h3>
+                            <p class="text-[7.5px] text-slate-500 hide-in-fullscreen">Menampilkan transaksi terurut secara kronologis sesuai tanggal/periode yang dipilih</p>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Sesuai Filter Tanggal">
+                            <button onclick="window.exportPetugasReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[8.5px] font-bold shadow transition flex items-center space-x-1 btn-glow" title="Export Laporan Sesuai Filter Waktu">
                                 <i class="fa-solid fa-file-excel"></i>
-                                <span>Export CSV (Hari Ini)</span>
+                                <span>Export CSV (Sesuai Filter)</span>
                             </button>
                             <button onclick="window.togglePetugasFullscreen()" id="petugas-fullscreen-btn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-2.5 py-1 rounded text-[9px] font-bold transition flex items-center space-x-1 border border-indigo-200 shadow-sm" title="Mode Fullscreen">
                                 <i id="petugas-fullscreen-icon" class="fa-solid fa-expand"></i>
@@ -394,6 +395,7 @@
             </div>
         </div>
 
+        <!-- VIEW KURIR -->
         <div id="view-kurir" class="tab-view space-y-1">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 sticky top-10 z-40">
                 <div class="grid grid-cols-3 gap-0.5 flex-1 mr-2">
@@ -466,6 +468,7 @@
             </div>
         </div>
 
+        <!-- VIEW PENERIMA -->
         <div id="view-penerima" class="tab-view space-y-1">
             <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 text-white rounded-xl p-2 shadow-sm flex flex-wrap justify-between items-center gap-1">
                 <div>
@@ -496,6 +499,7 @@
             </div>
         </div>
 
+        <!-- VIEW ADMIN -->
         <div id="view-admin" class="tab-view space-y-2">
             <div class="flex justify-between items-center bg-white p-1 rounded-xl shadow-sm border border-slate-100 overflow-x-auto sticky top-10 z-40">
                 <div class="flex space-x-1">
@@ -617,7 +621,7 @@
                     <div class="flex flex-wrap justify-between items-center gap-1 border-b pb-1.5">
                         <div>
                             <h3 class="font-bold text-slate-800 text-[10px] flex items-center"><i class="fa-solid fa-file-lines text-sky-500 mr-1"></i> Laporan & Analisis Kinerja Logistik Sekolah</h3>
-                            <p class="text-[7.5px] text-slate-500">Filter berdasarkan rentang tanggal (Default Hari Ini) dan evaluasi performa</p>
+                            <p class="text-[7.5px] text-slate-500">Filter berdasarkan rentang waktu spesifik (Default Hari Ini) dan evaluasi performa</p>
                         </div>
                         <div class="flex items-center space-x-1">
                             <button onclick="window.printAdminReport()" class="bg-slate-800 hover:bg-slate-900 text-white px-2 py-1 rounded text-[9px] font-semibold transition flex items-center space-x-1">
@@ -779,6 +783,7 @@
         <p>© 2026 Aufah Tech. All Rights Reserved. (PWA Enabled)</p>
     </footer>
 
+    <!-- PROFILE MODAL -->
     <div id="profile-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -815,6 +820,7 @@
         </div>
     </div>
 
+    <!-- FORGOT PASSWORD MODAL -->
     <div id="forgot-password-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -832,6 +838,7 @@
         </div>
     </div>
 
+    <!-- PHYSICAL CAMERA MODAL -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-indigo-400 mr-1"></i> Ambil Foto Paket Fisik</h3>
@@ -848,6 +855,7 @@
         </div>
     </div>
 
+    <!-- BARCODE MODAL -->
     <div id="barcode-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2">
             <div class="flex justify-between items-center border-b pb-1">
@@ -872,6 +880,7 @@
         </div>
     </div>
 
+    <!-- BACKUP MODAL -->
     <div id="backup-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -894,6 +903,7 @@
         </div>
     </div>
 
+    <!-- SUMMARY CONFIRMATION MODAL -->
     <div id="summary-confirmation-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 shadow-2xl space-y-2.5 modal-transition border border-slate-100 animate-in fade-in zoom-in duration-200">
             <div class="text-center space-y-1">
@@ -928,6 +938,7 @@
         </div>
     </div>
 
+    <!-- COMPLETE DELIVERY MODAL -->
     <div id="complete-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 modal-transition border border-slate-100">
             <div class="flex justify-between items-center border-b pb-1">
@@ -970,6 +981,7 @@
         </div>
     </div>
 
+    <!-- PROOF CAMERA MODAL -->
     <div id="proof-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
             <h3 class="text-[9.5px] font-bold flex items-center"><i class="fa-solid fa-camera text-emerald-400 mr-1"></i> Kamera Bukti Tanda Terima</h3>
@@ -986,6 +998,7 @@
         </div>
     </div>
 
+    <!-- MEMBER MODAL -->
     <div id="member-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-3 shadow-2xl space-y-2 max-h-[95vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-1">
@@ -1029,6 +1042,7 @@
         </div>
     </div>
 
+    <!-- ZOOM MODAL -->
     <div id="zoom-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden" onclick="window.closeZoomModal()">
         <div class="relative max-w-lg w-full text-center">
             <button onclick="window.closeZoomModal()" class="absolute -top-6 right-0 text-white text-base hover:text-slate-300"><i class="fa-solid fa-xmark"></i></button>
@@ -1362,7 +1376,7 @@
                             speakText('Perhatian, ada paket baru masuk ke sistem');
                         }
                         lastPackageCount = newTotal;
-                        packages = cloudPkgs.sort((a,b) => b.id.localeCompare(a.id));
+                        packages = cloudPkgs.sort((a,b) => (b.timestampRaw || 0) - (a.timestampRaw || 0));
                         refreshActiveView();
                     }
                 }, (err) => {});
@@ -2663,9 +2677,9 @@
                 </div>
             `;
 
-            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada antrian hari ini</p>' : pending.map(renderMaxCard).join('');
-            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada paket dikirim hari ini</p>' : delivering.map(renderMaxCard).join('');
-            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Belum ada selesai hari ini</p>' : completed.map(renderMaxCard).join('');
+            if (listPending) listPending.innerHTML = pending.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada antrian pada periode ini</p>' : pending.map(renderMaxCard).join('');
+            if (listDelivering) listDelivering.innerHTML = delivering.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Tidak ada paket dikirim pada periode ini</p>' : delivering.map(renderMaxCard).join('');
+            if (listCompleted) listCompleted.innerHTML = completed.length === 0 ? '<p class="text-[8.5px] text-slate-400 text-center py-4 bg-white rounded border border-dashed border-slate-200">Belum ada selesai pada periode ini</p>' : completed.map(renderMaxCard).join('');
         }
         window.renderPetugasStatusView = renderPetugasStatusView;
 
@@ -3401,7 +3415,7 @@
             } catch(e) {
                 selectLoginRole('petugas');
                 const authScreen = document.getElementById('auth-screen');
-                if(authScreen) authScreen.classList.remove('hidden');
+                if(authScreen) authScreen.classList.add('hidden');
             }
         };
     </script>
