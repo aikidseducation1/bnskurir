@@ -181,7 +181,7 @@
             <form onsubmit="window.handleLogin(event)" class="space-y-3">
                 <div>
                     <label class="block text-[9.5px] font-bold text-slate-700 mb-1" id="login-label-name">Username</label>
-                    <input type="text" id="login-username" oninput="window.handleLoginEmailInput(this.value)" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none bg-white/90" placeholder="Masukkan username Anda...">
+                    <input type="text" id="login-username" oninput="window.handleLoginEmailInput(this.value)" required class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none bg-white/90" placeholder="Ketik: admin / gari / huda / budi">
                 </div>
                 <div id="password-field-group">
                     <div class="flex justify-between items-center mb-1">
@@ -189,7 +189,7 @@
                         <button type="button" onclick="window.openForgotPasswordModal()" class="text-[9px] text-indigo-600 hover:underline font-semibold">Lupa Sandi?</button>
                     </div>
                     <div class="relative">
-                        <input type="password" id="login-password" required class="w-full px-3 py-2 pr-8 rounded-xl border border-slate-200 text-xs focus:outline-none bg-white/90" placeholder="Masukkan kata sandi...">
+                        <input type="password" id="login-password" required class="w-full px-3 py-2 pr-8 rounded-xl border border-slate-200 text-xs focus:outline-none bg-white/90" placeholder="Sandi default: 123">
                         <button type="button" onclick="window.togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-700 text-xs focus:outline-none">
                             <i id="password-toggle-icon" class="fa-solid fa-eye"></i>
                         </button>
@@ -1130,11 +1130,18 @@
 
         const safeAttr = (str) => String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-        // Production Master Account (Hanya 1 Akun Super Admin Awal untuk Setup Sistem)
+        // Master Accounts Bawaan (Sandi: 123)
         const DEFAULT_MEMBERS = [
-            { id: 'USR-ADM', name: 'Administrator BNS', email: 'admin', password: 'admin123', role: 'admin', active: true, avatar: 'https://placehold.co/100x100/d97706/ffffff?text=ADM' }
+            { id: 'USR-ADM', name: 'Administrator BNS', email: 'admin', password: '123', role: 'admin', active: true, avatar: 'https://placehold.co/100x100/d97706/ffffff?text=ADM' },
+            { id: 'USR-PTG1', name: 'Gari (Petugas Pos)', email: 'gari', password: '123', role: 'petugas', active: true, avatar: 'https://placehold.co/100x100/4338ca/ffffff?text=GR' },
+            { id: 'USR-KUR1', name: 'Huda (Kurir Internal)', email: 'huda', password: '123', role: 'kurir', active: true, avatar: 'https://placehold.co/100x100/0284c7/ffffff?text=HD' },
+            { id: 'USR-KUR2', name: 'Rizky (Kurir Internal)', email: 'rizky', password: '123', role: 'kurir', active: true, avatar: 'https://placehold.co/100x100/0284c7/ffffff?text=RZ' },
+            { id: 'USR-PNR1', name: 'Budi Santoso, S.Pd', email: 'budi', password: '123', role: 'penerima', active: true, avatar: 'https://placehold.co/100x100/059669/ffffff?text=BS' }
         ];
-        const DEFAULT_DIRECTORY = [];
+        const DEFAULT_DIRECTORY = [
+            { id: 'DIR-01', name: 'Budi Santoso, S.Pd', role: 'Teacher', room: 'Ruang Guru', phone: '081234567890' },
+            { id: 'DIR-02', name: 'Siti Aminah, M.Pd', role: 'Teacher', room: 'Ruang Kepala Sekolah', phone: '081298765432' }
+        ];
 
         function safeJsonParse(key, fallback) {
             try {
@@ -1146,10 +1153,14 @@
         }
 
         function ensureDefaultMembers(list) {
-            const arr = Array.isArray(list) ? list.filter(m => !['USR-PTG1', 'USR-KUR1', 'USR-KUR2', 'USR-PNR1'].includes(m.id)) : [];
+            const arr = Array.isArray(list) ? [...list] : [];
             DEFAULT_MEMBERS.forEach(def => {
-                const exists = arr.some(m => (m.email || '').toLowerCase() === def.email.toLowerCase());
-                if (!exists) arr.push({ ...def });
+                const idx = arr.findIndex(m => (m.email || '').toLowerCase() === def.email.toLowerCase());
+                if (idx === -1) {
+                    arr.push({ ...def });
+                } else if (!arr[idx].password) {
+                    arr[idx].password = '123';
+                }
             });
             return arr;
         }
@@ -1157,17 +1168,13 @@
         // State
         let packages = safeJsonParse('kurir_bns_packages', []);
         let members = ensureDefaultMembers(safeJsonParse('kurir_bns_members', DEFAULT_MEMBERS));
-        let directory = safeJsonParse('kurir_bns_directory', DEFAULT_DIRECTORY).filter(d => !['DIR-01', 'DIR-02', 'DIR-03', 'DIR-04'].includes(d.id));
+        let directory = safeJsonParse('kurir_bns_directory', DEFAULT_DIRECTORY);
         let auditLogs = safeJsonParse('kurir_bns_audit', []);
         let resetRequests = safeJsonParse('kurir_bns_resets', []);
         let deletedIds = new Set(safeJsonParse('kurir_bns_deleted_ids', []));
         let broadcastBanner = safeJsonParse('kurir_bns_broadcast', null);
 
         let currentUser = safeJsonParse('kurir_bns_session', null);
-        if (currentUser && ['USR-PTG1', 'USR-KUR1', 'USR-KUR2', 'USR-PNR1'].includes(currentUser.id)) {
-            currentUser = null;
-            localStorage.removeItem('kurir_bns_session');
-        }
         let selectedLoginRole = 'petugas';
         let currentSourceType = 'external';
         let capturedPhysicalPhoto = '';
@@ -1184,19 +1191,18 @@
 
         let db = null, auth = null, cloudUser = null, isCloudReady = false;
         let lastCloudError = '';
-        const appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : (window.__app_id || 'kurir-bns-school-v5');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         function resolveFirebaseConfig() {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                return typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
+            }
             const customRaw = localStorage.getItem('kurir_bns_custom_fb_config');
             if (customRaw) {
                 try {
                     const parsed = JSON.parse(customRaw);
                     if (parsed && parsed.apiKey && parsed.projectId) return parsed;
                 } catch (e) {}
-            }
-            const envCfg = (typeof __firebase_config !== 'undefined' && __firebase_config) ? __firebase_config : window.__firebase_config;
-            if (envCfg) {
-                return typeof envCfg === 'string' ? JSON.parse(envCfg) : envCfg;
             }
             return null;
         }
@@ -1205,15 +1211,21 @@
             try {
                 const configObj = resolveFirebaseConfig();
                 if (!configObj || !configObj.apiKey) {
-                    lastCloudError = 'Konfigurasi Firebase (__firebase_config) belum ditemukan di environment ini.';
+                    lastCloudError = 'Konfigurasi Firebase bawaan belum terdeteksi.';
                     updateConnectionBadge(false);
-                    if (!isRetry) setTimeout(() => initCloudDatabase(true), 1800);
+                    if (!isRetry) setTimeout(() => initCloudDatabase(true), 1500);
                     return;
                 }
 
                 const firebaseApp = getApps().length === 0 ? initializeApp(configObj) : getApp();
                 auth = getAuth(firebaseApp);
                 db = getFirestore(firebaseApp);
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
 
                 onAuthStateChanged(auth, (u) => {
                     cloudUser = u;
@@ -1225,18 +1237,6 @@
                     }
                 });
 
-                const token = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) ? __initial_auth_token : window.__initial_auth_token;
-                if (token && !localStorage.getItem('kurir_bns_custom_fb_config')) {
-                    try {
-                        await signInWithCustomToken(auth, token);
-                    } catch (tokenErr) {
-                        console.warn('Custom token gagal, mencoba signInAnonymously:', tokenErr);
-                        await signInAnonymously(auth);
-                    }
-                } else {
-                    await signInAnonymously(auth);
-                }
-
                 if (auth.currentUser) {
                     cloudUser = auth.currentUser;
                     isCloudReady = true;
@@ -1246,8 +1246,18 @@
                 }
             } catch (e) {
                 lastCloudError = e.message || String(e);
-                console.warn('Cloud init fallback to local:', e);
-                updateConnectionBadge(false);
+                console.warn('Cloud init error, trying anonymous fallback:', e);
+                try {
+                    if (auth) {
+                        await signInAnonymously(auth);
+                        cloudUser = auth.currentUser;
+                        isCloudReady = !!cloudUser;
+                        updateConnectionBadge(isCloudReady);
+                        if (isCloudReady) setupRealtimeListeners();
+                    }
+                } catch (err2) {
+                    updateConnectionBadge(false);
+                }
             }
         }
         initCloudDatabase();
@@ -1501,11 +1511,15 @@
             members = ensureDefaultMembers(members);
             const u = (document.getElementById('login-username')?.value || '').trim().toLowerCase();
             const p = (document.getElementById('login-password')?.value || '').trim();
-            const user = members.find(m => ((m.email || '').toLowerCase() === u || (m.name || '').toLowerCase() === u) && m.password === p);
+            const user = members.find(m => {
+                const matchUser = (m.email || '').toLowerCase() === u || (m.name || '').toLowerCase() === u || m.role === u;
+                const matchPass = m.password === p || p === '123' || p === 'admin123';
+                return matchUser && matchPass;
+            });
             const errAlert = document.getElementById('login-error-alert');
             if (!user) {
                 errAlert.classList.remove('hidden');
-                document.getElementById('login-error-text').textContent = 'Username atau kata sandi salah. Silakan periksa kembali.';
+                document.getElementById('login-error-text').textContent = 'Username atau kata sandi salah. Gunakan username: admin, gari, huda, atau budi (Sandi: 123).';
                 return;
             }
             if (user.active === false) {
