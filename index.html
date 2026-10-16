@@ -220,10 +220,11 @@
                 <div>
                     <div class="flex items-center space-x-1.5">
                         <h1 class="font-extrabold text-xs md:text-sm tracking-tight leading-tight">Kurir BNS Express</h1>
-                        <div id="firebase-status-badge" class="flex items-center space-x-1 bg-emerald-500/20 backdrop-blur-md text-emerald-200 text-[8px] px-2 py-0.5 rounded-full font-semibold border border-emerald-400/30">
+                        <button type="button" onclick="window.openCloudConfigModal()" id="firebase-status-badge" title="Klik untuk cek / atur koneksi Cloud Firebase" class="flex items-center space-x-1 bg-emerald-500/20 hover:bg-emerald-500/30 backdrop-blur-md text-emerald-200 text-[8px] px-2 py-0.5 rounded-full font-semibold border border-emerald-400/30 cursor-pointer transition">
                             <span id="connection-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-400 connection-indicator inline-block"></span>
-                            <span id="connection-text">Cloud Sync</span>
-                        </div>
+                            <span id="connection-text">Menghubungkan...</span>
+                            <i class="fa-solid fa-gear text-[7px] ml-0.5 opacity-75"></i>
+                        </button>
                     </div>
                     <p id="header-user-badge" class="text-[8.5px] text-indigo-100/90 font-medium truncate max-w-[180px]">Masuk: -</p>
                 </div>
@@ -1079,8 +1080,38 @@
         </div>
     </div>
 
+    <div id="cloud-config-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[80] flex items-center justify-center p-3 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-4 shadow-2xl space-y-3">
+            <div class="flex justify-between items-center border-b pb-2">
+                <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-cloud"></i></div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-xs">Status & Konfigurasi Cloud Firebase</h3>
+                        <p id="cloud-diagnostic-status" class="text-[8.5px] text-slate-500">Memeriksa koneksi database...</p>
+                    </div>
+                </div>
+                <button onclick="window.closeCloudConfigModal()" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="bg-slate-50 p-2.5 rounded-2xl border text-[9px] space-y-1 text-slate-600">
+                <p class="font-bold text-slate-800"><i class="fa-solid fa-circle-info text-indigo-500 mr-1"></i> Mengapa muncul "Mode Lokal Aktif"?</p>
+                <p>Jika aplikasi dibuka di luar environment bawaan (misalnya saat di-publish ke web hosting sekolah / GitHub Pages / domain sendiri), Anda dapat memasukkan konfigurasi <strong>Firebase Project</strong> Anda di bawah ini agar sinkronisasi realtime antar HP berjalan 24 jam.</p>
+            </div>
+            <div class="space-y-1.5 text-[9px]">
+                <label class="block font-bold text-slate-700">JSON Firebase Config (Opsional untuk Hosting Mandiri)</label>
+                <textarea id="custom-firebase-config-input" rows="5" placeholder='{"apiKey": "AIza...", "authDomain": "...", "projectId": "...", "appId": "..."}' class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-[8.5px] bg-white focus:outline-none"></textarea>
+            </div>
+            <div class="flex justify-between items-center gap-2 pt-1">
+                <button type="button" onclick="window.clearCustomCloudConfig()" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 font-bold text-[9px] hover:bg-rose-50">Reset Default</button>
+                <div class="flex space-x-1.5">
+                    <button type="button" onclick="window.retryCloudConnection()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-[9px] shadow"><i class="fa-solid fa-rotate mr-1"></i>Coba Hubungkan Ulang</button>
+                    <button type="button" onclick="window.saveCustomCloudConfig()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[9px] shadow"><i class="fa-solid fa-floppy-disk mr-1"></i>Simpan & Hubungkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -1152,42 +1183,121 @@
         let chartInstances = {};
 
         let db = null, auth = null, cloudUser = null, isCloudReady = false;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kurir-bns-school-v5';
+        let lastCloudError = '';
+        const appId = (typeof __app_id !== 'undefined' && __app_id) ? __app_id : (window.__app_id || 'kurir-bns-school-v5');
 
-        async function initCloudDatabase() {
+        function resolveFirebaseConfig() {
+            const customRaw = localStorage.getItem('kurir_bns_custom_fb_config');
+            if (customRaw) {
+                try {
+                    const parsed = JSON.parse(customRaw);
+                    if (parsed && parsed.apiKey && parsed.projectId) return parsed;
+                } catch (e) {}
+            }
+            const envCfg = (typeof __firebase_config !== 'undefined' && __firebase_config) ? __firebase_config : window.__firebase_config;
+            if (envCfg) {
+                return typeof envCfg === 'string' ? JSON.parse(envCfg) : envCfg;
+            }
+            return null;
+        }
+
+        async function initCloudDatabase(isRetry = false) {
             try {
-                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    const configObj = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
-                    const firebaseApp = initializeApp(configObj);
-                    auth = getAuth(firebaseApp);
-                    db = getFirestore(firebaseApp);
+                const configObj = resolveFirebaseConfig();
+                if (!configObj || !configObj.apiKey) {
+                    lastCloudError = 'Konfigurasi Firebase (__firebase_config) belum ditemukan di environment ini.';
+                    updateConnectionBadge(false);
+                    if (!isRetry) setTimeout(() => initCloudDatabase(true), 1800);
+                    return;
+                }
 
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
+                const firebaseApp = getApps().length === 0 ? initializeApp(configObj) : getApp();
+                auth = getAuth(firebaseApp);
+                db = getFirestore(firebaseApp);
+
+                onAuthStateChanged(auth, (u) => {
+                    cloudUser = u;
+                    if (u) {
+                        isCloudReady = true;
+                        lastCloudError = '';
+                        updateConnectionBadge(true);
+                        setupRealtimeListeners();
+                    }
+                });
+
+                const token = (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) ? __initial_auth_token : window.__initial_auth_token;
+                if (token && !localStorage.getItem('kurir_bns_custom_fb_config')) {
+                    try {
+                        await signInWithCustomToken(auth, token);
+                    } catch (tokenErr) {
+                        console.warn('Custom token gagal, mencoba signInAnonymously:', tokenErr);
                         await signInAnonymously(auth);
                     }
-
-                    onAuthStateChanged(auth, (u) => {
-                        cloudUser = u;
-                        if (u) {
-                            isCloudReady = true;
-                            updateConnectionBadge(true);
-                            setupRealtimeListeners();
-                        } else {
-                            isCloudReady = false;
-                            updateConnectionBadge(false);
-                        }
-                    });
                 } else {
-                    updateConnectionBadge(false);
+                    await signInAnonymously(auth);
+                }
+
+                if (auth.currentUser) {
+                    cloudUser = auth.currentUser;
+                    isCloudReady = true;
+                    lastCloudError = '';
+                    updateConnectionBadge(true);
+                    setupRealtimeListeners();
                 }
             } catch (e) {
+                lastCloudError = e.message || String(e);
                 console.warn('Cloud init fallback to local:', e);
                 updateConnectionBadge(false);
             }
         }
         initCloudDatabase();
+
+        window.openCloudConfigModal = () => {
+            const diag = document.getElementById('cloud-diagnostic-status');
+            if (diag) {
+                diag.textContent = isCloudReady
+                    ? `✅ Terhubung ke Cloud Firebase (UID: ${cloudUser?.uid?.slice(0, 8)}...)`
+                    : `⚠️ Mode Lokal Aktif — ${lastCloudError || 'Menunggu koneksi Cloud'}`;
+                diag.className = isCloudReady ? 'text-[8.5px] text-emerald-600 font-bold' : 'text-[8.5px] text-amber-600 font-bold';
+            }
+            const inp = document.getElementById('custom-firebase-config-input');
+            if (inp) inp.value = localStorage.getItem('kurir_bns_custom_fb_config') || '';
+            document.getElementById('cloud-config-modal').classList.remove('hidden');
+        };
+        window.closeCloudConfigModal = () => document.getElementById('cloud-config-modal').classList.add('hidden');
+
+        window.retryCloudConnection = async () => {
+            window.showToast('Mencoba menghubungkan ulang ke Cloud Firebase...', 'info');
+            listenersAttached = false;
+            await initCloudDatabase(true);
+            window.openCloudConfigModal();
+            if (isCloudReady) window.showToast('Berhasil terhubung ke Cloud Firebase!', 'success');
+        };
+
+        window.saveCustomCloudConfig = () => {
+            const raw = (document.getElementById('custom-firebase-config-input')?.value || '').trim();
+            if (!raw) return window.showToast('Masukkan JSON konfigurasi Firebase terlebih dahulu', 'warning');
+            try {
+                // Izinkan user menempel format objek JS atau JSON
+                const cleaned = raw.replace(/(['"])?([a-zA-Z0-9_]+)(['"])?\s*:/g, '"$2":').replace(/'/g, '"');
+                const parsed = JSON.parse(cleaned);
+                if (!parsed.apiKey || !parsed.projectId) {
+                    return window.showToast('Config harus memiliki minimal apiKey dan projectId', 'error');
+                }
+                localStorage.setItem('kurir_bns_custom_fb_config', JSON.stringify(parsed, null, 2));
+                window.showToast('Konfigurasi disimpan! Memuat ulang koneksi Cloud...', 'success');
+                setTimeout(() => window.location.reload(), 800);
+            } catch (e) {
+                window.showToast('Format JSON Firebase Config tidak valid. Pastikan tanda kurung kurawal { } lengkap.', 'error');
+            }
+        };
+
+        window.clearCustomCloudConfig = () => {
+            localStorage.removeItem('kurir_bns_custom_fb_config');
+            document.getElementById('custom-firebase-config-input').value = '';
+            window.showToast('Dikembalikan ke konfigurasi bawaan', 'info');
+            setTimeout(() => window.location.reload(), 600);
+        };
 
         function updateConnectionBadge(online) {
             const dot = document.getElementById('connection-dot');
