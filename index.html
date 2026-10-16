@@ -205,7 +205,7 @@
             </form>
             <div class="bg-slate-50/80 p-2 rounded-xl border border-white text-[8.5px] text-slate-500 text-center flex justify-between items-center px-3">
                 <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Cloud Firebase Aktif</span>
-                <span class="font-mono text-[8px] text-indigo-600 font-bold">Smart Logistics v5.0</span>
+                <span class="font-mono text-[8px] text-indigo-600 font-bold">Smart Logistics v5.1 HD</span>
             </div>
         </div>
     </div>
@@ -305,19 +305,19 @@
 
                         <div class="p-3 bg-gradient-to-r from-indigo-50/70 via-white/80 to-purple-50/70 rounded-2xl border border-indigo-100/80 flex flex-wrap items-center justify-between gap-2 shadow-sm">
                             <div class="space-y-0.5">
-                                <label class="block text-[9.5px] font-bold text-indigo-950 flex items-center"><i class="fa-solid fa-camera-retro text-indigo-600 mr-1.5"></i> Dokumentasi Foto Paket Fisik (Wajib)</label>
-                                <span id="photo-status-badge" class="text-[8px] bg-amber-100/90 text-amber-800 px-2 py-0.5 rounded-full font-semibold inline-block border border-amber-200">Belum Diambil</span>
+                                <label class="block text-[9.5px] font-bold text-indigo-950 flex items-center"><i class="fa-solid fa-camera-retro text-indigo-600 mr-1.5"></i> Dokumentasi Foto Paket Fisik HD (Wajib)</label>
+                                <span id="photo-status-badge" class="text-[8px] bg-amber-100/90 text-amber-800 px-2 py-0.5 rounded-full font-semibold inline-block border border-amber-200">Belum Diambil (Mode Kualitas Jernih / HD)</span>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <div id="physical-photo-preview-wrap" class="hidden">
                                     <img id="physical-photo-thumb" src="" alt="Thumbnail" class="w-10 h-10 object-cover rounded-xl border-2 border-indigo-400 shadow-md zoomable-img" onclick="window.openZoomModal(this.src)">
                                 </div>
                                 <label class="cursor-pointer bg-white/90 hover:bg-white text-slate-700 border border-slate-200/90 font-bold py-1.5 px-3 rounded-xl text-[9px] shadow-sm transition flex items-center space-x-1.5">
-                                    <i class="fa-solid fa-image text-indigo-500"></i><span>Galeri</span>
+                                    <i class="fa-solid fa-image text-indigo-500"></i><span>Galeri HD</span>
                                     <input type="file" accept="image/*" capture="environment" onchange="window.handlePhysicalFileUpload(event)" class="hidden">
                                 </label>
                                 <button type="button" onclick="window.openPhysicalCameraModal()" class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-bold py-1.5 px-3 rounded-xl text-[9px] shadow-md transition flex items-center space-x-1.5 btn-glow">
-                                    <i class="fa-solid fa-camera"></i><span>Buka Kamera</span>
+                                    <i class="fa-solid fa-camera"></i><span>Buka Kamera HD</span>
                                 </button>
                             </div>
                         </div>
@@ -735,7 +735,7 @@
     </main>
 
     <footer class="bg-white border-t border-slate-200 py-2.5 text-center text-[9px] text-slate-500 mt-auto">
-        <p>© 2026 Aufah Tech. All Rights Reserved. (PWA & Smart School Logistics v5.0 — Production Release)</p>
+        <p>© 2026 Aufah Tech. All Rights Reserved. (PWA & Smart School Logistics v5.1 HD — Production Release)</p>
     </footer>
 
     <!-- Modal 360° Package Inspector -->
@@ -898,7 +898,7 @@
     <!-- Physical Camera Modal -->
     <div id="physical-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
-            <h3 class="text-[9.5px] font-bold">Ambil Foto Paket Fisik</h3>
+            <h3 class="text-[9.5px] font-bold">Ambil Foto Paket Fisik (Kualitas Jernih HD)</h3>
             <button onclick="window.closePhysicalCameraModal()" class="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
@@ -959,7 +959,7 @@
                 <div class="flex justify-between border-b pb-0.5"><span class="text-slate-500">Penerima:</span> <strong id="sum-recipient"></strong></div>
                 <div class="flex justify-between border-b pb-0.5"><span class="text-slate-500">Tujuan:</span> <strong id="sum-dest"></strong></div>
                 <div class="flex justify-between border-b pb-0.5"><span class="text-slate-500">Petugas:</span> <strong id="sum-petugas"></strong></div>
-                <div class="flex justify-between items-center"><span class="text-slate-500">Foto Fisik:</span> <img id="sum-photo" src="" class="w-7 h-7 object-cover rounded border"></div>
+                <div class="flex justify-between items-center"><span class="text-slate-500">Foto Fisik HD:</span> <img id="sum-photo" src="" class="w-10 h-10 object-cover rounded border zoomable-img" onclick="window.openZoomModal(this.src)"></div>
             </div>
             <div class="grid grid-cols-2 gap-1.5 pt-1">
                 <button type="button" onclick="window.closeSummaryModal()" class="py-1.5 rounded-xl border font-bold text-[9.5px]">Batal</button>
@@ -979,10 +979,10 @@
                 <div class="grid grid-cols-2 gap-1.5">
                     <div class="border-2 border-dashed rounded-xl p-1.5 text-center cursor-pointer bg-slate-50 flex items-center justify-center space-x-1.5" onclick="window.openProofCameraModal()">
                         <div id="proof-thumb-container" class="hidden"><img id="proof-thumb-img" src="" class="w-7 h-7 object-cover rounded border"></div>
-                        <div><i id="cam-icon" class="fa-solid fa-camera text-xs text-emerald-500 block mx-auto"></i><p id="cam-status-text" class="text-[8px] font-semibold">Kamera Live</p></div>
+                        <div><i id="cam-icon" class="fa-solid fa-camera text-xs text-emerald-500 block mx-auto"></i><p id="cam-status-text" class="text-[8px] font-semibold">Kamera HD</p></div>
                     </div>
                     <label class="border-2 border-dashed rounded-xl p-1.5 text-center cursor-pointer bg-slate-50 flex flex-col items-center justify-center">
-                        <i class="fa-solid fa-image text-xs text-indigo-500 block mx-auto"></i><span class="text-[8px] font-semibold mt-0.5">Pilih Galeri</span>
+                        <i class="fa-solid fa-image text-xs text-indigo-500 block mx-auto"></i><span class="text-[8px] font-semibold mt-0.5">Galeri HD</span>
                         <input type="file" accept="image/*" capture="environment" onchange="window.handleProofFileUpload(event)" class="hidden">
                     </label>
                 </div>
@@ -1036,7 +1036,7 @@
     <!-- Proof Camera Modal -->
     <div id="proof-camera-modal" class="fixed inset-0 bg-black z-50 flex flex-col hidden">
         <div class="bg-slate-900 text-white p-1.5 flex justify-between items-center">
-            <h3 class="text-[9.5px] font-bold">Kamera Bukti Tanda Terima</h3>
+            <h3 class="text-[9.5px] font-bold">Kamera Bukti Tanda Terima (Kualitas Jernih HD)</h3>
             <button onclick="window.closeProofCameraModal()" class="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 text-[9px]"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
@@ -1072,9 +1072,9 @@
 
     <!-- Zoom Image Modal -->
     <div id="zoom-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[85] flex items-center justify-center p-2 hidden" onclick="window.closeZoomModal()">
-        <div class="relative max-w-lg w-full text-center">
-            <button onclick="window.closeZoomModal()" class="absolute -top-6 right-0 text-white text-base"><i class="fa-solid fa-xmark"></i></button>
-            <img id="zoomed-image-el" src="" class="max-w-full max-h-[85vh] mx-auto rounded-xl shadow-2xl border border-slate-700">
+        <div class="relative max-w-3xl w-full text-center">
+            <button onclick="window.closeZoomModal()" class="absolute -top-7 right-0 text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+            <img id="zoomed-image-el" src="" class="max-w-full max-h-[88vh] mx-auto rounded-xl shadow-2xl border border-slate-700">
         </div>
     </div>
 
@@ -1488,23 +1488,15 @@
             localStorage.setItem('kurir_bns_draft', JSON.stringify(draft));
         };
 
-        // Image Compression & Camera
-        function compressImage(fileOrDataUrl, callback) {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const maxW = 640;
-                const scale = Math.min(1, maxW / (img.width || 640));
-                canvas.width = (img.width || 640) * scale;
-                canvas.height = (img.height || 480) * scale;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                callback(canvas.toDataURL('image/jpeg', 0.68));
-            };
-            if (typeof fileOrDataUrl === 'string') img.src = fileOrDataUrl;
-            else {
+        // High-Clarity Photo Processing (Tanpa Kompresi Blur)
+        function processHighQualityImage(fileOrDataUrl, callback) {
+            if (typeof fileOrDataUrl === 'string') {
+                callback(fileOrDataUrl);
+            } else {
                 const reader = new FileReader();
-                reader.onload = (e) => { img.src = e.target.result; };
+                reader.onload = (e) => {
+                    callback(e.target.result);
+                };
                 reader.readAsDataURL(fileOrDataUrl);
             }
         }
@@ -1512,12 +1504,12 @@
         window.handlePhysicalFileUpload = (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
-            compressImage(file, (dataUrl) => {
+            processHighQualityImage(file, (dataUrl) => {
                 capturedPhysicalPhoto = dataUrl;
                 document.getElementById('physical-photo-thumb').src = dataUrl;
                 document.getElementById('physical-photo-preview-wrap').classList.remove('hidden');
                 const badge = document.getElementById('photo-status-badge');
-                badge.textContent = 'Foto Siap';
+                badge.textContent = 'Foto HD Siap (Tanpa Kompresi)';
                 badge.className = 'text-[8px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold inline-block border border-emerald-300';
             });
         };
@@ -1527,10 +1519,16 @@
             const video = document.getElementById('physical-video-stream');
             modal.classList.remove('hidden');
             try {
-                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                activeStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                });
                 video.srcObject = activeStream;
             } catch (e) {
-                window.showToast('Kamera tidak dapat diakses, gunakan tombol Galeri.', 'warning');
+                window.showToast('Kamera tidak dapat diakses, gunakan tombol Galeri HD.', 'warning');
                 window.closePhysicalCameraModal();
             }
         };
@@ -1541,18 +1539,20 @@
         window.capturePhysicalPhoto = () => {
             const video = document.getElementById('physical-video-stream');
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-            compressImage(canvas.toDataURL('image/jpeg', 0.8), (dataUrl) => {
-                capturedPhysicalPhoto = dataUrl;
-                document.getElementById('physical-photo-thumb').src = dataUrl;
-                document.getElementById('physical-photo-preview-wrap').classList.remove('hidden');
-                const badge = document.getElementById('photo-status-badge');
-                badge.textContent = 'Foto Siap';
-                badge.className = 'text-[8px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold inline-block border border-emerald-300';
-                window.closePhysicalCameraModal();
-            });
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 1.0);
+            capturedPhysicalPhoto = dataUrl;
+            document.getElementById('physical-photo-thumb').src = dataUrl;
+            document.getElementById('physical-photo-preview-wrap').classList.remove('hidden');
+            const badge = document.getElementById('photo-status-badge');
+            badge.textContent = 'Foto HD Siap (Tanpa Kompresi)';
+            badge.className = 'text-[8px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold inline-block border border-emerald-300';
+            window.closePhysicalCameraModal();
         };
 
         // Barcode Scanner
@@ -1593,7 +1593,7 @@
         window.handlePreparePackageSummary = (e) => {
             e.preventDefault();
             if (!capturedPhysicalPhoto) {
-                capturedPhysicalPhoto = 'https://placehold.co/300x300/4f46e5/ffffff?text=Foto+Paket';
+                capturedPhysicalPhoto = 'https://placehold.co/600x600/4f46e5/ffffff?text=Foto+Paket+HD';
             }
             const id = generateTransactionId();
             const isExt = currentSourceType === 'external';
@@ -1647,7 +1647,7 @@
             document.getElementById('package-form').reset();
             capturedPhysicalPhoto = '';
             document.getElementById('physical-photo-preview-wrap').classList.add('hidden');
-            document.getElementById('photo-status-badge').textContent = 'Belum Diambil';
+            document.getElementById('photo-status-badge').textContent = 'Belum Diambil (Mode Kualitas Jernih / HD)';
             refreshAllViews();
             document.getElementById('celebration-title').textContent = `${pkg.id} Tersimpan!`;
             document.getElementById('celebration-subtitle').textContent = `Paket untuk ${pkg.recipient} (${pkg.destination}) berhasil masuk antrian.`;
@@ -1989,7 +1989,7 @@
         window.handleProofFileUpload = (e) => {
             const f = e.target.files?.[0];
             if (!f) return;
-            compressImage(f, (url) => {
+            processHighQualityImage(f, (url) => {
                 capturedProofPhoto = url;
                 document.getElementById('proof-thumb-img').src = url;
                 document.getElementById('proof-thumb-container').classList.remove('hidden');
@@ -1999,7 +1999,13 @@
         window.openProofCameraModal = async () => {
             document.getElementById('proof-camera-modal').classList.remove('hidden');
             try {
-                activeStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                activeStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
+                });
                 document.getElementById('proof-video-stream').srcObject = activeStream;
             } catch (e) {
                 window.showToast('Gagal membuka kamera bukti', 'warning');
@@ -2013,14 +2019,17 @@
         window.captureProofPhoto = () => {
             const v = document.getElementById('proof-video-stream');
             const c = document.createElement('canvas');
-            c.width = v.videoWidth || 640; c.height = v.videoHeight || 480;
-            c.getContext('2d').drawImage(v, 0, 0);
-            compressImage(c.toDataURL('image/jpeg', 0.8), (url) => {
-                capturedProofPhoto = url;
-                document.getElementById('proof-thumb-img').src = url;
-                document.getElementById('proof-thumb-container').classList.remove('hidden');
-                window.closeProofCameraModal();
-            });
+            c.width = v.videoWidth || 1280;
+            c.height = v.videoHeight || 720;
+            const ctx = c.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(v, 0, 0, c.width, c.height);
+            const url = c.toDataURL('image/jpeg', 1.0);
+            capturedProofPhoto = url;
+            document.getElementById('proof-thumb-img').src = url;
+            document.getElementById('proof-thumb-container').classList.remove('hidden');
+            window.closeProofCameraModal();
         };
 
         window.submitCompleteDelivery = async () => {
@@ -2046,7 +2055,7 @@
             window.closeCompleteModal();
             window.clearCourierSelection();
             refreshAllViews();
-            window.showToast('Pengiriman selesai & bukti tersimpan!', 'success');
+            window.showToast('Pengiriman selesai & bukti HD tersimpan!', 'success');
         };
 
         // Receiver View
@@ -2274,11 +2283,11 @@
                 </div>
                 <div class="grid grid-cols-3 gap-2 text-center">
                     <div class="p-2 border rounded-xl">
-                        <span class="text-[8px] font-bold block mb-1">1. Foto Fisik Pos</span>
+                        <span class="text-[8px] font-bold block mb-1">1. Foto Fisik Pos (HD)</span>
                         ${p.photoPhysical ? `<img src="${p.photoPhysical}" onclick="window.openZoomModal(this.src)" class="w-full h-24 object-cover rounded-lg zoomable-img">` : '<p class="text-[8px] text-slate-400 py-8">Kosong</p>'}
                     </div>
                     <div class="p-2 border rounded-xl">
-                        <span class="text-[8px] font-bold block mb-1">2. Foto Serah Terima</span>
+                        <span class="text-[8px] font-bold block mb-1">2. Foto Serah Terima (HD)</span>
                         ${p.photoProof ? `<img src="${p.photoProof}" onclick="window.openZoomModal(this.src)" class="w-full h-24 object-cover rounded-lg zoomable-img">` : '<p class="text-[8px] text-slate-400 py-8">Belum Ada</p>'}
                     </div>
                     <div class="p-2 border rounded-xl bg-white">
@@ -2624,7 +2633,7 @@
         window.handleProfileAvatarUpload = (e) => {
             const f = e.target.files?.[0];
             if (!f || !currentUser) return;
-            compressImage(f, async (url) => {
+            processHighQualityImage(f, async (url) => {
                 currentUser.avatar = url;
                 document.getElementById('profile-modal-avatar').src = url;
                 document.getElementById('header-avatar-img').src = url;
